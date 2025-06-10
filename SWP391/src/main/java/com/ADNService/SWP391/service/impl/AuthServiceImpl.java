@@ -25,10 +25,6 @@ public class AuthServiceImpl implements AuthService {
             throw new CustomException("Username already exists.");
         }else if (userRepository.existsByEmail(userDTO.getEmail())) {
             throw new CustomException("Email already exists.");
-        }else if (userRepository.existsByEmail(userDTO.getEmail())) {
-            throw new CustomException("Email already exists.");
-        }else if (userRepository.existsByEmail(userDTO.getEmail())) {
-            throw new CustomException("Email already exists.");
         }else if (userRepository.existsByPhone(userDTO.getPhone())) {
             throw new CustomException("Phone already exists.");
         }
@@ -40,7 +36,6 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(userDTO.getEmail());
         user.setPhone(userDTO.getPhone());
         user.setFullName(userDTO.getFullName());
-        user.setAddress(userDTO.getAddress());
         user.setRole(Role.CUSTOMER);
         user.setActive(true);
 
