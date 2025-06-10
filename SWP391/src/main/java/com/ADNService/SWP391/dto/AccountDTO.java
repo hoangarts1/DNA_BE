@@ -11,26 +11,16 @@ public class AccountDTO {
     private String fullName;
     private String email;
     private String phone;
-    private String address;
 
     public AccountDTO() {
     }
 
-    public AccountDTO(String username, String password, String fullName, String email, String phone, String address) {
+    public AccountDTO(String username, String password, String fullName, String email, String phone) {
         this.username = username;
         this.password = password;
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
-        this.address = address;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 
     public String getUsername() {
