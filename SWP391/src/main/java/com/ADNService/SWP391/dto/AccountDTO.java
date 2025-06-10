@@ -1,12 +1,11 @@
 package com.ADNService.SWP391.dto;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UserDTO {
+public class AccountDTO {
     private String username;
     private String password;
     private String fullName;
@@ -14,10 +13,10 @@ public class UserDTO {
     private String phone;
     private String address;
 
-    public UserDTO() {
+    public AccountDTO() {
     }
 
-    public UserDTO(String username, String password, String fullName, String email, String phone, String address) {
+    public AccountDTO(String username, String password, String fullName, String email, String phone, String address) {
         this.username = username;
         this.password = password;
         this.fullName = fullName;

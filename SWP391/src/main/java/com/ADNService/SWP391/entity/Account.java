@@ -33,8 +33,6 @@ public class Account {
     @Column(unique = true)
     private String phone;
 
-    private String address;
-
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -46,12 +44,11 @@ public class Account {
     public Account() {
     }
 
-    public Account(Long id, String fullName, String password, String email, String address, Role role, String username, String phone, boolean active) {
+    public Account(Long id, String fullName, String password, String email, Role role, String username, String phone, boolean active) {
         this.id = id;
         this.fullName = fullName;
         this.password = password;
         this.email = email;
-        this.address = address;
         this.role = role;
         this.username = username;
         this.phone = phone;
@@ -122,11 +119,4 @@ public class Account {
         this.email = email;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
 }

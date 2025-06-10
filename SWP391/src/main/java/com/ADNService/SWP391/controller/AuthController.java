@@ -1,6 +1,6 @@
 package com.ADNService.SWP391.controller;
 
-import com.ADNService.SWP391.dto.UserDTO;
+import com.ADNService.SWP391.dto.AccountDTO;
 import com.ADNService.SWP391.entity.Account;
 import com.ADNService.SWP391.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public Account register(@RequestBody UserDTO userDTO) {
+    public Account register(@RequestBody AccountDTO userDTO) {
         return authService.register(userDTO);
     }
 

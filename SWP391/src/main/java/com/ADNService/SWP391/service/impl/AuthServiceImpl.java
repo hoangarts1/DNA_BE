@@ -1,6 +1,6 @@
 package com.ADNService.SWP391.service.impl;
 
-import com.ADNService.SWP391.dto.UserDTO;
+import com.ADNService.SWP391.dto.AccountDTO;
 import com.ADNService.SWP391.entity.Account;
 import com.ADNService.SWP391.enums.Role;
 import com.ADNService.SWP391.exception.CustomException;
@@ -20,7 +20,7 @@ public class AuthServiceImpl implements AuthService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public Account register(UserDTO userDTO) {
+    public Account register(AccountDTO userDTO) {
         if (userRepository.existsByUsername(userDTO.getUsername())) {
             throw new CustomException("Username already exists.");
         }else if (userRepository.existsByEmail(userDTO.getEmail())) {
