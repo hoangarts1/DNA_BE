@@ -50,7 +50,11 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new CustomException("Invalid username or password");
         }
-
+        int k=0;
         return user;
+
     }
 }
+
+
+
