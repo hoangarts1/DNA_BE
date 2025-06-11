@@ -60,7 +60,7 @@ public class ServiceImpl implements ServiceInterface {
 
     @Override
     public ServiceDTO getServiceById(String id) {
-        Services service = serviceRepository.findById(Integer.valueOf(id))
+        Services service = serviceRepository.findById(Long.valueOf(id))
                 .orElseThrow(() -> new CustomException("Service not found with ID: " + id));
 
         ServiceDTO dto = new ServiceDTO();
@@ -98,7 +98,7 @@ public class ServiceImpl implements ServiceInterface {
 
     @Override
     public ServiceDTO updateService(String id, ServiceDTO dto) {
-        Services service = serviceRepository.findById(Integer.valueOf(id))
+        Services service = serviceRepository.findById(Long.valueOf(id))
                 .orElseThrow(() -> new CustomException("Service not found with ID: " + id));
 
         Account account = accountRepository.findById(dto.getAccountID())
@@ -131,7 +131,7 @@ public class ServiceImpl implements ServiceInterface {
 
     @Override
     public void deleteService(String id) {
-        Services service = serviceRepository.findById(Integer.valueOf(id))
+        Services service = serviceRepository.findById(Long.valueOf(id))
                 .orElseThrow(() -> new CustomException("Service not found with ID: " + id));
 
         serviceRepository.delete(service);
