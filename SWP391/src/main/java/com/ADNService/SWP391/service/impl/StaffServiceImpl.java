@@ -42,11 +42,10 @@ public class StaffServiceImpl implements StaffService {
             throw new RuntimeException("Cannot assign "+account.getRole()+" role to Staff");
         }
 
-        Staff staff = Staff.builder()
-                .account(account)
-                .fingerprint(dto.getFingerprint())
-                .role(dto.getRole())
-                .build();
+        Staff staff = new Staff();
+        staff.setAccount(account);
+        staff.setFingerprint(dto.getFingerprint());
+        staff.setRole(dto.getRole());
 
         return convertToDTO(staffRepository.save(staff));
     }
@@ -69,11 +68,11 @@ public class StaffServiceImpl implements StaffService {
     }
 
     private StaffDTO convertToDTO(Staff staff) {
-        return StaffDTO.builder()
-                .id(staff.getId())
-                .accountId(staff.getAccount().getId())
-                .fingerprint(staff.getFingerprint())
-                .role(staff.getRole())
-                .build();
+        StaffDTO dto = new StaffDTO();
+        dto.setId(staff.getId());
+        dto.setAccountId(staff.getAccount().getId());
+        dto.setFingerprint(staff.getFingerprint());
+        dto.setRole(staff.getRole());
+        return dto;
     }
 }

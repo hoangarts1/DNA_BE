@@ -7,6 +7,7 @@ import com.ADNService.SWP391.enums.Role;
 import com.ADNService.SWP391.repository.AccountRepository;
 import com.ADNService.SWP391.repository.CustomerRepository;
 import com.ADNService.SWP391.service.CustomerService;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,16 +43,16 @@ public class CustomerServiceImpl implements CustomerService {
             throw new RuntimeException("Cannot assign "+account.getRole()+" role to Customer");
         }
 
-        Customer customer = Customer.builder()
-                .account(account)
-                .address(dto.getAddress())
-                .gender(dto.getGender())
-                .dateOfBirth(dto.getDateOfBirth())
-                .documentType(dto.getDocumentType())
-                .placeOfIssue(dto.getPlaceOfIssue())
-                .dateOfIssue(dto.getDateOfIssue())
-                .fingerprint(dto.getFingerprint())
-                .build();
+        Customer customer = new Customer();
+
+        customer.setAccount(account);
+        customer.setAddress(dto.getAddress());
+        customer.setGender(dto.getGender());
+        customer.setDateOfBirth(dto.getDateOfBirth());
+        customer.setDocumentType(dto.getDocumentType());
+        customer.setPlaceOfIssue(dto.getPlaceOfIssue());
+        customer.setDateOfIssue(dto.getDateOfIssue());
+        customer.setFingerprint(dto.getFingerprint());
 
         return convertToDTO(customerRepository.save(customer));
     }
@@ -79,16 +80,16 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     private CustomerDTO convertToDTO(Customer customer) {
-        return CustomerDTO.builder()
-                .id(customer.getId())
-                .accountId(customer.getAccount().getId())
-                .address(customer.getAddress())
-                .gender(customer.getGender())
-                .dateOfBirth(customer.getDateOfBirth())
-                .documentType(customer.getDocumentType())
-                .placeOfIssue(customer.getPlaceOfIssue())
-                .dateOfIssue(customer.getDateOfIssue())
-                .fingerprint(customer.getFingerprint())
-                .build();
+        CustomerDTO dto = new CustomerDTO();
+        dto.setId(customer.getId());
+        dto.setAccountId(customer.getAccount().getId());
+        dto.setAddress(customer.getAddress());
+        dto.setGender(customer.getGender());
+        dto.setDateOfBirth(customer.getDateOfBirth());
+        dto.setDocumentType(customer.getDocumentType());
+        dto.setPlaceOfIssue(customer.getPlaceOfIssue());
+        dto.setDateOfIssue(customer.getDateOfIssue());
+        dto.setFingerprint(customer.getFingerprint());
+        return dto;
     }
 }
