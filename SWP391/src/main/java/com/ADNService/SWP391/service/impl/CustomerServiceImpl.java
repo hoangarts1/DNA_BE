@@ -37,7 +37,14 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerDTO createCustomer(CustomerDTO dto) {
         Account account = accountRepository.findById(dto.getAccountId()).orElse(null);
-        if (account == null) return null;
+        if (account == null) {
+            throw new RuntimeException("Account with ID " + dto.getAccountId() + " does not exist.");
+        }
+
+        Optional<Customer> existingCustomer = customerRepository.findByAccountId(dto.getAccountId());
+        if (existingCustomer.isPresent()) {
+            throw new RuntimeException("Account ID " + dto.getAccountId() + " existed before. Cannot create new Customer with ID .");
+        }
 
         if (account.getRole() != Role.CUSTOMER) {
             throw new RuntimeException("Cannot assign "+account.getRole()+" role to Customer");

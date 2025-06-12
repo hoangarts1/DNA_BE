@@ -2,9 +2,11 @@ package com.ADNService.SWP391.service.impl;
 
 import com.ADNService.SWP391.dto.StaffDTO;
 import com.ADNService.SWP391.entity.Account;
+import com.ADNService.SWP391.entity.Customer;
 import com.ADNService.SWP391.entity.Staff;
 import com.ADNService.SWP391.enums.Role;
 import com.ADNService.SWP391.repository.AccountRepository;
+import com.ADNService.SWP391.repository.CustomerRepository;
 import com.ADNService.SWP391.repository.StaffRepository;
 import com.ADNService.SWP391.service.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +38,15 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public StaffDTO createStaff(StaffDTO dto) {
         Account account = accountRepository.findById(dto.getAccountId()).orElse(null);
-        if (account == null) return null;
+        if (account == null) {
+            throw new RuntimeException("Account with ID " + dto.getAccountId() + " does not exist.");
+        }
+
+        Optional<Staff> existingStaff = staffRepository.findByAccountId(dto.getAccountId());
+        if (existingStaff.isPresent()) {
+            throw new RuntimeException("Account ID " + dto.getAccountId() + " existed before. Cannot create new Staff with ID .");
+        }
+
 
         if (account.getRole() != Role.STAFF) {
             throw new RuntimeException("Cannot assign "+account.getRole()+" role to Staff");
