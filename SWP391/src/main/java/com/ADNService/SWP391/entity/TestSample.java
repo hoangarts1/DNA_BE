@@ -1,0 +1,211 @@
+package com.ADNService.SWP391.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.Date;
+
+@Entity
+@Table(name = "TestSample")
+public class TestSample {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    // Relationship
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private TestOrder order;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
+    @ManyToOne
+    @JoinColumn(name = "staff_id")
+    private Staff staff;
+
+    private String name;
+    private Date dateOfBirth;
+    private String documentType;
+    private String documentNumber;
+    private Date dateOfIssue;
+    private Date expirationDate;
+    private String placeOfIssue;
+    private String nationality;
+    private String address;
+    private String sampleType;
+    private Integer numberOfSample;
+    private String relationship;
+    private String medicalHistory;
+    private String fingerprint;
+
+    public TestSample() {
+    }
+
+    public TestSample(Long id, TestOrder order, Customer customer, Staff staff, String name, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, String sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint) {
+        this.id = id;
+        this.order = order;
+        this.customer = customer;
+        this.staff = staff;
+        this.name = name;
+        this.dateOfBirth = dateOfBirth;
+        this.documentType = documentType;
+        this.documentNumber = documentNumber;
+        this.dateOfIssue = dateOfIssue;
+        this.expirationDate = expirationDate;
+        this.placeOfIssue = placeOfIssue;
+        this.nationality = nationality;
+        this.address = address;
+        this.sampleType = sampleType;
+        this.numberOfSample = numberOfSample;
+        this.relationship = relationship;
+        this.medicalHistory = medicalHistory;
+        this.fingerprint = fingerprint;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public TestOrder getOrder() {
+        return order;
+    }
+
+    public void setOrder(TestOrder order) {
+        this.order = order;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public Staff getStaff() {
+        return staff;
+    }
+
+    public void setStaff(Staff staff) {
+        this.staff = staff;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getDocumentType() {
+        return documentType;
+    }
+
+    public void setDocumentType(String documentType) {
+        this.documentType = documentType;
+    }
+
+    public String getDocumentNumber() {
+        return documentNumber;
+    }
+
+    public void setDocumentNumber(String documentNumber) {
+        this.documentNumber = documentNumber;
+    }
+
+    public Date getDateOfIssue() {
+        return dateOfIssue;
+    }
+
+    public void setDateOfIssue(Date dateOfIssue) {
+        this.dateOfIssue = dateOfIssue;
+    }
+
+    public Date getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
+    }
+
+    public String getPlaceOfIssue() {
+        return placeOfIssue;
+    }
+
+    public void setPlaceOfIssue(String placeOfIssue) {
+        this.placeOfIssue = placeOfIssue;
+    }
+
+    public String getNationality() {
+        return nationality;
+    }
+
+    public void setNationality(String nationality) {
+        this.nationality = nationality;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getSampleType() {
+        return sampleType;
+    }
+
+    public void setSampleType(String sampleType) {
+        this.sampleType = sampleType;
+    }
+
+    public Integer getNumberOfSample() {
+        return numberOfSample;
+    }
+
+    public void setNumberOfSample(Integer numberOfSample) {
+        this.numberOfSample = numberOfSample;
+    }
+
+    public String getRelationship() {
+        return relationship;
+    }
+
+    public void setRelationship(String relationship) {
+        this.relationship = relationship;
+    }
+
+    public String getMedicalHistory() {
+        return medicalHistory;
+    }
+
+    public void setMedicalHistory(String medicalHistory) {
+        this.medicalHistory = medicalHistory;
+    }
+
+    public String getFingerprint() {
+        return fingerprint;
+    }
+
+    public void setFingerprint(String fingerprint) {
+        this.fingerprint = fingerprint;
+    }
+}
