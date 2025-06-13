@@ -81,6 +81,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public void delete(Long id) {
+        if (!paymentRepository.existsById(id)) {
+            throw new RuntimeException("Payment with ID " + id + " does not exist");
+        }
         paymentRepository.deleteById(id);
     }
 
