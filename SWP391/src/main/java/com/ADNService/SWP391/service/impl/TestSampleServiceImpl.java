@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,10 +28,19 @@ public class TestSampleServiceImpl implements TestSampleService {
 
     @Override
     public TestSampleDTO createTestSample(TestSampleDTO dto) {
-        TestOrder order = testOrderRepository.findById(dto.getOrderId()).orElse(null);
-        Customer customer = customerRepository.findById(dto.getCustomerId()).orElse(null);
-        Staff staff = staffRepository.findById(dto.getStaffId()).orElse(null);
+        TestOrder order = testOrderRepository.findById(dto.getOrderId())
+                .orElseThrow(() -> new RuntimeException("Order with ID " + dto.getOrderId() + " does not exist."));
 
+        Customer customer = customerRepository.findById(dto.getCustomerId())
+                .orElseThrow(() -> new RuntimeException("Customer with ID " + dto.getCustomerId() + " does not exist."));
+
+        Staff staff = staffRepository.findById(dto.getStaffId())
+                .orElseThrow(() -> new RuntimeException("Staff with ID " + dto.getStaffId() + " does not exist."));
+
+        Optional<TestSample> existingSample = testSampleRepository.findById(dto.getOrderId());
+        if (existingSample.isPresent()) {
+            throw new RuntimeException("Test Sample with Order ID " + dto.getOrderId() + " already exists.");
+        }
         TestSample sample = new TestSample();
         sample.setOrder(order);
         sample.setCustomer(customer);
@@ -70,8 +80,12 @@ public class TestSampleServiceImpl implements TestSampleService {
 
     @Override
     public TestSampleDTO updateTestSample(Long id, TestSampleDTO dto) {
-        TestSample sample = testSampleRepository.findById(id).orElse(null);
-        if (sample == null) return null;
+        Optional<TestSample> optionalTestSample = testSampleRepository.findById(id);
+        if (optionalTestSample.isEmpty()) {
+            throw new RuntimeException("Test Sample with ID " + id + " does not exist.");
+        }
+
+        TestSample sample = optionalTestSample.get();
 
         sample.setName(dto.getName());
         sample.setDateOfBirth(dto.getDateOfBirth());
@@ -94,6 +108,10 @@ public class TestSampleServiceImpl implements TestSampleService {
 
     @Override
     public void deleteTestSample(Long id) {
+        Optional<TestSample> sample = testSampleRepository.findById(id);
+        if (sample.isEmpty()) {
+            throw new RuntimeException("Test Sample with ID " + id + " does not exist.");
+        }
         testSampleRepository.deleteById(id);
     }
 
