@@ -1,5 +1,6 @@
 package com.ADNService.SWP391.dto;
 
+import com.ADNService.SWP391.enums.Role;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,19 +12,20 @@ public class AccountDTO {
     private String fullName;
     private String email;
     private String phone;
+    private Role role;
+
 
     public AccountDTO() {
     }
 
-    public AccountDTO(String username, String password, String fullName, String email, String phone) {
+    public AccountDTO(String username, String password, String fullName, String email, String phone, Role role) {
         this.username = username;
         this.password = password;
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
+        this.role = role;
     }
-
-
 
     public String getUsername() {
         return username;
@@ -31,14 +33,6 @@ public class AccountDTO {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
     }
 
     public String getPassword() {
@@ -65,8 +59,19 @@ public class AccountDTO {
         this.email = email;
     }
 
-    public class ForgotPasswordRequest {
-        private String email;
+    public String getPhone() {
+        return phone;
     }
 
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }
