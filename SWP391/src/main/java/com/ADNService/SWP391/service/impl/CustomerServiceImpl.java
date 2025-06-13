@@ -67,7 +67,9 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerDTO updateCustomer(Long id, CustomerDTO dto) {
         Optional<Customer> optionalCustomer = customerRepository.findById(id);
-        if (optionalCustomer.isEmpty()) return null;
+        if (optionalCustomer.isEmpty()) {
+            throw new RuntimeException("Customer with ID " + id + " does not exist.");
+        }
 
         Customer customer = optionalCustomer.get();
         customer.setAddress(dto.getAddress());
@@ -83,9 +85,13 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void deleteCustomer(Long id) {
-        customerRepository.deleteById(id);
-    }
 
+    Optional<Customer> optionalCustomer = customerRepository.findById(id);
+        if (optionalCustomer.isEmpty()) {
+        throw new RuntimeException("Customer with ID " + id + " does not exist.");
+    }
+        customerRepository.deleteById(id);
+}
     private CustomerDTO convertToDTO(Customer customer) {
         CustomerDTO dto = new CustomerDTO();
         dto.setId(customer.getId());

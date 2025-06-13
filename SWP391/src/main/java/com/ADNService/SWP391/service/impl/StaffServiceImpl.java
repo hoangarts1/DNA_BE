@@ -63,7 +63,9 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public StaffDTO updateStaff(Long id, StaffDTO dto) {
         Optional<Staff> optionalStaff = staffRepository.findById(id);
-        if (optionalStaff.isEmpty()) return null;
+        if (optionalStaff.isEmpty()) {
+            throw new RuntimeException("Staff with ID " + id + " does not exist.");
+        }
 
         Staff staff = optionalStaff.get();
         staff.setFingerprint(dto.getFingerprint());
@@ -74,9 +76,13 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public void deleteStaff(Long id) {
-        staffRepository.deleteById(id);
-    }
 
+        Optional<Staff> optionalStaff = staffRepository.findById(id);
+        if (optionalStaff.isEmpty()) {
+        throw new RuntimeException("Staff with ID " + id + " does not exist.");
+    }
+        staffRepository.deleteById(id);
+}
     private StaffDTO convertToDTO(Staff staff) {
         StaffDTO dto = new StaffDTO();
         dto.setId(staff.getId());
