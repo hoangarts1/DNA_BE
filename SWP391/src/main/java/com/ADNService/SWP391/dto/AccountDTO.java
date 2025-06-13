@@ -23,6 +23,8 @@ public class AccountDTO {
         this.phone = phone;
     }
 
+
+
     public String getUsername() {
         return username;
     }
@@ -62,4 +64,9 @@ public class AccountDTO {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public class ForgotPasswordRequest {
+        private String email;
+    }
+
 }
