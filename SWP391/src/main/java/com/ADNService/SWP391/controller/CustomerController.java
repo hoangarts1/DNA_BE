@@ -24,6 +24,13 @@ public class CustomerController {
         return customerService.getCustomerById(id);
     }
 
+
+    @GetMapping("/account/{accountId}")
+    public CustomerDTO getCustomerByAccountId(@PathVariable Long accountId) {
+        return customerService.getCustomerByAccountId(accountId);
+    }
+
+
     @PostMapping
     public CustomerDTO createCustomer(@RequestBody CustomerDTO dto) {
         return customerService.createCustomer(dto);

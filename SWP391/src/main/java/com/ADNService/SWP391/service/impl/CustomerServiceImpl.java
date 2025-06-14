@@ -35,6 +35,13 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public CustomerDTO getCustomerByAccountId(Long accountId) {
+        return customerRepository.findByAccountId(accountId)
+                .map(this::convertToDTO)
+                .orElseThrow(() -> new RuntimeException("Customer with Account ID " + accountId + " does not exist."));
+    }
+    
+    @Override
     public CustomerDTO createCustomer(CustomerDTO dto) {
         Account account = accountRepository.findById(dto.getAccountId()).orElse(null);
         if (account == null) {
