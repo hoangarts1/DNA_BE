@@ -36,6 +36,13 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
+    public StaffDTO getStaffByAccountId(Long accountId) {
+        return staffRepository.findByAccountId(accountId)
+                .map(this::convertToDTO)
+                .orElseThrow(() -> new RuntimeException("Staff with Account ID " + accountId + " does not exist."));
+    }
+
+    @Override
     public StaffDTO createStaff(StaffDTO dto) {
         Account account = accountRepository.findById(dto.getAccountId()).orElse(null);
         if (account == null) {

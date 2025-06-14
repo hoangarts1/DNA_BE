@@ -24,6 +24,11 @@ public class StaffController {
         return staffService.getStaffById(id);
     }
 
+    @GetMapping("/account/{accountId}")
+    public StaffDTO getStaffByAccountId(@PathVariable Long accountId) {
+        return staffService.getStaffByAccountId(accountId);
+    }
+
     @PostMapping
     public StaffDTO createStaff(@RequestBody StaffDTO dto) {
         return staffService.createStaff(dto);
