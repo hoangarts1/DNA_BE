@@ -33,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private JavaMailSender mailSender;
 
-    private final long resetTokenExpiryMillis = 10 * 60 * 1000;
+    private final long resetTokenExpiryMillis = 2 * 60 * 1000;
 
     @Override
     public Account register(AccountDTO userDTO) {
