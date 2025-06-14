@@ -1,5 +1,6 @@
 package com.ADNService.SWP391.entity;
 
+import com.ADNService.SWP391.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,12 +24,12 @@ public class Staff {
     private String fingerprint;
 
     @Column(nullable = false)
-    private String role;
+    private Role role;
 
     public Staff() {
     }
 
-    public Staff(Account account, String fingerprint, Long id, String role) {
+    public Staff(Account account, String fingerprint, Long id, Role role) {
         this.account = account;
         this.fingerprint = fingerprint;
         this.id = id;
@@ -59,11 +60,11 @@ public class Staff {
         this.id = id;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 }

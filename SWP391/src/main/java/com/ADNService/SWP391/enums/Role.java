@@ -4,5 +4,7 @@ public enum Role {
     CUSTOMER,
     ADMIN,
     STAFF,
-    MANAGER
+    MANAGER,
+    NORMALSTAFF,
+    LABSTAFF
 }
