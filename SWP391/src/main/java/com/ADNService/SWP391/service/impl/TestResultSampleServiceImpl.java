@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,7 +24,13 @@ public class TestResultSampleServiceImpl implements TestResultSampleService {
 
     @Override
     public TestResultSampleDTO createTestResultSample(TestResultSampleDTO dto) {
-        TestSample testSample = testSampleRepository.findById(dto.getTestSampleId()).orElse(null);
+        TestSample testSample = testSampleRepository.findById(dto.getTestSampleId())
+                .orElseThrow(() -> new RuntimeException("TestSample with ID " + dto.getTestSampleId() + " does not exist."));
+
+        Optional<TestResultSample> existingSample = testResultSampleRepository.findById(dto.getTestSampleId());
+        if (existingSample.isPresent()) {
+            throw new RuntimeException("TestSample with ID "+ dto.getId() + " already exists in TestResultSample.");
+        }
 
         TestResultSample result = new TestResultSample();
         result.setTestSample(testSample);
@@ -70,9 +77,10 @@ public class TestResultSampleServiceImpl implements TestResultSampleService {
 
     @Override
     public TestResultSampleDTO updateTestResultSample(Long id, TestResultSampleDTO dto) {
-        TestResultSample result = testResultSampleRepository.findById(id).orElse(null);
-        if (result == null) return null;
+        TestResultSample resultSample = testResultSampleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("TestResultSample with ID "+ id + " does not exist."));
 
+        TestResultSample result = new TestResultSample();
         result.setAmelogenin(dto.getAmelogenin());
         result.setD3S1358(dto.getD3S1358());
         result.setD2S441(dto.getD2S441());
@@ -102,6 +110,8 @@ public class TestResultSampleServiceImpl implements TestResultSampleService {
 
     @Override
     public void deleteTestResultSample(Long id) {
+        TestResultSample resultSample = testResultSampleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("TestResultSample with ID "+ id + " does not exist."));
         testResultSampleRepository.deleteById(id);
     }
 

@@ -27,9 +27,22 @@ public class TestResultServiceImpl implements TestResultService {
 
     @Override
     public TestResultDTO createTestResult(TestResultDTO dto) {
-        TestOrder order = testOrderRepository.findById(dto.getOrderId()).orElse(null);
-        TestResultSample sample = testResultSampleRepository.findById(dto.getTestResultSampleId()).orElse(null);
-        Account account = accountRepository.findById(dto.getAccountId()).orElse(null);
+        TestOrder order = testOrderRepository.findById(dto.getOrderId())
+                .orElseThrow(() -> new RuntimeException("Order wiht ID " + dto.getOrderId() + " does not exist."));
+
+        TestResultSample sample = testResultSampleRepository.findById(dto.getTestResultSampleId())
+                .orElseThrow(() -> new RuntimeException("TestResultSample with ID " + dto.getTestResultSampleId() + " does not exist."));
+
+        if (testResultRepository.findAll().stream().anyMatch(result ->
+                result.getTestOrder().getOrderId().equals(dto.getOrderId()))) {
+            throw new RuntimeException("OrderID is exist in TestResult");
+        }
+        if (testResultRepository.findAll().stream().anyMatch(result ->
+                result.getTestResultSample().getId().equals(dto.getTestResultSampleId()))){
+            throw new RuntimeException("TestResultSampleID is exist in TestResult");
+        }
+        Account account = accountRepository.findById(dto.getAccountId())
+                .orElseThrow(() -> new RuntimeException("AccountID "+ dto.getAccountId() + " does not exist." ));
 
         TestResult result = new TestResult();
         result.setTestOrder(order);
@@ -58,12 +71,26 @@ public class TestResultServiceImpl implements TestResultService {
 
     @Override
     public TestResultDTO updateTestResult(Long id, TestResultDTO dto) {
-        TestResult result = testResultRepository.findById(id).orElse(null);
-        if (result == null) return null;
+        TestResult result = testResultRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("TestResult with ID " + id + " does not exist. " ));
 
-        TestOrder order = testOrderRepository.findById(dto.getOrderId()).orElse(null);
-        TestResultSample sample = testResultSampleRepository.findById(dto.getTestResultSampleId()).orElse(null);
-        Account account = accountRepository.findById(dto.getAccountId()).orElse(null);
+
+        TestOrder order = testOrderRepository.findById(dto.getOrderId())
+                .orElseThrow(() -> new RuntimeException("Order wiht ID " + dto.getOrderId() + " does not exist."));
+
+        TestResultSample sample = testResultSampleRepository.findById(dto.getTestResultSampleId())
+                .orElseThrow(() -> new RuntimeException("TestResultSample with ID " + dto.getTestResultSampleId() + " does not exist."));
+
+        if (testResultRepository.findAll().stream().anyMatch(existingResult ->
+                result.getTestOrder().getOrderId().equals(dto.getOrderId()))) {
+            throw new RuntimeException("OrderID is exist in TestResult");
+        }
+        if (testResultRepository.findAll().stream().anyMatch(existingResult ->
+                result.getTestResultSample().getId().equals(dto.getTestResultSampleId()))){
+            throw new RuntimeException("TestResultSampleID is exist in TestResult");
+        }
+        Account account = accountRepository.findById(dto.getAccountId())
+                .orElseThrow(() -> new RuntimeException("AccountID "+ dto.getAccountId() + " does not exist." ));
 
         result.setTestOrder(order);
         result.setTestResultSample(sample);
@@ -77,6 +104,8 @@ public class TestResultServiceImpl implements TestResultService {
 
     @Override
     public void deleteTestResult(Long id) {
+        TestResult result = testResultRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("TestResult with ID " + id + " does not exist. " ));
         testResultRepository.deleteById(id);
     }
 
