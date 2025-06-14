@@ -80,7 +80,7 @@ public class AuthServiceImpl implements AuthService {
 
             String token = jwtUtil.generateToken(user.getUsername());
 
-            String resetLink = "http://localhost:8080/auth/reset-password?token=" + token;
+            String resetLink = "http://localhost:3000/reset-password?token=" + token;
 
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(email);
