@@ -1,13 +1,20 @@
 package com.ADNService.SWP391.config;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -24,6 +31,9 @@ public class SecurityConfig {
     }
 
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
 //    @Bean
 //    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 //        http
@@ -31,12 +41,32 @@ public class SecurityConfig {
 //                .csrf(csrf -> csrf.disable())
 //                .authorizeHttpRequests(auth -> auth
 //                        .requestMatchers("/auth/**").permitAll()
+//                        .requestMatchers("/api/services/**").hasRole("MANAGER") //
 //                        .anyRequest().authenticated()
-//                );
+//                )
+//                .addFilterBefore((request, response, chain) -> {
+//                    HttpServletRequest httpRequest = (HttpServletRequest) request;
+//                    HttpServletResponse httpResponse = (HttpServletResponse) response;
+//
+//                    String authHeader = httpRequest.getHeader("Authorization");
+//                    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+//                        String token = authHeader.substring(7);
+//                        if (jwtUtil.validateToken(token)) {
+//                            String username = jwtUtil.extractUsername(token);
+//                            String role = jwtUtil.extractRole(token);
+//
+//                            var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+//                            var auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
+//                            SecurityContextHolder.getContext().setAuthentication(auth);
+//                        }
+//                    }
+//
+//                    chain.doFilter(request, response);
+//                }, UsernamePasswordAuthenticationFilter.class);
 //
 //        return http.build();
 //    }
-
+//
 //    @Bean
 //    public CorsConfigurationSource corsConfigurationSource() {
 //        CorsConfiguration config = new CorsConfiguration();
