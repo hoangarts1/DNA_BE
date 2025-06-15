@@ -5,6 +5,4 @@ public enum Role {
     ADMIN,
     STAFF,
     MANAGER,
-    NORMALSTAFF,
-    LABSTAFF
 }
