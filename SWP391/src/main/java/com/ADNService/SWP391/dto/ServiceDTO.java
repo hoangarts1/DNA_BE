@@ -2,7 +2,6 @@ package com.ADNService.SWP391.dto;
 
 public class ServiceDTO {
     private Long serviceID;
-    private Long accountID;
     private String serviceName;
     private String servicePurpose;
     private int timeTest;
@@ -14,8 +13,7 @@ public class ServiceDTO {
     public ServiceDTO() {
     }
 
-    public ServiceDTO(Long accountID, Long serviceID, String serviceName, String servicePurpose, int quantity, double price, int timeTest, int numberOfSample, String serviceBlog) {
-        this.accountID = accountID;
+    public ServiceDTO(Long serviceID, String serviceName, String servicePurpose, int quantity, double price, int timeTest, int numberOfSample, String serviceBlog) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
         this.servicePurpose = servicePurpose;
@@ -24,14 +22,6 @@ public class ServiceDTO {
         this.timeTest = timeTest;
         this.numberOfSample = numberOfSample;
         this.serviceBlog = serviceBlog;
-    }
-
-    public Long getAccountID() {
-        return accountID;
-    }
-
-    public void setAccountID(Long accountID) {
-        this.accountID = accountID;
     }
 
     public int getNumberOfSample() {

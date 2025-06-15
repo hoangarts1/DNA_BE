@@ -32,16 +32,11 @@ public class Services {
     @Column(name = "number_of_sample", nullable = false)
     private int numberOfSample;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
-
-    // Constructors
     public Services() {
     }
 
     public Services(Long serviceID, String serviceName, String servicePurpose, int timeTest,
-        String serviceBlog, double servicePrice, int quantity, int numberOfSample, Account account) {
+        String serviceBlog, double servicePrice, int quantity, int numberOfSample) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
         this.servicePurpose = servicePurpose;
@@ -50,7 +45,6 @@ public class Services {
         this.servicePrice = servicePrice;
         this.quantity = quantity;
         this.numberOfSample = numberOfSample;
-        this.account = account;
     }
 
     // Getters and Setters
@@ -116,13 +110,5 @@ public class Services {
 
     public void setNumberOfSample(int numberOfSample) {
         this.numberOfSample = numberOfSample;
-    }
-
-    public Account getAccount() {
-        return account;
-    }
-
-    public void setAccount(Account account) {
-        this.account = account;
     }
 }
