@@ -26,9 +26,6 @@ public class Services {
     @Column(name = "service_price", nullable = false)
     private double servicePrice;
 
-    @Column(name = "quantity", nullable = false)
-    private int quantity;
-
     @Column(name = "number_of_sample", nullable = false)
     private int numberOfSample;
 
@@ -36,14 +33,13 @@ public class Services {
     }
 
     public Services(Long serviceID, String serviceName, String servicePurpose, int timeTest,
-        String serviceBlog, double servicePrice, int quantity, int numberOfSample) {
+        String serviceBlog, double servicePrice,int numberOfSample) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
         this.servicePurpose = servicePurpose;
         this.timeTest = timeTest;
         this.serviceBlog = serviceBlog;
         this.servicePrice = servicePrice;
-        this.quantity = quantity;
         this.numberOfSample = numberOfSample;
     }
 
@@ -94,14 +90,6 @@ public class Services {
 
     public void setServicePrice(double servicePrice) {
         this.servicePrice = servicePrice;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
     }
 
     public int getNumberOfSample() {
