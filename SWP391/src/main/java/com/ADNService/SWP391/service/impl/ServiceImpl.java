@@ -19,28 +19,39 @@ public class ServiceImpl implements ServiceInterface {
     @Autowired
     private ServiceRepository serviceRepository;
 
+    @Autowired
+    private AccountRepository accountRepository;
+
+
     @Override
     public ServiceDTO createService(ServiceDTO dto) {
+
+        Account account = accountRepository.findById(dto.getAccountID())
+                .orElseThrow(() -> new CustomException("Account does not exist."));
 
         Services service = new Services();
 
         service.setServiceID(dto.getServiceID());
+        service.setAccount(account);
         service.setServiceName(dto.getServiceName());
         service.setServicePurpose(dto.getServicePurpose());
         service.setTimeTest(dto.getTimeTest());
         service.setServiceBlog(dto.getServiceBlog());
         service.setServicePrice(dto.getPrice());
+        service.setQuantity(dto.getQuantity());
         service.setNumberOfSample(dto.getNumberOfSample());
 
         Services savedService = serviceRepository.save(service);
 
         ServiceDTO result = new ServiceDTO();
         result.setServiceID(savedService.getServiceID());
+        result.setAccountID(savedService.getAccount().getId());
         result.setServiceName(savedService.getServiceName());
         result.setServicePurpose(savedService.getServicePurpose());
         result.setTimeTest(savedService.getTimeTest());
         result.setServiceBlog(savedService.getServiceBlog());
         result.setPrice(savedService.getServicePrice());
+        result.setQuantity(savedService.getQuantity());
         result.setNumberOfSample(savedService.getNumberOfSample());
 
         return result;
@@ -54,11 +65,13 @@ public class ServiceImpl implements ServiceInterface {
 
         ServiceDTO dto = new ServiceDTO();
         dto.setServiceID(service.getServiceID());
+        dto.setAccountID(service.getAccount().getId());
         dto.setServiceName(service.getServiceName());
         dto.setServicePurpose(service.getServicePurpose());
         dto.setTimeTest(service.getTimeTest());
         dto.setServiceBlog(service.getServiceBlog());
         dto.setPrice(service.getServicePrice());
+        dto.setQuantity(service.getQuantity());
         dto.setNumberOfSample(service.getNumberOfSample());
 
         return dto;
@@ -71,11 +84,13 @@ public class ServiceImpl implements ServiceInterface {
         return services.stream().map(service -> {
             ServiceDTO dto = new ServiceDTO();
             dto.setServiceID(service.getServiceID());
+            dto.setAccountID(service.getAccount().getId());
             dto.setServiceName(service.getServiceName());
             dto.setServicePurpose(service.getServicePurpose());
             dto.setTimeTest(service.getTimeTest());
             dto.setServiceBlog(service.getServiceBlog());
             dto.setPrice(service.getServicePrice());
+            dto.setQuantity(service.getQuantity());
             dto.setNumberOfSample(service.getNumberOfSample());
             return dto;
         }).toList();
@@ -86,22 +101,29 @@ public class ServiceImpl implements ServiceInterface {
         Services service = serviceRepository.findById(Long.valueOf(id))
                 .orElseThrow(() -> new CustomException("Service not found with ID: " + id));
 
+        Account account = accountRepository.findById(dto.getAccountID())
+                .orElseThrow(() -> new CustomException("Account does not exist."));
+
+        service.setAccount(account);
         service.setServiceName(dto.getServiceName());
         service.setServicePurpose(dto.getServicePurpose());
         service.setTimeTest(dto.getTimeTest());
         service.setServiceBlog(dto.getServiceBlog());
         service.setServicePrice(dto.getPrice());
+        service.setQuantity(dto.getQuantity());
         service.setNumberOfSample(dto.getNumberOfSample());
 
         Services updated = serviceRepository.save(service);
 
         ServiceDTO result = new ServiceDTO();
         result.setServiceID(updated.getServiceID());
+        result.setAccountID(service.getAccount().getId());
         result.setServiceName(updated.getServiceName());
         result.setServicePurpose(updated.getServicePurpose());
         result.setTimeTest(updated.getTimeTest());
         result.setServiceBlog(updated.getServiceBlog());
         result.setPrice(updated.getServicePrice());
+        result.setQuantity(updated.getQuantity());
         result.setNumberOfSample(updated.getNumberOfSample());
 
         return result;
