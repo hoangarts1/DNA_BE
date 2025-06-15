@@ -38,9 +38,6 @@ public class Account {
 
     private boolean active = true;
 
-    @OneToMany(mappedBy = "account")
-    private List<Services> services;
-
     public Account() {
     }
 

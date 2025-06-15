@@ -5,16 +5,14 @@ import com.ADNService.SWP391.entity.Account;
 import com.ADNService.SWP391.repository.AccountRepository;
 import com.ADNService.SWP391.service.AccountService;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
 
-    private final AccountRepository accountRepository;
+    private AccountRepository accountRepository;
 
     @Override
     public List<Account> getAllAccounts() {

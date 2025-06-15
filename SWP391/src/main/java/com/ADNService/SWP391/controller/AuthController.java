@@ -9,6 +9,7 @@ import com.ADNService.SWP391.entity.Account;
 import com.ADNService.SWP391.exception.CustomException;
 import com.ADNService.SWP391.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -37,11 +38,17 @@ public class AuthController {
         return "Reset password email sent.";
     }
 
-    @PostMapping("/reset-password")
-    public String resetPassword(@RequestBody ResetPasswordRequest request) {
-        authService.resetPassword(request.getToken(), request.getNewPassword());
-        return "Password updated successfully.";
+    @GetMapping("/reset-password")
+    public String showResetPasswordForm(@RequestParam("token") String token, Model model) {
+        model.addAttribute("token", token);
+        return "reset-password";
     }
 
+    @PostMapping("/reset-password")
+    public String resetPassword(@RequestParam("token") String token,
+                                @RequestParam("newPassword") String newPassword) {
+        authService.resetPassword(token, newPassword);
+        return "doi mk thanh cong";
+    }
 
 }
