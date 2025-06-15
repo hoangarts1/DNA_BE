@@ -19,8 +19,10 @@ public class Payment {
     private Customer customer;
 
     private int amount;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String paymentMethod;
     private String qrUrl;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String paymentStatus;
     private LocalDate paymentTime;
 

@@ -11,13 +11,13 @@ public class Services {
     @Column(name = "service_id")
     private Long serviceID;
 
-    @Column(name = "service_name", nullable = false)
+    @Column(name = "service_name", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String serviceName;
 
-    @Column(name = "service_purpose", nullable = false)
+    @Column(name = "service_purpose", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String servicePurpose;
 
-    @Column(name = "service_blog", nullable = false)
+    @Column(name = "service_blog", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String serviceBlog;
 
     @Column(name = "time_test", nullable = false)
