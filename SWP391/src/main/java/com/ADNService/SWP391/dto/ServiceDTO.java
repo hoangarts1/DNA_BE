@@ -7,17 +7,15 @@ public class ServiceDTO {
     private int timeTest;
     private String serviceBlog;
     private double price;
-    private int quantity;
     private int numberOfSample;
 
     public ServiceDTO() {
     }
 
-    public ServiceDTO(Long serviceID, String serviceName, String servicePurpose, int quantity, double price, int timeTest, int numberOfSample, String serviceBlog) {
+    public ServiceDTO(Long serviceID, String serviceName, String servicePurpose, double price, int timeTest, int numberOfSample, String serviceBlog) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
         this.servicePurpose = servicePurpose;
-        this.quantity = quantity;
         this.price = price;
         this.timeTest = timeTest;
         this.numberOfSample = numberOfSample;
@@ -38,14 +36,6 @@ public class ServiceDTO {
 
     public void setPrice(double price) {
         this.price = price;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
     }
 
     public String getServiceBlog() {
