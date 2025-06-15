@@ -117,6 +117,29 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    @Override
+    public Account createStaff(AccountDTO userDTO) {
+        if (userRepository.existsByUsername(userDTO.getUsername())) {
+            throw new CustomException("Username already exists.");
+        } else if (userRepository.existsByEmail(userDTO.getEmail())) {
+            throw new CustomException("Email already exists.");
+        } else if (userRepository.existsByPhone(userDTO.getPhone())) {
+            throw new CustomException("Phone already exists.");
+        }
+
+        Account staff = new Account();
+        staff.setUsername(userDTO.getUsername());
+        staff.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        staff.setEmail(userDTO.getEmail());
+        staff.setPhone(userDTO.getPhone());
+        staff.setFullName(userDTO.getFullName());
+        staff.setRole(userDTO.getRole());
+        staff.setActive(true);
+
+        return userRepository.save(staff);
+    }
+
+
 
 }
 

@@ -9,6 +9,7 @@ import com.ADNService.SWP391.entity.Account;
 import com.ADNService.SWP391.exception.CustomException;
 import com.ADNService.SWP391.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,4 +52,9 @@ public class AuthController {
         return "doi mk thanh cong";
     }
 
+    @PostMapping("/create-staff")
+    public ResponseEntity<Account> createStaff(@RequestBody AccountDTO staffDTO) {
+        Account newStaff = authService.createStaff(staffDTO);
+        return ResponseEntity.ok(newStaff);
+    }
 }

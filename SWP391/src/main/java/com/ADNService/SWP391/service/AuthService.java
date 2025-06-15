@@ -11,5 +11,6 @@ public interface AuthService {
 
     void forgotPassword(String email);
     void resetPassword(String token, String newPassword);
+    Account createStaff(AccountDTO userDTO);
 
 }
