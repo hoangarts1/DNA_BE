@@ -25,6 +25,7 @@ public class Account {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String fullName;
 
     @Column(unique = true)
@@ -37,9 +38,6 @@ public class Account {
     private Role role;
 
     private boolean active = true;
-
-    @OneToMany(mappedBy = "account")
-    private List<Services> services;
 
     public Account() {
     }

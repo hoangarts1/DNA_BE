@@ -11,13 +11,13 @@ public class Services {
     @Column(name = "service_id")
     private Long serviceID;
 
-    @Column(name = "service_name", nullable = false)
+    @Column(name = "service_name", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String serviceName;
 
-    @Column(name = "service_purpose", nullable = false)
+    @Column(name = "service_purpose", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String servicePurpose;
 
-    @Column(name = "service_blog", nullable = false)
+    @Column(name = "service_blog", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String serviceBlog;
 
     @Column(name = "time_test", nullable = false)
@@ -26,31 +26,23 @@ public class Services {
     @Column(name = "service_price", nullable = false)
     private double servicePrice;
 
-    @Column(name = "quantity", nullable = false)
-    private int quantity;
-
     @Column(name = "number_of_sample", nullable = false)
     private int numberOfSample;
-
-    @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
 
     // Constructors
     public Services() {
     }
 
     public Services(Long serviceID, String serviceName, String servicePurpose, int timeTest,
-        String serviceBlog, double servicePrice, int quantity, int numberOfSample, Account account) {
+        String serviceBlog, double servicePrice, int numberOfSample) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
         this.servicePurpose = servicePurpose;
         this.timeTest = timeTest;
         this.serviceBlog = serviceBlog;
         this.servicePrice = servicePrice;
-        this.quantity = quantity;
         this.numberOfSample = numberOfSample;
-        this.account = account;
+
     }
 
     // Getters and Setters
@@ -102,14 +94,6 @@ public class Services {
         this.servicePrice = servicePrice;
     }
 
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
     public int getNumberOfSample() {
         return numberOfSample;
     }
@@ -118,11 +102,4 @@ public class Services {
         this.numberOfSample = numberOfSample;
     }
 
-    public Account getAccount() {
-        return account;
-    }
-
-    public void setAccount(Account account) {
-        this.account = account;
-    }
 }

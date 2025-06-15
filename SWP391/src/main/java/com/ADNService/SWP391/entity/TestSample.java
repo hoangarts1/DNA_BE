@@ -25,19 +25,26 @@ public class TestSample {
     @ManyToOne
     @JoinColumn(name = "staff_id")
     private Staff staff;
-
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String name;
     private Date dateOfBirth;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String documentType;
     private String documentNumber;
     private Date dateOfIssue;
     private Date expirationDate;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String placeOfIssue;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String nationality;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String address;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String sampleType;
     private Integer numberOfSample;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String relationship;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String medicalHistory;
     private String fingerprint;
 

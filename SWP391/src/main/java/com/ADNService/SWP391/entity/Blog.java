@@ -14,7 +14,7 @@ public class Blog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long blogId;
-
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String blogName;
 
     private String urlBlog;

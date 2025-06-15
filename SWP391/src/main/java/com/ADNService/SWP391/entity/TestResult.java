@@ -19,7 +19,7 @@ public class TestResult {
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
-
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String result;
 
     private String resultUrl;

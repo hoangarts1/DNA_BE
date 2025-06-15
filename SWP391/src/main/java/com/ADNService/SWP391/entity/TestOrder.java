@@ -23,9 +23,13 @@ public class TestOrder {
     private Services services;
 
     private LocalDate orderDate;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String sampleType;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String orderStatus;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String resultDeliveryMethod;
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String resultDeliverAddress;
     private String kitCode;
     private int sampleQuantity;

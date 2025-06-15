@@ -22,20 +22,20 @@ public class Customer {
     @JoinColumn(name = "account_id", referencedColumnName = "id")
     private Account account;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String address;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String gender;
 
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String documentType;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String placeOfIssue;
 
     @Column(nullable = false)
