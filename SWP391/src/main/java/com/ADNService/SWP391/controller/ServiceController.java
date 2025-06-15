@@ -17,35 +17,30 @@ public class ServiceController {
     @Autowired
     private ServiceInterface serviceInterface;
 
-    // CREATE
     @PostMapping
     public ResponseEntity<ServiceDTO> createService(@RequestBody ServiceDTO dto) {
         ServiceDTO created = serviceInterface.createService(dto);
         return ResponseEntity.ok(created);
     }
 
-    // READ ONE
     @GetMapping("/{id}")
     public ResponseEntity<ServiceDTO> getServiceById(@PathVariable String id) {
         ServiceDTO service = serviceInterface.getServiceById(id);
         return ResponseEntity.ok(service);
     }
 
-    // READ ALL
     @GetMapping
     public ResponseEntity<List<ServiceDTO>> getAllServices() {
         List<ServiceDTO> services = serviceInterface.getAllServices();
         return ResponseEntity.ok(services);
     }
 
-    // UPDATE
     @PutMapping("/{id}")
     public ResponseEntity<ServiceDTO> updateService(@PathVariable String id, @RequestBody ServiceDTO dto) {
         ServiceDTO updated = serviceInterface.updateService(id, dto);
         return ResponseEntity.ok(updated);
     }
 
-    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteService(@PathVariable String id) {
         serviceInterface.deleteService(id);
