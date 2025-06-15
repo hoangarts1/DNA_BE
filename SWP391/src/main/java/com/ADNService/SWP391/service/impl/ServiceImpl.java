@@ -19,20 +19,12 @@ public class ServiceImpl implements ServiceInterface {
     @Autowired
     private ServiceRepository serviceRepository;
 
-    @Autowired
-    private AccountRepository accountRepository;
-
-
     @Override
     public ServiceDTO createService(ServiceDTO dto) {
-
-        Account account = accountRepository.findById(dto.getAccountID())
-                .orElseThrow(() -> new CustomException("Account does not exist."));
 
         Services service = new Services();
 
         service.setServiceID(dto.getServiceID());
-        service.setAccount(account);
         service.setServiceName(dto.getServiceName());
         service.setServicePurpose(dto.getServicePurpose());
         service.setTimeTest(dto.getTimeTest());
@@ -45,7 +37,6 @@ public class ServiceImpl implements ServiceInterface {
 
         ServiceDTO result = new ServiceDTO();
         result.setServiceID(savedService.getServiceID());
-        result.setAccountID(savedService.getAccount().getId());
         result.setServiceName(savedService.getServiceName());
         result.setServicePurpose(savedService.getServicePurpose());
         result.setTimeTest(savedService.getTimeTest());
@@ -60,12 +51,11 @@ public class ServiceImpl implements ServiceInterface {
 
     @Override
     public ServiceDTO getServiceById(String id) {
-        Services service = serviceRepository.findById(Integer.valueOf(id))
+        Services service = serviceRepository.findById(Long.valueOf(id))
                 .orElseThrow(() -> new CustomException("Service not found with ID: " + id));
 
         ServiceDTO dto = new ServiceDTO();
         dto.setServiceID(service.getServiceID());
-        dto.setAccountID(service.getAccount().getId());
         dto.setServiceName(service.getServiceName());
         dto.setServicePurpose(service.getServicePurpose());
         dto.setTimeTest(service.getTimeTest());
@@ -84,7 +74,6 @@ public class ServiceImpl implements ServiceInterface {
         return services.stream().map(service -> {
             ServiceDTO dto = new ServiceDTO();
             dto.setServiceID(service.getServiceID());
-            dto.setAccountID(service.getAccount().getId());
             dto.setServiceName(service.getServiceName());
             dto.setServicePurpose(service.getServicePurpose());
             dto.setTimeTest(service.getTimeTest());
@@ -98,13 +87,9 @@ public class ServiceImpl implements ServiceInterface {
 
     @Override
     public ServiceDTO updateService(String id, ServiceDTO dto) {
-        Services service = serviceRepository.findById(Integer.valueOf(id))
+        Services service = serviceRepository.findById(Long.valueOf(id))
                 .orElseThrow(() -> new CustomException("Service not found with ID: " + id));
 
-        Account account = accountRepository.findById(dto.getAccountID())
-                .orElseThrow(() -> new CustomException("Account does not exist."));
-
-        service.setAccount(account);
         service.setServiceName(dto.getServiceName());
         service.setServicePurpose(dto.getServicePurpose());
         service.setTimeTest(dto.getTimeTest());
@@ -117,7 +102,6 @@ public class ServiceImpl implements ServiceInterface {
 
         ServiceDTO result = new ServiceDTO();
         result.setServiceID(updated.getServiceID());
-        result.setAccountID(service.getAccount().getId());
         result.setServiceName(updated.getServiceName());
         result.setServicePurpose(updated.getServicePurpose());
         result.setTimeTest(updated.getTimeTest());
@@ -131,7 +115,7 @@ public class ServiceImpl implements ServiceInterface {
 
     @Override
     public void deleteService(String id) {
-        Services service = serviceRepository.findById(Integer.valueOf(id))
+        Services service = serviceRepository.findById(Long.valueOf(id))
                 .orElseThrow(() -> new CustomException("Service not found with ID: " + id));
 
         serviceRepository.delete(service);

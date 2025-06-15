@@ -1,55 +1,61 @@
-package com.ADNService.SWP391.entity;
+package com.ADNService.SWP391.dto;
 
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name = "customer")
-public class Customer {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class CustomerDTO {
     private Long id;
-
-    @OneToOne
-    @JoinColumn(name = "account_id", referencedColumnName = "id")
-    private Account account;
-
-    @Column(nullable = false)
+    private Long accountId;
     private String address;
-
-    @Column(nullable = false)
     private String gender;
-
-    @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
-
-    @Column(nullable = false)
     private String documentType;
-
-    @Column(nullable = false)
     private String placeOfIssue;
-
-    @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
     private Date dateOfIssue;
-
     private String fingerprint;
 
-    public Account getAccount() {
-        return account;
+    public CustomerDTO(Long accountId, String address, Date dateOfBirth, Date dateOfIssue, String documentType, String fingerprint, String gender, Long id, String placeOfIssue) {
+        this.accountId = accountId;
+        this.address = address;
+        this.dateOfBirth = dateOfBirth;
+        this.dateOfIssue = dateOfIssue;
+        this.documentType = documentType;
+        this.fingerprint = fingerprint;
+        this.gender = gender;
+        this.id = id;
+        this.placeOfIssue = placeOfIssue;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
+    public CustomerDTO() {
+    }
+
+    public String getPlaceOfIssue() {
+        return placeOfIssue;
+    }
+
+    public void setPlaceOfIssue(String placeOfIssue) {
+        this.placeOfIssue = placeOfIssue;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 
     public String getAddress() {
@@ -99,23 +105,4 @@ public class Customer {
     public void setGender(String gender) {
         this.gender = gender;
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getPlaceOfIssue() {
-        return placeOfIssue;
-    }
-
-    public void setPlaceOfIssue(String placeOfIssue) {
-        this.placeOfIssue = placeOfIssue;
-    }
-
-
 }
-
