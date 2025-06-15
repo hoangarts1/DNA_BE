@@ -16,7 +16,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -68,7 +67,8 @@ public class AuthServiceImpl implements AuthService {
             throw new CustomException("Invalid username or password");
         }
 
-        String token = jwtUtil.generateToken(username);
+//        String token = jwtUtil.generateToken(username, user.getRole().name());
+        String token = jwtUtil.generateToken(username, user.getRole().name());
 
         return new LoginResponse(token, user);
     }
@@ -78,7 +78,7 @@ public class AuthServiceImpl implements AuthService {
             Account user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new CustomException("Email not found"));
 
-            String token = jwtUtil.generateToken(user.getUsername());
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
 
             String resetLink = "http://localhost:3000/reset-password?token=" + token;
 
