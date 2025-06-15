@@ -4,9 +4,11 @@ import com.ADNService.SWP391.config.JwtUtil;
 import com.ADNService.SWP391.dto.AccountDTO;
 import com.ADNService.SWP391.dto.LoginResponse;
 import com.ADNService.SWP391.entity.Account;
+import com.ADNService.SWP391.entity.Staff;
 import com.ADNService.SWP391.enums.Role;
 import com.ADNService.SWP391.exception.CustomException;
 import com.ADNService.SWP391.repository.AccountRepository;
+import com.ADNService.SWP391.repository.StaffRepository;
 import com.ADNService.SWP391.service.AuthService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -31,6 +33,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
+    private StaffRepository staffRepository;
 
     private final long resetTokenExpiryMillis = 2 * 60 * 1000;
 
@@ -127,6 +132,7 @@ public class AuthServiceImpl implements AuthService {
             throw new CustomException("Phone already exists.");
         }
 
+        // Tạo tài khoản
         Account staff = new Account();
         staff.setUsername(userDTO.getUsername());
         staff.setPassword(passwordEncoder.encode(userDTO.getPassword()));
@@ -136,8 +142,20 @@ public class AuthServiceImpl implements AuthService {
         staff.setRole(userDTO.getRole());
         staff.setActive(true);
 
-        return userRepository.save(staff);
+        Account savedAccount = userRepository.save(staff);
+
+        // Nếu là STAFF thì tạo bản ghi trong bảng Staff
+        if (savedAccount.getRole() == Role.STAFF) {
+            Staff staffEntity = new Staff();
+            staffEntity.setAccount(savedAccount);
+            staffEntity.setFingerprint(null);
+            staffEntity.setRole(userDTO.getStaffType());
+            staffRepository.save(staffEntity);
+        }
+
+        return savedAccount;
     }
+
 
 
 

@@ -1,6 +1,7 @@
 package com.ADNService.SWP391.dto;
 
 import com.ADNService.SWP391.enums.Role;
+import com.ADNService.SWP391.enums.StaffType;
 import lombok.*;
 
 @Getter
@@ -11,12 +12,12 @@ public class StaffDTO {
     private Long id;
     private Long accountId;
     private String fingerprint;
-    private Role role;
+    private StaffType role;
 
     public StaffDTO() {
     }
 
-    public StaffDTO(Long accountId, String fingerprint, Long id, Role role) {
+    public StaffDTO(Long accountId, String fingerprint, Long id, StaffType role) {
         this.accountId = accountId;
         this.fingerprint = fingerprint;
         this.id = id;
@@ -47,11 +48,11 @@ public class StaffDTO {
         this.id = id;
     }
 
-    public Role getRole() {
+    public StaffType getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(StaffType role) {
         this.role = role;
     }
 }
