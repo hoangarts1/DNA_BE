@@ -5,6 +5,7 @@ import com.ADNService.SWP391.entity.Account;
 import com.ADNService.SWP391.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,5 +37,22 @@ public class AccountController {
     public ResponseEntity<Void> deactivateAccount(@PathVariable Long id) {
         accountService.deactivateAccount(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<AccountDTO> getCurrentAccount() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Account account = accountService.findByUsername(username);
+
+        AccountDTO dto = new AccountDTO();
+        dto.setId(account.getId()); // ✅ Quan trọng để frontend dùng accountId
+        dto.setUsername(account.getUsername());
+        dto.setFullName(account.getFullName());
+        dto.setEmail(account.getEmail());
+        dto.setPhone(account.getPhone());
+        dto.setRole(account.getRole());
+
+        return ResponseEntity.ok(dto);
     }
 }
