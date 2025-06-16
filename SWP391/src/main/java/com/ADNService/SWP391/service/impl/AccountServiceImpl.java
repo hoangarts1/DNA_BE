@@ -5,6 +5,7 @@ import com.ADNService.SWP391.entity.Account;
 import com.ADNService.SWP391.repository.AccountRepository;
 import com.ADNService.SWP391.service.AccountService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
 @Service
 public class AccountServiceImpl implements AccountService {
 
+    @Autowired
     private AccountRepository accountRepository;
 
     @Override
