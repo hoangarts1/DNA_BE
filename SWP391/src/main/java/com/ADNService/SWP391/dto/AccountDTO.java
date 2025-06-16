@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AccountDTO {
+    private Long id;
     private String username;
     private String password;
     private String fullName;
@@ -21,7 +22,7 @@ public class AccountDTO {
     public AccountDTO() {
     }
 
-    public AccountDTO(String username, String password, String fullName, String email, String phone, Role role, StaffType staffType) {
+    public AccountDTO(Long id, String username, String password, String fullName, String email, String phone, Role role, StaffType staffType) {
         this.username = username;
         this.password = password;
         this.fullName = fullName;
@@ -29,6 +30,7 @@ public class AccountDTO {
         this.phone = phone;
         this.role = role;
         this.staffType = staffType;
+        this.id = id;
     }
 
     public String getUsername() {
@@ -83,4 +85,12 @@ public class AccountDTO {
     public void setStaffType(StaffType staffType) {
         this.staffType = staffType;
     };
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

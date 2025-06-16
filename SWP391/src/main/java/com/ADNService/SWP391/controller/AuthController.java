@@ -39,12 +39,6 @@ public class AuthController {
         return "Reset password email sent.";
     }
 
-    @GetMapping("/reset-password")
-    public String showResetPasswordForm(@RequestParam("token") String token, Model model) {
-        model.addAttribute("token", token);
-        return "reset-password";
-    }
-
     @PostMapping("/reset-password")
     public String resetPassword(@RequestParam("token") String token,
                                 @RequestParam("newPassword") String newPassword) {

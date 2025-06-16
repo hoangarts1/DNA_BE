@@ -44,4 +44,10 @@ public class AccountServiceImpl implements AccountService {
         account.setActive(false);
         accountRepository.save(account);
     }
+
+    @Override
+    public Account findByUsername(String username) {
+        return accountRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found with username: " + username));
+    }
 }
