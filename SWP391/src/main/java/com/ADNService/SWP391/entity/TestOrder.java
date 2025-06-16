@@ -15,8 +15,8 @@ public class TestOrder {
     private Customer customer;
 
     @ManyToOne
-    @JoinColumn(name = "accountID")
-    private Account account;
+    @JoinColumn(name = "staffID")
+    private Staff staff;
 
     @ManyToOne
     @JoinColumn(name = "serviceID")
@@ -31,12 +31,12 @@ public class TestOrder {
     private int sampleQuantity;
     private int amount;
 
-    public Account getAccount() {
-        return account;
+    public Staff getStaff() {
+        return staff;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
+    public void setStaff(Staff staff) {
+        this.staff = staff;
     }
 
     public int getAmount() {

@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public class TestOrderDTO {
     private Long orderId;
     private Long customerId;
-    private Long accountId;
+    private Long staffId;
     private Long serviceId;
     private LocalDate orderDate;
     private String sampleType;
@@ -19,10 +19,10 @@ public class TestOrderDTO {
     public TestOrderDTO() {
     }
 
-    public TestOrderDTO(Long orderId, Long customerId, Long accountId, Long serviceId, LocalDate orderDate, String sampleType, String orderStatus, String resultDeliverAddress, String resultDeliveryMethod, String kitCode, int sampleQuantity, int amount) {
+    public TestOrderDTO(Long orderId, Long customerId, Long StaffID, Long serviceId, LocalDate orderDate, String sampleType, String orderStatus, String resultDeliverAddress, String resultDeliveryMethod, String kitCode, int sampleQuantity, int amount) {
         this.orderId = orderId;
         this.customerId = customerId;
-        this.accountId = accountId;
+        this.staffId = staffId;
         this.serviceId = serviceId;
         this.orderDate = orderDate;
         this.sampleType = sampleType;
@@ -34,12 +34,12 @@ public class TestOrderDTO {
         this.amount = amount;
     }
 
-    public Long getAccountId() {
-        return accountId;
+    public Long getStaffId() {
+        return staffId;
     }
 
-    public void setAccountId(Long accountId) {
-        this.accountId = accountId;
+    public void setStaffId(Long staffId) {
+            this.staffId = staffId;
     }
 
     public int getAmount() {

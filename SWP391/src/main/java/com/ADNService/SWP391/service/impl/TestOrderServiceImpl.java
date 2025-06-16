@@ -2,10 +2,7 @@ package com.ADNService.SWP391.service.impl;
 
 import com.ADNService.SWP391.dto.TestOrderDTO;
 import com.ADNService.SWP391.entity.TestOrder;
-import com.ADNService.SWP391.repository.AccountRepository;
-import com.ADNService.SWP391.repository.CustomerRepository;
-import com.ADNService.SWP391.repository.ServiceRepository;
-import com.ADNService.SWP391.repository.TestOrderRepository;
+import com.ADNService.SWP391.repository.*;
 import com.ADNService.SWP391.service.TestOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +21,7 @@ public class TestOrderServiceImpl implements TestOrderService {
     private CustomerRepository customerRepo;
 
     @Autowired
-    private AccountRepository accountRepo;
+    private StaffRepository staffRepo;
 
     @Autowired
     private ServiceRepository serviceRepo;
@@ -33,7 +30,7 @@ public class TestOrderServiceImpl implements TestOrderService {
         TestOrderDTO dto = new TestOrderDTO();
         dto.setOrderId(order.getOrderId());
         dto.setCustomerId(order.getCustomer().getId());
-        dto.setAccountId(order.getAccount().getId());
+        dto.setStaffId(order.getStaff().getId());
         dto.setServiceId(order.getServices().getServiceID());
         dto.setOrderDate(order.getOrderDate());
         dto.setSampleType(order.getSampleType());
@@ -55,7 +52,7 @@ public class TestOrderServiceImpl implements TestOrderService {
 
         order.setCustomer(customerRepo.findById(dto.getCustomerId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found")));
-        order.setAccount(accountRepo.findById(dto.getAccountId())
+        order.setStaff(staffRepo.findById(dto.getStaffId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found")));
         order.setServices(serviceRepo.findById(dto.getServiceId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Service not found")));
