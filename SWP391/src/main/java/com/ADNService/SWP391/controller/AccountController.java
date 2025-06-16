@@ -3,7 +3,9 @@ package com.ADNService.SWP391.controller;
 import com.ADNService.SWP391.dto.AccountDTO;
 import com.ADNService.SWP391.entity.Account;
 import com.ADNService.SWP391.service.AccountService;
+import com.ADNService.SWP391.config.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -11,10 +13,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/accounts")
+@RequestMapping("/api/account")
+@RequiredArgsConstructor
 public class AccountController {
 
+    @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @GetMapping
     public ResponseEntity<List<Account>> getAllAccounts() {
