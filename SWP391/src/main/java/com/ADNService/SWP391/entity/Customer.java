@@ -32,6 +32,9 @@ public class Customer {
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
 
+    @Column(nullable = true, unique = true, columnDefinition = "NVARCHAR(50)")
+    private String cccd;
+
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String documentType;
 
@@ -116,6 +119,12 @@ public class Customer {
         this.placeOfIssue = placeOfIssue;
     }
 
+    public String getCccd() {
+        return cccd;
+    }
 
+    public void setCccd(String cccd) {
+        this.cccd = cccd;
+    }
 }
 

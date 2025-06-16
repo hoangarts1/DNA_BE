@@ -14,15 +14,17 @@ public class CustomerDTO {
     private String address;
     private String gender;
     private Date dateOfBirth;
+    private String cccd;
     private String documentType;
     private String placeOfIssue;
     private Date dateOfIssue;
     private String fingerprint;
 
-    public CustomerDTO(Long accountId, String address, Date dateOfBirth, Date dateOfIssue, String documentType, String fingerprint, String gender, Long id, String placeOfIssue) {
+    public CustomerDTO(Long accountId, String address, Date dateOfBirth, String cccd, Date dateOfIssue, String documentType, String fingerprint, String gender, Long id, String placeOfIssue) {
         this.accountId = accountId;
         this.address = address;
         this.dateOfBirth = dateOfBirth;
+        this.cccd = cccd;
         this.dateOfIssue = dateOfIssue;
         this.documentType = documentType;
         this.fingerprint = fingerprint;
@@ -33,6 +35,15 @@ public class CustomerDTO {
 
     public CustomerDTO() {
     }
+
+    public String getCccd() {
+        return cccd;
+    }
+
+    public void setCccd(String cccd) {
+        this.cccd = cccd;
+    }
+
 
     public String getPlaceOfIssue() {
         return placeOfIssue;

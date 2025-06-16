@@ -63,6 +63,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setAddress(dto.getAddress());
         customer.setGender(dto.getGender());
         customer.setDateOfBirth(dto.getDateOfBirth());
+        customer.setCccd(dto.getCccd());
         customer.setDocumentType(dto.getDocumentType());
         customer.setPlaceOfIssue(dto.getPlaceOfIssue());
         customer.setDateOfIssue(dto.getDateOfIssue());
@@ -82,6 +83,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setAddress(dto.getAddress());
         customer.setGender(dto.getGender());
         customer.setDateOfBirth(dto.getDateOfBirth());
+        customer.setCccd(dto.getCccd());
         customer.setDocumentType(dto.getDocumentType());
         customer.setPlaceOfIssue(dto.getPlaceOfIssue());
         customer.setDateOfIssue(dto.getDateOfIssue());
@@ -106,6 +108,7 @@ public class CustomerServiceImpl implements CustomerService {
         dto.setAddress(customer.getAddress());
         dto.setGender(customer.getGender());
         dto.setDateOfBirth(customer.getDateOfBirth());
+        dto.setCccd(customer.getCccd());
         dto.setDocumentType(customer.getDocumentType());
         dto.setPlaceOfIssue(customer.getPlaceOfIssue());
         dto.setDateOfIssue(customer.getDateOfIssue());
