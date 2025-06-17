@@ -17,7 +17,7 @@ public class Services {
     @Column(name = "service_purpose", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String servicePurpose;
 
-    @Column(name = "service_blog", nullable = true)
+    @Column(name = "service_blog", nullable = true, columnDefinition = "NVARCHAR(255)")
     private String serviceBlog;
 
     @Column(name = "time_test", nullable = false)
