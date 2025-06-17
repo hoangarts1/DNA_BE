@@ -1,10 +1,8 @@
 package com.ADNService.SWP391.service.impl;
-import com.ADNService.SWP391.entity.Account;
 import com.ADNService.SWP391.entity.Services;
 
 import com.ADNService.SWP391.dto.ServiceDTO;
 import com.ADNService.SWP391.exception.CustomException;
-import com.ADNService.SWP391.repository.AccountRepository;
 import com.ADNService.SWP391.repository.ServiceRepository;
 import com.ADNService.SWP391.service.ServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +28,7 @@ public class ServiceImpl implements ServiceInterface {
         service.setServiceName(dto.getServiceName());
         service.setServicePurpose(dto.getServicePurpose());
         service.setTimeTest(dto.getTimeTest());
-        service.setServiceBlog(dto.getServiceBlog());
+        service.setDescribe(dto.getDescribe());
         service.setServicePrice(dto.getPrice());
 
         Services savedService = serviceRepository.save(service);
@@ -40,7 +38,7 @@ public class ServiceImpl implements ServiceInterface {
         result.setServiceName(savedService.getServiceName());
         result.setServicePurpose(savedService.getServicePurpose());
         result.setTimeTest(savedService.getTimeTest());
-        result.setServiceBlog(savedService.getServiceBlog());
+        result.setDescribe(savedService.getDescribe());
         result.setPrice(savedService.getServicePrice());
 
         return result;
@@ -57,7 +55,7 @@ public class ServiceImpl implements ServiceInterface {
         dto.setServiceName(service.getServiceName());
         dto.setServicePurpose(service.getServicePurpose());
         dto.setTimeTest(service.getTimeTest());
-        dto.setServiceBlog(service.getServiceBlog());
+        dto.setDescribe(service.getDescribe());
         dto.setPrice(service.getServicePrice());
 
         return dto;
@@ -73,7 +71,7 @@ public class ServiceImpl implements ServiceInterface {
             dto.setServiceName(service.getServiceName());
             dto.setServicePurpose(service.getServicePurpose());
             dto.setTimeTest(service.getTimeTest());
-            dto.setServiceBlog(service.getServiceBlog());
+            dto.setDescribe(service.getDescribe());
             dto.setPrice(service.getServicePrice());
             return dto;
         }).toList();
@@ -88,7 +86,7 @@ public class ServiceImpl implements ServiceInterface {
         service.setServiceName(dto.getServiceName());
         service.setServicePurpose(dto.getServicePurpose());
         service.setTimeTest(dto.getTimeTest());
-        service.setServiceBlog(dto.getServiceBlog());
+        service.setDescribe(dto.getDescribe());
         service.setServicePrice(dto.getPrice());
 
         Services updated = serviceRepository.save(service);
@@ -98,7 +96,7 @@ public class ServiceImpl implements ServiceInterface {
         result.setServiceName(updated.getServiceName());
         result.setServicePurpose(updated.getServicePurpose());
         result.setTimeTest(updated.getTimeTest());
-        result.setServiceBlog(updated.getServiceBlog());
+        result.setDescribe(updated.getDescribe());
         result.setPrice(updated.getServicePrice());
 
         return result;

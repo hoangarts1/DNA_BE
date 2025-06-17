@@ -5,19 +5,19 @@ public class ServiceDTO {
     private String serviceName;
     private String servicePurpose;
     private int timeTest;
-    private String serviceBlog;
+    private String describe;
     private double price;
 
     public ServiceDTO() {
     }
 
-    public ServiceDTO( Long serviceID, String serviceName, String servicePurpose,  double price, int timeTest, String serviceBlog) {
+    public ServiceDTO( Long serviceID, String serviceName, String servicePurpose,  double price, int timeTest, String describe) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
         this.servicePurpose = servicePurpose;
         this.price = price;
         this.timeTest = timeTest;
-        this.serviceBlog = serviceBlog;
+        this.describe = describe;
     }
 
     public double getPrice() {
@@ -28,12 +28,12 @@ public class ServiceDTO {
         this.price = price;
     }
 
-    public String getServiceBlog() {
-        return serviceBlog;
+    public String getDescribe() {
+        return describe;
     }
 
-    public void setServiceBlog(String serviceBlog) {
-        this.serviceBlog = serviceBlog;
+    public void setDescribe(String describe) {
+        this.describe = describe;
     }
 
     public Long getServiceID() {
