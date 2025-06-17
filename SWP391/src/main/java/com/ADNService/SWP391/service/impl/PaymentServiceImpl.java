@@ -1,7 +1,9 @@
 package com.ADNService.SWP391.service.impl;
 
 import com.ADNService.SWP391.config.VNPayConfig;
+import com.ADNService.SWP391.entity.Customer;
 import com.ADNService.SWP391.entity.Payment;
+import com.ADNService.SWP391.entity.TestOrder;
 import com.ADNService.SWP391.repository.CustomerRepository;
 import com.ADNService.SWP391.repository.PaymentRepository;
 import com.ADNService.SWP391.repository.TestOrderRepository;
@@ -32,6 +34,13 @@ public class PaymentServiceImpl implements PaymentService {
     private TestOrderRepository testOrderRepository;
 
     public String createVNPayPayment(int amount, Long orderId, Long customerId) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+        TestOrder order = testOrderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+
+
         String vnp_TxnRef = String.valueOf(System.currentTimeMillis());
         String vnp_OrderInfo = "Thanh toan don hang " + orderId;
         String vnp_IpAddr = "127.0.0.1";

@@ -5,11 +5,13 @@ import com.ADNService.SWP391.entity.TestOrder;
 import com.ADNService.SWP391.repository.*;
 import com.ADNService.SWP391.service.TestOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class TestOrderServiceImpl implements TestOrderService {
@@ -34,7 +36,7 @@ public class TestOrderServiceImpl implements TestOrderService {
         dto.setServiceId(order.getServices().getServiceID());
         dto.setOrderDate(order.getOrderDate());
         dto.setOrderStatus(order.getOrderStatus());
-        dto.setSampleType(order.getSampleType());
+        dto.setSampleType(order.getSampleType()); // Hình thức lấy mẫu (center/home)
         dto.setResultDeliveryMethod(order.getResultDeliveryMethod());
         dto.setResultDeliverAddress(order.getResultDeliverAddress());
         dto.setKitCode(order.getKitCode());
@@ -49,6 +51,9 @@ public class TestOrderServiceImpl implements TestOrderService {
         }
         if (dto.getServiceId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Service ID is required");
+        }
+        if (dto.getSampleType() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sample type (method) is required");
         }
 
         TestOrder order = new TestOrder();
@@ -71,10 +76,13 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Service not found")));
 
         order.setOrderDate(dto.getOrderDate());
-        order.setSampleType(dto.getSampleType());
+        order.setSampleType(dto.getSampleType()); // Gán phương thức lấy mẫu
         order.setResultDeliveryMethod(dto.getResultDeliveryMethod());
         order.setResultDeliverAddress(dto.getResultDeliverAddress());
-        order.setKitCode(dto.getKitCode());
+        // Random kitCode chỉ khi sampleType là "home"
+        order.setKitCode(dto.getSampleType().equals("home") && dto.getKitCode() == null
+                ? "KIT-" + new Random().nextInt(1000000)
+                : dto.getKitCode());
         order.setSampleQuantity(dto.getSampleQuantity());
         order.setAmount(dto.getAmount());
         return order;
@@ -94,9 +102,15 @@ public class TestOrderServiceImpl implements TestOrderService {
 
     @Override
     public TestOrderDTO createOrder(TestOrderDTO dto) {
-        dto.setOrderId(null);
+        dto.setOrderId(null); // Đảm bảo tạo mới
         TestOrder entity = convertToEntity(dto);
-        return convertToDTO(testOrderRepository.save(entity));
+        try {
+            return convertToDTO(testOrderRepository.save(entity));
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to create Test Order: Duplicate data or constraint violation: " + e.getMessage());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to create Test Order: " + e.getMessage());
+        }
     }
 
     @Override

@@ -47,10 +47,10 @@ public class TestSampleServiceImpl implements TestSampleService {
                     .orElseThrow(() -> new RuntimeException("Staff with ID " + dto.getStaffId() + " does not exist."));
         }
 
-        Optional<TestSample> existingSample = testSampleRepository.findById(dto.getOrderId());
-        if (existingSample.isPresent()) {
-            throw new RuntimeException("Test Sample with Order ID " + dto.getOrderId() + " already exists.");
-        }
+//        Optional<TestSample> existingSample = testSampleRepository.findById(dto.getOrderId());
+//        if (existingSample.isPresent()) {
+//            throw new RuntimeException("Test Sample with Order ID " + dto.getOrderId() + " already exists.");
+//        }
 
         TestSample sample = new TestSample();
         sample.setOrder(order);
