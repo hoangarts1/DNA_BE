@@ -32,8 +32,9 @@ public class Customer {
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
 
-    @Column(nullable = true, unique = true, columnDefinition = "NVARCHAR(50)")
+    @Column(name = "cccd", nullable = false, unique = true, length = 50)
     private String cccd;
+
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String documentType;
