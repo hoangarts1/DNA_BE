@@ -34,6 +34,7 @@ public class TestOrderServiceImpl implements TestOrderService {
         dto.setServiceId(order.getServices().getServiceID());
         dto.setOrderDate(order.getOrderDate());
         dto.setOrderStatus(order.getOrderStatus());
+        dto.setSampleType(order.getSampleType());
         dto.setResultDeliveryMethod(order.getResultDeliveryMethod());
         dto.setResultDeliverAddress(order.getResultDeliverAddress());
         dto.setKitCode(order.getKitCode());
@@ -57,7 +58,7 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Service not found")));
 
         order.setOrderDate(dto.getOrderDate());
-        order.setOrderStatus(dto.getOrderStatus());
+        order.setSampleType(dto.getSampleType());
         order.setResultDeliveryMethod(dto.getResultDeliveryMethod());
         order.setResultDeliverAddress(dto.getResultDeliverAddress());
         order.setKitCode(dto.getKitCode());
