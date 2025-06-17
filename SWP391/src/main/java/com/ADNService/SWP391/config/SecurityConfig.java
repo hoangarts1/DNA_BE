@@ -34,6 +34,7 @@ public class SecurityConfig {
     @Autowired
     private JwtUtil jwtUtil;
 
+
 //    @Bean
 //    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 //        http
@@ -77,7 +78,11 @@ public class SecurityConfig {
 //        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 //        source.registerCorsConfiguration("/**", config);
 //        return source;
+<<<<<<< HEAD
 //    }
 
 
 }
+=======
+    }
+>>>>>>> 2e6c0c70cd6ccff397f0ad846e15aee00ba99598
