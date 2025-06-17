@@ -30,7 +30,7 @@ public class TestOrderServiceImpl implements TestOrderService {
         TestOrderDTO dto = new TestOrderDTO();
         dto.setOrderId(order.getOrderId());
         dto.setCustomerId(order.getCustomer().getId());
-        dto.setStaffId(order.getStaff().getId());
+        dto.setStaffId(order.getStaff() != null ? order.getStaff().getId() : null);
         dto.setServiceId(order.getServices().getServiceID());
         dto.setOrderDate(order.getOrderDate());
         dto.setOrderStatus(order.getOrderStatus());
@@ -44,6 +44,13 @@ public class TestOrderServiceImpl implements TestOrderService {
     }
 
     private TestOrder convertToEntity(TestOrderDTO dto) {
+        if (dto.getCustomerId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer ID is required");
+        }
+        if (dto.getServiceId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Service ID is required");
+        }
+
         TestOrder order = new TestOrder();
 
         if (dto.getOrderId() != null) {
@@ -52,8 +59,14 @@ public class TestOrderServiceImpl implements TestOrderService {
 
         order.setCustomer(customerRepo.findById(dto.getCustomerId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found")));
-        order.setStaff(staffRepo.findById(dto.getStaffId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found")));
+
+        if (dto.getStaffId() != null) {
+            order.setStaff(staffRepo.findById(dto.getStaffId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Staff not found")));
+        } else {
+            order.setStaff(null);
+        }
+
         order.setServices(serviceRepo.findById(dto.getServiceId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Service not found")));
 
@@ -85,7 +98,6 @@ public class TestOrderServiceImpl implements TestOrderService {
         TestOrder entity = convertToEntity(dto);
         return convertToDTO(testOrderRepository.save(entity));
     }
-
 
     @Override
     public TestOrderDTO updateOrder(String id, TestOrderDTO dto) {

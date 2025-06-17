@@ -22,7 +22,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-//@EnableWebSecurity
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
@@ -40,9 +40,9 @@ public class SecurityConfig {
 //                .cors(Customizer.withDefaults())
 //                .csrf(csrf -> csrf.disable())
 //                .authorizeHttpRequests(auth -> auth
-//             //           .requestMatchers("/auth/**").permitAll()
-//                        .requestMatchers("/api/services/**").permitAll()
-//                        .requestMatchers("/api/services/**").hasRole("MANAGER") //
+//                        .requestMatchers("/auth/**").permitAll()
+//
+//                        .requestMatchers("/api/services/**").permitAll() //
 //                        .anyRequest().authenticated()
 //                )
 //                .addFilterBefore((request, response, chain) -> {
@@ -60,9 +60,7 @@ public class SecurityConfig {
 //                            var auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
 //                            SecurityContextHolder.getContext().setAuthentication(auth);
 //                        }
-//                    }
-//
-//                    chain.doFilter(request, response);
+//                    }chain.doFilter(request, response);
 //                }, UsernamePasswordAuthenticationFilter.class);
 //
 //        return http.build();
