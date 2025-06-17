@@ -26,22 +26,18 @@ public class Services {
     @Column(name = "service_price", nullable = false)
     private double servicePrice;
 
-    @Column(name = "number_of_sample", nullable = false)
-    private int numberOfSample;
-
     // Constructors
     public Services() {
     }
 
     public Services(Long serviceID, String serviceName, String servicePurpose, int timeTest,
-        String serviceBlog, double servicePrice, int numberOfSample) {
+        String serviceBlog, double servicePrice) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
         this.servicePurpose = servicePurpose;
         this.timeTest = timeTest;
         this.serviceBlog = serviceBlog;
         this.servicePrice = servicePrice;
-        this.numberOfSample = numberOfSample;
     }
 
     // Getters and Setters
@@ -91,16 +87,6 @@ public class Services {
 
     public void setServicePrice(double servicePrice) {
         this.servicePrice = servicePrice;
-    }
-
-
-
-    public int getNumberOfSample() {
-        return numberOfSample;
-    }
-
-    public void setNumberOfSample(int numberOfSample) {
-        this.numberOfSample = numberOfSample;
     }
 
 }
