@@ -32,7 +32,6 @@ public class ServiceImpl implements ServiceInterface {
         service.setTimeTest(dto.getTimeTest());
         service.setServiceBlog(dto.getServiceBlog());
         service.setServicePrice(dto.getPrice());
-        service.setNumberOfSample(dto.getNumberOfSample());
 
         Services savedService = serviceRepository.save(service);
 
@@ -43,7 +42,6 @@ public class ServiceImpl implements ServiceInterface {
         result.setTimeTest(savedService.getTimeTest());
         result.setServiceBlog(savedService.getServiceBlog());
         result.setPrice(savedService.getServicePrice());
-        result.setNumberOfSample(savedService.getNumberOfSample());
 
         return result;
     }
@@ -61,7 +59,6 @@ public class ServiceImpl implements ServiceInterface {
         dto.setTimeTest(service.getTimeTest());
         dto.setServiceBlog(service.getServiceBlog());
         dto.setPrice(service.getServicePrice());
-        dto.setNumberOfSample(service.getNumberOfSample());
 
         return dto;
     }
@@ -78,7 +75,6 @@ public class ServiceImpl implements ServiceInterface {
             dto.setTimeTest(service.getTimeTest());
             dto.setServiceBlog(service.getServiceBlog());
             dto.setPrice(service.getServicePrice());
-            dto.setNumberOfSample(service.getNumberOfSample());
             return dto;
         }).toList();
     }
@@ -94,7 +90,6 @@ public class ServiceImpl implements ServiceInterface {
         service.setTimeTest(dto.getTimeTest());
         service.setServiceBlog(dto.getServiceBlog());
         service.setServicePrice(dto.getPrice());
-        service.setNumberOfSample(dto.getNumberOfSample());
 
         Services updated = serviceRepository.save(service);
 
@@ -105,7 +100,6 @@ public class ServiceImpl implements ServiceInterface {
         result.setTimeTest(updated.getTimeTest());
         result.setServiceBlog(updated.getServiceBlog());
         result.setPrice(updated.getServicePrice());
-        result.setNumberOfSample(updated.getNumberOfSample());
 
         return result;
     }

@@ -23,7 +23,6 @@ public class TestOrder {
     private Services services;
 
     private LocalDate orderDate;
-    private String sampleType;
     private String orderStatus;
     private String resultDeliveryMethod;
     private String resultDeliverAddress;
@@ -109,14 +108,6 @@ public class TestOrder {
 
     public void setSampleQuantity(int sampleQuantity) {
         this.sampleQuantity = sampleQuantity;
-    }
-
-    public String getSampleType() {
-        return sampleType;
-    }
-
-    public void setSampleType(String sampleType) {
-        this.sampleType = sampleType;
     }
 
     public Services getServices() {

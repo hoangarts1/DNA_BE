@@ -8,7 +8,6 @@ public class TestOrderDTO {
     private Long staffId;
     private Long serviceId;
     private LocalDate orderDate;
-    private String sampleType;
     private String orderStatus;
     private String resultDeliveryMethod;
     private String resultDeliverAddress;
@@ -19,13 +18,12 @@ public class TestOrderDTO {
     public TestOrderDTO() {
     }
 
-    public TestOrderDTO(Long orderId, Long customerId, Long StaffID, Long serviceId, LocalDate orderDate, String sampleType, String orderStatus, String resultDeliverAddress, String resultDeliveryMethod, String kitCode, int sampleQuantity, int amount) {
+    public TestOrderDTO(Long orderId, Long customerId, Long StaffID, Long serviceId, LocalDate orderDate, String orderStatus, String resultDeliverAddress, String resultDeliveryMethod, String kitCode, int sampleQuantity, int amount) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.staffId = staffId;
         this.serviceId = serviceId;
         this.orderDate = orderDate;
-        this.sampleType = sampleType;
         this.orderStatus = orderStatus;
         this.resultDeliverAddress = resultDeliverAddress;
         this.resultDeliveryMethod = resultDeliveryMethod;
@@ -112,14 +110,6 @@ public class TestOrderDTO {
 
     public void setSampleQuantity(int sampleQuantity) {
         this.sampleQuantity = sampleQuantity;
-    }
-
-    public String getSampleType() {
-        return sampleType;
-    }
-
-    public void setSampleType(String sampleType) {
-        this.sampleType = sampleType;
     }
 
     public Long getServiceId() {
