@@ -10,6 +10,8 @@ public class TestSampleDTO {
     private Long staffId;
 
     private String name;
+    private String gender;
+
     private Date dateOfBirth;
     private String documentType;
     private String documentNumber;
@@ -27,12 +29,13 @@ public class TestSampleDTO {
     public TestSampleDTO() {
     }
 
-    public TestSampleDTO(Long id, Long orderId, Long customerId, Long staffId, String name, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, String sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint) {
+    public TestSampleDTO(Long id, Long orderId, Long customerId, Long staffId, String name, String gender, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, String sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint) {
         this.id = id;
         this.orderId = orderId;
         this.customerId = customerId;
         this.staffId = staffId;
         this.name = name;
+        this.gender = gender;
         this.dateOfBirth = dateOfBirth;
         this.documentType = documentType;
         this.documentNumber = documentNumber;
@@ -47,6 +50,15 @@ public class TestSampleDTO {
         this.medicalHistory = medicalHistory;
         this.fingerprint = fingerprint;
     }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
 
     public Long getId() {
         return id;

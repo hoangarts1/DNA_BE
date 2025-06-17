@@ -46,6 +46,7 @@ public class TestSampleServiceImpl implements TestSampleService {
         sample.setCustomer(customer);
         sample.setStaff(staff);
         sample.setName(dto.getName());
+        sample.setGender(dto.getGender());
         sample.setDateOfBirth(dto.getDateOfBirth());
         sample.setDocumentType(dto.getDocumentType());
         sample.setDocumentNumber(dto.getDocumentNumber());
@@ -88,6 +89,7 @@ public class TestSampleServiceImpl implements TestSampleService {
         TestSample sample = optionalTestSample.get();
 
         sample.setName(dto.getName());
+        sample.setGender(dto.getGender());
         sample.setDateOfBirth(dto.getDateOfBirth());
         sample.setDocumentType(dto.getDocumentType());
         sample.setDocumentNumber(dto.getDocumentNumber());
@@ -122,6 +124,7 @@ public class TestSampleServiceImpl implements TestSampleService {
         dto.setCustomerId(sample.getCustomer() != null ? sample.getCustomer().getId() : null);
         dto.setStaffId(sample.getStaff() != null ? sample.getStaff().getId() : null);
         dto.setName(sample.getName());
+        dto.setGender(sample.getGender());
         dto.setDateOfBirth(sample.getDateOfBirth());
         dto.setDocumentType(sample.getDocumentType());
         dto.setDocumentNumber(sample.getDocumentNumber());

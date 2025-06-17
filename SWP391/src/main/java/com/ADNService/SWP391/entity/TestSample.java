@@ -27,6 +27,7 @@ public class TestSample {
     private Staff staff;
 
     private String name;
+    private String gender;
     private Date dateOfBirth;
     private String documentType;
     private String documentNumber;
@@ -44,12 +45,13 @@ public class TestSample {
     public TestSample() {
     }
 
-    public TestSample(Long id, TestOrder order, Customer customer, Staff staff, String name, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, String sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint) {
+    public TestSample(Long id, TestOrder order, Customer customer, Staff staff, String name, String gender, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, String sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint) {
         this.id = id;
         this.order = order;
         this.customer = customer;
         this.staff = staff;
         this.name = name;
+        this.gender = gender;
         this.dateOfBirth = dateOfBirth;
         this.documentType = documentType;
         this.documentNumber = documentNumber;
@@ -64,6 +66,15 @@ public class TestSample {
         this.medicalHistory = medicalHistory;
         this.fingerprint = fingerprint;
     }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
 
     public Long getId() {
         return id;
