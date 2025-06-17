@@ -17,8 +17,8 @@ public class Services {
     @Column(name = "service_purpose", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String servicePurpose;
 
-    @Column(name = "service_blog", nullable = true, columnDefinition = "NVARCHAR(255)")
-    private String serviceBlog;
+    @Column(name = "describe", nullable = true, columnDefinition = "NVARCHAR(255)")
+    private String describe;
 
     @Column(name = "time_test", nullable = false)
     private int timeTest;
@@ -31,12 +31,12 @@ public class Services {
     }
 
     public Services(Long serviceID, String serviceName, String servicePurpose, int timeTest,
-        String serviceBlog, double servicePrice) {
+        String describe, double servicePrice) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
         this.servicePurpose = servicePurpose;
         this.timeTest = timeTest;
-        this.serviceBlog = serviceBlog;
+        this.describe = describe;
         this.servicePrice = servicePrice;
     }
 
@@ -65,12 +65,12 @@ public class Services {
         this.servicePurpose = servicePurpose;
     }
 
-    public String getServiceBlog() {
-        return serviceBlog;
+    public String getDescribe() {
+        return describe;
     }
 
-    public void setServiceBlog(String serviceBlog) {
-        this.serviceBlog = serviceBlog;
+    public void setDescribe(String describe) {
+        this.describe = describe;
     }
 
     public int getTimeTest() {
