@@ -28,19 +28,30 @@ public class TestSampleServiceImpl implements TestSampleService {
 
     @Override
     public TestSampleDTO createTestSample(TestSampleDTO dto) {
+        if (dto.getOrderId() == null) {
+            throw new IllegalArgumentException("Order ID is required");
+        }
+        if (dto.getCustomerId() == null) {
+            throw new IllegalArgumentException("Customer ID is required");
+        }
+
         TestOrder order = testOrderRepository.findById(dto.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Order with ID " + dto.getOrderId() + " does not exist."));
 
         Customer customer = customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer with ID " + dto.getCustomerId() + " does not exist."));
 
-        Staff staff = staffRepository.findById(dto.getStaffId())
-                .orElseThrow(() -> new RuntimeException("Staff with ID " + dto.getStaffId() + " does not exist."));
-
-        Optional<TestSample> existingSample = testSampleRepository.findById(dto.getOrderId());
-        if (existingSample.isPresent()) {
-            throw new RuntimeException("Test Sample with Order ID " + dto.getOrderId() + " already exists.");
+        Staff staff = null;
+        if (dto.getStaffId() != null) {
+            staff = staffRepository.findById(dto.getStaffId())
+                    .orElseThrow(() -> new RuntimeException("Staff with ID " + dto.getStaffId() + " does not exist."));
         }
+
+//        Optional<TestSample> existingSample = testSampleRepository.findById(dto.getOrderId());
+//        if (existingSample.isPresent()) {
+//            throw new RuntimeException("Test Sample with Order ID " + dto.getOrderId() + " already exists.");
+//        }
+
         TestSample sample = new TestSample();
         sample.setOrder(order);
         sample.setCustomer(customer);
@@ -87,6 +98,20 @@ public class TestSampleServiceImpl implements TestSampleService {
         }
 
         TestSample sample = optionalTestSample.get();
+
+        if (dto.getCustomerId() != null) {
+            Customer customer = customerRepository.findById(dto.getCustomerId())
+                    .orElseThrow(() -> new RuntimeException("Customer with ID " + dto.getCustomerId() + " does not exist."));
+            sample.setCustomer(customer);
+        }
+
+        if (dto.getStaffId() != null) {
+            Staff staff = staffRepository.findById(dto.getStaffId())
+                    .orElseThrow(() -> new RuntimeException("Staff with ID " + dto.getStaffId() + " does not exist."));
+            sample.setStaff(staff);
+        } else {
+            sample.setStaff(null);
+        }
 
         sample.setName(dto.getName());
         sample.setGender(dto.getGender());

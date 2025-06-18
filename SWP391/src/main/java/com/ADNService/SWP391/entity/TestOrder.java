@@ -24,11 +24,20 @@ public class TestOrder {
 
     private LocalDate orderDate;
     private String orderStatus;
+    private String sampleType;
     private String resultDeliveryMethod;
     private String resultDeliverAddress;
     private String kitCode;
     private int sampleQuantity;
     private int amount;
+
+    public String getSampleType() {
+        return sampleType;
+    }
+
+    public void setSampleType(String sampleType) {
+        this.sampleType = sampleType;
+    }
 
     public Staff getStaff() {
         return staff;

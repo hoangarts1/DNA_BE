@@ -41,9 +41,9 @@ public class SecurityConfig {
 //                .cors(Customizer.withDefaults())
 //                .csrf(csrf -> csrf.disable())
 //                .authorizeHttpRequests(auth -> auth
-//                                   .requestMatchers("/auth/**").permitAll()
+//             //           .requestMatchers("/auth/**").permitAll()
 //                        .requestMatchers("/api/services/**").permitAll()
-////                        .requestMatchers("/api/services/**").hasRole("MANAGER") //
+//                        .requestMatchers("/api/services/**").hasRole("MANAGER") //
 //                        .anyRequest().authenticated()
 //                )
 //                .addFilterBefore((request, response, chain) -> {
@@ -80,6 +80,4 @@ public class SecurityConfig {
 //        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 //        source.registerCorsConfiguration("/**", config);
 //        return source;
-//    }
-}
-
+    }
