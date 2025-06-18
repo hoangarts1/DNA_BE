@@ -54,7 +54,7 @@ public class TestResultServiceImpl implements TestResultService {
         result.setResultUrl(dto.getResultUrl());
 
         TestResult saved = testResultRepository.save(result);
-        compareAndSaveResult(saved.getId(), dto.getSampleId1(), dto.getSampleId2());
+//        compareAndSaveResult(saved.getId(), dto.getSampleId1(), dto.getSampleId2());
         return convertToDTO(saved);
     }
 
@@ -102,7 +102,7 @@ public class TestResultServiceImpl implements TestResultService {
         result.setResultUrl(dto.getResultUrl());
 
         TestResult updated = testResultRepository.save(result);
-        compareAndSaveResult(updated.getId(), dto.getSampleId1(), dto.getSampleId2());
+//        compareAndSaveResult(updated.getId(), dto.getSampleId1(), dto.getSampleId2());
         return convertToDTO(updated);
     }
 

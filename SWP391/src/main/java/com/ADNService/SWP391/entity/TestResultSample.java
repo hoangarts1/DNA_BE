@@ -9,7 +9,7 @@ public class TestResultSample {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "test_sample_id")
     private TestSample testSample;
 
