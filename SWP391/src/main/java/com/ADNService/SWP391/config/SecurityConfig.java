@@ -34,16 +34,16 @@ public class SecurityConfig {
     @Autowired
     private JwtUtil jwtUtil;
 
-
 //    @Bean
 //    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 //        http
 //                .cors(Customizer.withDefaults())
 //                .csrf(csrf -> csrf.disable())
 //                .authorizeHttpRequests(auth -> auth
-//             //           .requestMatchers("/auth/**").permitAll()
-//                        .requestMatchers("/api/services/**").permitAll()
-//                        .requestMatchers("/api/services/**").hasRole("MANAGER") //
+//                        .requestMatchers("/auth/**").permitAll()
+//                        .requestMatchers("/api/testorders/**").permitAll()
+//                        .requestMatchers("/api/services/**").permitAll() //
+//                        .requestMatchers("/api/testSamples/**").permitAll()
 //                        .anyRequest().authenticated()
 //                )
 //                .addFilterBefore((request, response, chain) -> {
@@ -80,4 +80,7 @@ public class SecurityConfig {
 //        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 //        source.registerCorsConfiguration("/**", config);
 //        return source;
-    }
+//    }
+
+
+}
