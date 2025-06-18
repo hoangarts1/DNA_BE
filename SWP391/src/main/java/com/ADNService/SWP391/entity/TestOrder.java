@@ -11,48 +11,40 @@ public class TestOrder {
     private Long orderId;
 
     @ManyToOne
-    @JoinColumn(name = "customerID")
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
     @ManyToOne
-    @JoinColumn(name = "staffID")
-    private Staff staff;
-
-    @ManyToOne
-    @JoinColumn(name = "serviceID")
+    @JoinColumn(name = "service_id")
     private Services services;
 
+    @ManyToOne
+    @JoinColumn(name = "registration_staff_id")
+    private Staff registrationStaff;
+
+    @ManyToOne
+    @JoinColumn(name = "testing_staff_id")
+    private Staff testingStaff;
+
     private LocalDate orderDate;
+
     private String orderStatus;
     private String sampleType;
     private String resultDeliveryMethod;
     private String resultDeliverAddress;
     private String kitCode;
+
     private int sampleQuantity;
     private int amount;
 
-    public String getSampleType() {
-        return sampleType;
+// Getter & Setter
+
+    public Long getOrderId() {
+        return orderId;
     }
 
-    public void setSampleType(String sampleType) {
-        this.sampleType = sampleType;
-    }
-
-    public Staff getStaff() {
-        return staff;
-    }
-
-    public void setStaff(Staff staff) {
-        this.staff = staff;
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 
     public Customer getCustomer() {
@@ -63,12 +55,28 @@ public class TestOrder {
         this.customer = customer;
     }
 
-    public String getKitCode() {
-        return kitCode;
+    public Services getServices() {
+        return services;
     }
 
-    public void setKitCode(String kitCode) {
-        this.kitCode = kitCode;
+    public void setServices(Services services) {
+        this.services = services;
+    }
+
+    public Staff getRegistrationStaff() {
+        return registrationStaff;
+    }
+
+    public void setRegistrationStaff(Staff registrationStaff) {
+        this.registrationStaff = registrationStaff;
+    }
+
+    public Staff getTestingStaff() {
+        return testingStaff;
+    }
+
+    public void setTestingStaff(Staff testingStaff) {
+        this.testingStaff = testingStaff;
     }
 
     public LocalDate getOrderDate() {
@@ -79,14 +87,6 @@ public class TestOrder {
         this.orderDate = orderDate;
     }
 
-    public Long getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
-    }
-
     public String getOrderStatus() {
         return orderStatus;
     }
@@ -95,12 +95,12 @@ public class TestOrder {
         this.orderStatus = orderStatus;
     }
 
-    public String getResultDeliverAddress() {
-        return resultDeliverAddress;
+    public String getSampleType() {
+        return sampleType;
     }
 
-    public void setResultDeliverAddress(String resultDeliverAddress) {
-        this.resultDeliverAddress = resultDeliverAddress;
+    public void setSampleType(String sampleType) {
+        this.sampleType = sampleType;
     }
 
     public String getResultDeliveryMethod() {
@@ -111,6 +111,22 @@ public class TestOrder {
         this.resultDeliveryMethod = resultDeliveryMethod;
     }
 
+    public String getResultDeliverAddress() {
+        return resultDeliverAddress;
+    }
+
+    public void setResultDeliverAddress(String resultDeliverAddress) {
+        this.resultDeliverAddress = resultDeliverAddress;
+    }
+
+    public String getKitCode() {
+        return kitCode;
+    }
+
+    public void setKitCode(String kitCode) {
+        this.kitCode = kitCode;
+    }
+
     public int getSampleQuantity() {
         return sampleQuantity;
     }
@@ -119,11 +135,12 @@ public class TestOrder {
         this.sampleQuantity = sampleQuantity;
     }
 
-    public Services getServices() {
-        return services;
+    public int getAmount() {
+        return amount;
     }
 
-    public void setServices(Services services) {
-        this.services = services;
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
+
 }
