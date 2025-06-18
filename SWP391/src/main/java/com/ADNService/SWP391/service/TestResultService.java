@@ -15,7 +15,4 @@ public interface TestResultService {
     TestResultDTO updateTestResult(Long id, TestResultDTO dto);
 
     void deleteTestResult(Long id);
-
-
-    void compareAndSaveResult(Long testResultId, Long sampleId1, Long sampleId2);
 }

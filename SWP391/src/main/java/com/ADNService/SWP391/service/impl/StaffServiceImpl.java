@@ -86,10 +86,10 @@ public class StaffServiceImpl implements StaffService {
 
         Optional<Staff> optionalStaff = staffRepository.findById(id);
         if (optionalStaff.isEmpty()) {
-        throw new RuntimeException("Staff with ID " + id + " does not exist.");
-    }
+            throw new RuntimeException("Staff with ID " + id + " does not exist.");
+        }
         staffRepository.deleteById(id);
-}
+    }
     private StaffDTO convertToDTO(Staff staff) {
         StaffDTO dto = new StaffDTO();
         dto.setId(staff.getId());
