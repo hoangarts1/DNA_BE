@@ -23,11 +23,27 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("role", role) //
+
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey())
                 .compact();
     }
+
+    public String generateTokenWithStaffType(String username, String role, String staffType) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expirationMillis);
+
+        return Jwts.builder()
+                .setSubject(username)
+                .claim("role", role)
+                .claim("staffType", staffType) // thêm staffType vào claims
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
 
     public String extractUsername(String token) {
         return getClaims(token).getSubject();
