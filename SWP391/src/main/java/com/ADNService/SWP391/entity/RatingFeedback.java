@@ -18,6 +18,7 @@ public class RatingFeedback {
     @Column(nullable = false)
     private int rating;  // must be 1-5
 
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String comment;
 
     private LocalDate date;

@@ -7,6 +7,9 @@ public class TestResultDTO {
     private Long accountId;
     private String result;
     private String resultUrl;
+    private Long sampleId1;
+    private Long sampleId2;
+
 
     public TestResultDTO() {
     }
@@ -66,5 +69,21 @@ public class TestResultDTO {
 
     public void setResultUrl(String resultUrl) {
         this.resultUrl = resultUrl;
+    }
+
+    public Long getSampleId1() {
+        return sampleId1;
+    }
+
+    public void setSampleId1(Long sampleId1) {
+        this.sampleId1 = sampleId1;
+    }
+
+    public Long getSampleId2() {
+        return sampleId2;
+    }
+
+    public void setSampleId2(Long sampleId2) {
+        this.sampleId2 = sampleId2;
     }
 }
