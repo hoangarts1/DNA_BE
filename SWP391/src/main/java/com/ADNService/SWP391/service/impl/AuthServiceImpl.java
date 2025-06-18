@@ -72,27 +72,37 @@ public class AuthServiceImpl implements AuthService {
             throw new CustomException("Invalid username or password");
         }
 
-//        String token = jwtUtil.generateToken(username, user.getRole().name());
-        String token = jwtUtil.generateToken(username, user.getRole().name());
+        String token;
+
+        // Nếu là STAFF thì lấy thêm staffType từ bảng staff
+        if (user.getRole() == Role.STAFF) {
+            Staff staff = staffRepository.findByAccountId(user.getId())
+                    .orElseThrow(() -> new CustomException("Staff info not found for this account."));
+
+            token = jwtUtil.generateTokenWithStaffType(username, user.getRole().name(), staff.getRole().name());
+        } else {
+            token = jwtUtil.generateToken(username, user.getRole().name());
+        }
 
         return new LoginResponse(token, user);
     }
 
+
     @Override
     public void forgotPassword(String email) {
-            Account user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new CustomException("Email not found"));
+        Account user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException("Email not found"));
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
 
-            String resetLink = "http://localhost:3000/reset-password?token=" + token;
+        String resetLink = "http://localhost:3000/reset-password?token=" + token;
 
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
-            message.setSubject("Reset your password");
-            message.setText("Click the following link to reset your password: " + resetLink);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Reset your password");
+        message.setText("Click the following link to reset your password: " + resetLink);
 
-            mailSender.send(message);
+        mailSender.send(message);
 
 
 //        Optional<Account> optionalUser = userRepository.findByEmail(email);

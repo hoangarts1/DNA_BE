@@ -36,55 +36,97 @@ public class TestOrderServiceImpl implements TestOrderService {
         dto.setServiceId(order.getServices().getServiceID());
         dto.setOrderDate(order.getOrderDate());
         dto.setOrderStatus(order.getOrderStatus());
-        dto.setSampleType(order.getSampleType()); // Hình thức lấy mẫu (center/home)
+        dto.setSampleType(order.getSampleType());
         dto.setResultDeliveryMethod(order.getResultDeliveryMethod());
         dto.setResultDeliverAddress(order.getResultDeliverAddress());
         dto.setKitCode(order.getKitCode());
-        dto.setSampleQuantity(order.getSampleQuantity());
-        dto.setAmount(order.getAmount());
+        dto.setSampleQuantity(order.getSampleQuantity()); // Gán int sang int
+        dto.setAmount(order.getAmount()); // Gán int sang int
         return dto;
     }
 
-    private TestOrder convertToEntity(TestOrderDTO dto) {
-        if (dto.getCustomerId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer ID is required");
-        }
-        if (dto.getServiceId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Service ID is required");
-        }
-        if (dto.getSampleType() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sample type (method) is required");
+    private TestOrder convertToEntity(TestOrderDTO dto, TestOrder existing, boolean isUpdate) {
+        TestOrder order = existing != null ? existing : new TestOrder();
+
+        // Chỉ kiểm tra các trường bắt buộc khi tạo mới
+        if (!isUpdate) {
+            if (dto.getCustomerId() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer ID is required");
+            }
+            if (dto.getServiceId() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Service ID is required");
+            }
+            if (dto.getSampleType() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sample type (method) is required");
+            }
+
+            order.setCustomer(customerRepo.findById(dto.getCustomerId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found")));
+
+            order.setServices(serviceRepo.findById(dto.getServiceId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Service not found")));
         }
 
-        TestOrder order = new TestOrder();
-
+        // Cập nhật các trường nếu có trong DTO
         if (dto.getOrderId() != null) {
             order.setOrderId(dto.getOrderId());
         }
 
-        order.setCustomer(customerRepo.findById(dto.getCustomerId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found")));
-
         if (dto.getStaffId() != null) {
             order.setStaff(staffRepo.findById(dto.getStaffId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Staff not found")));
-        } else {
-            order.setStaff(null);
+        } else if (isUpdate) {
+            order.setStaff(existing.getStaff());
         }
 
-        order.setServices(serviceRepo.findById(dto.getServiceId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Service not found")));
+        if (dto.getOrderDate() != null) {
+            order.setOrderDate(dto.getOrderDate());
+        }
 
-        order.setOrderDate(dto.getOrderDate());
-        order.setSampleType(dto.getSampleType()); // Gán phương thức lấy mẫu
-        order.setResultDeliveryMethod(dto.getResultDeliveryMethod());
-        order.setResultDeliverAddress(dto.getResultDeliverAddress());
-        // Random kitCode chỉ khi sampleType là "home"
-        order.setKitCode(dto.getSampleType().equals("home") && dto.getKitCode() == null
-                ? "KIT-" + new Random().nextInt(1000000)
-                : dto.getKitCode());
-        order.setSampleQuantity(dto.getSampleQuantity());
-        order.setAmount(dto.getAmount());
+        if (dto.getSampleType() != null) {
+            order.setSampleType(dto.getSampleType());
+        }
+
+        if (dto.getResultDeliveryMethod() != null) {
+            order.setResultDeliveryMethod(dto.getResultDeliveryMethod());
+        }
+
+        if (dto.getResultDeliverAddress() != null) {
+            order.setResultDeliverAddress(dto.getResultDeliverAddress());
+        }
+
+        if (dto.getSampleType() != null && dto.getSampleType().equals("home") && dto.getKitCode() == null) {
+            order.setKitCode("KIT-" + new Random().nextInt(1000000));
+        } else if (dto.getKitCode() != null) {
+            order.setKitCode(dto.getKitCode());
+        }
+
+        // Xử lý sampleQuantity
+        if (isUpdate && dto.getSampleQuantity() == 0) {
+            order.setSampleQuantity(existing.getSampleQuantity()); // Giữ nguyên giá trị hiện tại khi cập nhật và giá trị là 0
+        } else {
+            if (dto.getSampleQuantity() < 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sample quantity must be non-negative");
+            }
+            order.setSampleQuantity(dto.getSampleQuantity());
+        }
+
+        // Xử lý amount
+        if (isUpdate && dto.getAmount() == 0) {
+            order.setAmount(existing.getAmount()); // Giữ nguyên giá trị hiện tại khi cập nhật và giá trị là 0
+        } else {
+            if (dto.getAmount() < 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Amount must be non-negative");
+            }
+            order.setAmount(dto.getAmount());
+        }
+
+        if (dto.getOrderStatus() != null) {
+            order.setOrderStatus(dto.getOrderStatus());
+        } else if (!isUpdate) {
+            order.setOrderStatus("PENDING");
+        }
+
         return order;
     }
 
@@ -102,8 +144,8 @@ public class TestOrderServiceImpl implements TestOrderService {
 
     @Override
     public TestOrderDTO createOrder(TestOrderDTO dto) {
-        dto.setOrderId(null); // Đảm bảo tạo mới
-        TestOrder entity = convertToEntity(dto);
+        dto.setOrderId(null);
+        TestOrder entity = convertToEntity(dto, null, false);
         try {
             return convertToDTO(testOrderRepository.save(entity));
         } catch (DataIntegrityViolationException e) {
@@ -117,8 +159,7 @@ public class TestOrderServiceImpl implements TestOrderService {
     public TestOrderDTO updateOrder(String id, TestOrderDTO dto) {
         TestOrder existing = testOrderRepository.findById(Long.valueOf(id))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
-        TestOrder updated = convertToEntity(dto);
-        updated.setOrderId(existing.getOrderId());
+        TestOrder updated = convertToEntity(dto, existing, true);
         return convertToDTO(testOrderRepository.save(updated));
     }
 
