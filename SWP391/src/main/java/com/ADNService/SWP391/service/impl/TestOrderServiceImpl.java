@@ -9,7 +9,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.modelmapper.ModelMapper;
 
 import java.util.List;
 import java.util.Random;
@@ -17,8 +16,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class TestOrderServiceImpl implements TestOrderService {
-
-    private final ModelMapper modelMapper;
     private final TestOrderRepository testOrderRepository;
     private final CustomerRepository customerRepo;
     private final StaffRepository staffRepo;
@@ -29,21 +26,18 @@ public class TestOrderServiceImpl implements TestOrderService {
             TestOrderRepository testOrderRepository,
             CustomerRepository customerRepo,
             StaffRepository staffRepo,
-            ServiceRepository serviceRepo,
-            ModelMapper modelMapper
+            ServiceRepository serviceRepo
     ) {
         this.testOrderRepository = testOrderRepository;
         this.customerRepo = customerRepo;
         this.staffRepo = staffRepo;
         this.serviceRepo = serviceRepo;
-        this.modelMapper = modelMapper;
     }
 
     private TestOrderDTO convertToDTO(TestOrder order) {
         TestOrderDTO dto = new TestOrderDTO();
         dto.setOrderId(order.getOrderId());
         dto.setCustomerId(order.getCustomer().getId());
-        dto.setStaffId(order.getStaff() != null ? order.getStaff().getId() : null);
         dto.setServiceId(order.getServices().getServiceID());
         dto.setOrderDate(order.getOrderDate());
         dto.setOrderStatus(order.getOrderStatus());
@@ -51,15 +45,19 @@ public class TestOrderServiceImpl implements TestOrderService {
         dto.setResultDeliveryMethod(order.getResultDeliveryMethod());
         dto.setResultDeliverAddress(order.getResultDeliverAddress());
         dto.setKitCode(order.getKitCode());
-        dto.setSampleQuantity(order.getSampleQuantity()); // Gán int sang int
-        dto.setAmount(order.getAmount()); // Gán int sang int
+        dto.setSampleQuantity(order.getSampleQuantity());
+        dto.setAmount(order.getAmount());
+
+        // Gán registrationStaffId và testingStaffId nếu có
+        dto.setRegistrationStaffId(order.getRegistrationStaff() != null ? order.getRegistrationStaff().getId() : null);
+        dto.setTestingStaffId(order.getTestingStaff() != null ? order.getTestingStaff().getId() : null);
+
         return dto;
     }
 
     private TestOrder convertToEntity(TestOrderDTO dto, TestOrder existing, boolean isUpdate) {
         TestOrder order = existing != null ? existing : new TestOrder();
 
-        // Chỉ kiểm tra các trường bắt buộc khi tạo mới
         if (!isUpdate) {
             if (dto.getCustomerId() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer ID is required");
@@ -68,7 +66,7 @@ public class TestOrderServiceImpl implements TestOrderService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Service ID is required");
             }
             if (dto.getSampleType() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sample type (method) is required");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sample type is required");
             }
 
             order.setCustomer(customerRepo.findById(dto.getCustomerId())
@@ -78,16 +76,24 @@ public class TestOrderServiceImpl implements TestOrderService {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Service not found")));
         }
 
-        // Cập nhật các trường nếu có trong DTO
         if (dto.getOrderId() != null) {
             order.setOrderId(dto.getOrderId());
         }
 
-        if (dto.getStaffId() != null) {
-            order.setStaff(staffRepo.findById(dto.getStaffId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Staff not found")));
-        } else if (isUpdate) {
-            order.setStaff(existing.getStaff());
+        if (dto.getRegistrationStaffId() != null) {
+            order.setRegistrationStaff(
+                    staffRepo.findById(dto.getRegistrationStaffId())
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Registration staff not found")));
+        } else if (isUpdate && existing.getRegistrationStaff() != null) {
+            order.setRegistrationStaff(existing.getRegistrationStaff());
+        }
+
+        if (dto.getTestingStaffId() != null) {
+            order.setTestingStaff(
+                    staffRepo.findById(dto.getTestingStaffId())
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Testing staff not found")));
+        } else if (isUpdate && existing.getTestingStaff() != null) {
+            order.setTestingStaff(existing.getTestingStaff());
         }
 
         if (dto.getOrderDate() != null) {
@@ -112,9 +118,8 @@ public class TestOrderServiceImpl implements TestOrderService {
             order.setKitCode(dto.getKitCode());
         }
 
-        // Xử lý sampleQuantity
         if (isUpdate && dto.getSampleQuantity() == 0) {
-            order.setSampleQuantity(existing.getSampleQuantity()); // Giữ nguyên giá trị hiện tại khi cập nhật và giá trị là 0
+            order.setSampleQuantity(existing.getSampleQuantity());
         } else {
             if (dto.getSampleQuantity() < 0) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sample quantity must be non-negative");
@@ -122,9 +127,8 @@ public class TestOrderServiceImpl implements TestOrderService {
             order.setSampleQuantity(dto.getSampleQuantity());
         }
 
-        // Xử lý amount
         if (isUpdate && dto.getAmount() == 0) {
-            order.setAmount(existing.getAmount()); // Giữ nguyên giá trị hiện tại khi cập nhật và giá trị là 0
+            order.setAmount(existing.getAmount());
         } else {
             if (dto.getAmount() < 0) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Amount must be non-negative");
@@ -143,7 +147,7 @@ public class TestOrderServiceImpl implements TestOrderService {
 
     @Override
     public List<TestOrderDTO> getAllOrders() {
-        return testOrderRepository.findAll().stream().map(this::convertToDTO).toList();
+        return testOrderRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     @Override
@@ -189,4 +193,5 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
 }
