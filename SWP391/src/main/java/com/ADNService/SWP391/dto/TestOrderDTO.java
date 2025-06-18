@@ -19,7 +19,7 @@ public class TestOrderDTO {
     public TestOrderDTO() {
     }
 
-    public TestOrderDTO(Long orderId, Long customerId, Long staffID, Long serviceId, LocalDate orderDate, String orderStatus, String sampleType, String resultDeliverAddress, String resultDeliveryMethod, String kitCode, int sampleQuantity, int amount) {
+    public TestOrderDTO(Long orderId, Long customerId, Long staffId, Long serviceId, LocalDate orderDate, String orderStatus, String sampleType, String resultDeliverAddress, String resultDeliveryMethod, String kitCode, int sampleQuantity, int amount) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.staffId = staffId;
@@ -47,7 +47,7 @@ public class TestOrderDTO {
     }
 
     public void setStaffId(Long staffId) {
-            this.staffId = staffId;
+        this.staffId = staffId;
     }
 
     public int getAmount() {

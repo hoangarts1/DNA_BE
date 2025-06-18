@@ -9,24 +9,35 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.modelmapper.ModelMapper;
 
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 public class TestOrderServiceImpl implements TestOrderService {
 
-    @Autowired
-    private TestOrderRepository testOrderRepository;
+    private final ModelMapper modelMapper;
+    private final TestOrderRepository testOrderRepository;
+    private final CustomerRepository customerRepo;
+    private final StaffRepository staffRepo;
+    private final ServiceRepository serviceRepo;
 
     @Autowired
-    private CustomerRepository customerRepo;
-
-    @Autowired
-    private StaffRepository staffRepo;
-
-    @Autowired
-    private ServiceRepository serviceRepo;
+    public TestOrderServiceImpl(
+            TestOrderRepository testOrderRepository,
+            CustomerRepository customerRepo,
+            StaffRepository staffRepo,
+            ServiceRepository serviceRepo,
+            ModelMapper modelMapper
+    ) {
+        this.testOrderRepository = testOrderRepository;
+        this.customerRepo = customerRepo;
+        this.staffRepo = staffRepo;
+        this.serviceRepo = serviceRepo;
+        this.modelMapper = modelMapper;
+    }
 
     private TestOrderDTO convertToDTO(TestOrder order) {
         TestOrderDTO dto = new TestOrderDTO();
@@ -169,5 +180,13 @@ public class TestOrderServiceImpl implements TestOrderService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found");
         }
         testOrderRepository.deleteById(Long.valueOf(id));
+    }
+
+    @Override
+    public List<TestOrderDTO> getOrdersByCustomerId(Long customerId) {
+        List<TestOrder> orders = testOrderRepository.findByCustomerId(customerId);
+        return orders.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 }

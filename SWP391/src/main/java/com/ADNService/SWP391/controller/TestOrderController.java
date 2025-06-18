@@ -41,4 +41,10 @@ public class TestOrderController {
         testOrderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<List<TestOrderDTO>> getByCustomerId(@PathVariable Long customerId) {
+        List<TestOrderDTO> orders = testOrderService.getOrdersByCustomerId(customerId);
+        return ResponseEntity.ok(orders);
+    }
 }
