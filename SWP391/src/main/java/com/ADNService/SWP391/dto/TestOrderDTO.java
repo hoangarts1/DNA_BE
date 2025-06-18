@@ -5,7 +5,8 @@ import java.time.LocalDate;
 public class TestOrderDTO {
     private Long orderId;
     private Long customerId;
-    private Long staffId;
+    private Long registrationStaffId;
+    private Long testingStaffId;
     private Long serviceId;
     private LocalDate orderDate;
     private String orderStatus;
@@ -19,10 +20,14 @@ public class TestOrderDTO {
     public TestOrderDTO() {
     }
 
-    public TestOrderDTO(Long orderId, Long customerId, Long staffId, Long serviceId, LocalDate orderDate, String orderStatus, String sampleType, String resultDeliverAddress, String resultDeliveryMethod, String kitCode, int sampleQuantity, int amount) {
+    public TestOrderDTO(Long orderId, Long customerId, Long registrationStaffId, Long testingStaffId,
+                        Long serviceId, LocalDate orderDate, String orderStatus, String sampleType,
+                        String resultDeliverAddress, String resultDeliveryMethod, String kitCode,
+                        int sampleQuantity, int amount) {
         this.orderId = orderId;
         this.customerId = customerId;
-        this.staffId = staffId;
+        this.registrationStaffId = registrationStaffId;
+        this.testingStaffId = testingStaffId;
         this.serviceId = serviceId;
         this.orderDate = orderDate;
         this.orderStatus = orderStatus;
@@ -32,54 +37,6 @@ public class TestOrderDTO {
         this.kitCode = kitCode;
         this.sampleQuantity = sampleQuantity;
         this.amount = amount;
-    }
-
-    public String getSampleType() {
-        return sampleType;
-    }
-
-    public void setSampleType(String sampleType) {
-        this.sampleType = sampleType;
-    }
-
-    public Long getStaffId() {
-        return staffId;
-    }
-
-    public void setStaffId(Long staffId) {
-        this.staffId = staffId;
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
-
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
-    }
-
-    public String getKitCode() {
-        return kitCode;
-    }
-
-    public void setKitCode(String kitCode) {
-        this.kitCode = kitCode;
-    }
-
-    public LocalDate getOrderDate() {
-        return orderDate;
-    }
-
-    public void setOrderDate(LocalDate orderDate) {
-        this.orderDate = orderDate;
     }
 
     public Long getOrderId() {
@@ -90,6 +47,46 @@ public class TestOrderDTO {
         this.orderId = orderId;
     }
 
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+
+    public Long getRegistrationStaffId() {
+        return registrationStaffId;
+    }
+
+    public void setRegistrationStaffId(Long registrationStaffId) {
+        this.registrationStaffId = registrationStaffId;
+    }
+
+    public Long getTestingStaffId() {
+        return testingStaffId;
+    }
+
+    public void setTestingStaffId(Long testingStaffId) {
+        this.testingStaffId = testingStaffId;
+    }
+
+    public Long getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(Long serviceId) {
+        this.serviceId = serviceId;
+    }
+
+    public LocalDate getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(LocalDate orderDate) {
+        this.orderDate = orderDate;
+    }
+
     public String getOrderStatus() {
         return orderStatus;
     }
@@ -98,12 +95,12 @@ public class TestOrderDTO {
         this.orderStatus = orderStatus;
     }
 
-    public String getResultDeliverAddress() {
-        return resultDeliverAddress;
+    public String getSampleType() {
+        return sampleType;
     }
 
-    public void setResultDeliverAddress(String resultDeliverAddress) {
-        this.resultDeliverAddress = resultDeliverAddress;
+    public void setSampleType(String sampleType) {
+        this.sampleType = sampleType;
     }
 
     public String getResultDeliveryMethod() {
@@ -114,6 +111,22 @@ public class TestOrderDTO {
         this.resultDeliveryMethod = resultDeliveryMethod;
     }
 
+    public String getResultDeliverAddress() {
+        return resultDeliverAddress;
+    }
+
+    public void setResultDeliverAddress(String resultDeliverAddress) {
+        this.resultDeliverAddress = resultDeliverAddress;
+    }
+
+    public String getKitCode() {
+        return kitCode;
+    }
+
+    public void setKitCode(String kitCode) {
+        this.kitCode = kitCode;
+    }
+
     public int getSampleQuantity() {
         return sampleQuantity;
     }
@@ -122,12 +135,11 @@ public class TestOrderDTO {
         this.sampleQuantity = sampleQuantity;
     }
 
-    public Long getServiceId() {
-        return serviceId;
+    public int getAmount() {
+        return amount;
     }
 
-    public void setServiceId(Long serviceId) {
-        this.serviceId = serviceId;
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 }
-
