@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,11 +43,9 @@ public class TestOrderServiceImpl implements TestOrderService {
         dto.setSampleType(order.getSampleType());
         dto.setResultDeliveryMethod(order.getResultDeliveryMethod());
         dto.setResultDeliverAddress(order.getResultDeliverAddress());
-        dto.setKitCode(order.getKitCode());
         dto.setSampleQuantity(order.getSampleQuantity());
         dto.setAmount(order.getAmount());
 
-        // Gán registrationStaffId và testingStaffId nếu có
         dto.setRegistrationStaffId(order.getRegistrationStaff() != null ? order.getRegistrationStaff().getId() : null);
         dto.setTestingStaffId(order.getTestingStaff() != null ? order.getTestingStaff().getId() : null);
 
@@ -110,12 +107,6 @@ public class TestOrderServiceImpl implements TestOrderService {
 
         if (dto.getResultDeliverAddress() != null) {
             order.setResultDeliverAddress(dto.getResultDeliverAddress());
-        }
-
-        if (dto.getSampleType() != null && dto.getSampleType().equals("home") && dto.getKitCode() == null) {
-            order.setKitCode("KIT-" + new Random().nextInt(1000000));
-        } else if (dto.getKitCode() != null) {
-            order.setKitCode(dto.getKitCode());
         }
 
         if (isUpdate && dto.getSampleQuantity() == 0) {
@@ -193,5 +184,4 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
-
 }
