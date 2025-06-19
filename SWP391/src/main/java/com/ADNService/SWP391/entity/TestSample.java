@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "TestSample")
@@ -14,6 +15,9 @@ public class TestSample {
     private Long id;
 
     // Relationship
+    @OneToMany(mappedBy = "testSample", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TestResultSample> testResultSamples;
+
     @ManyToOne
     @JoinColumn(name = "order_id")
     private TestOrder order;

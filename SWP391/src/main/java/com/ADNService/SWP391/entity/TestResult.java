@@ -12,9 +12,6 @@ public class TestResult {
     @JoinColumn(name = "order_id")
     private TestOrder testOrder;
 
-    @ManyToOne
-    @JoinColumn(name = "test_result_sample_id")
-    private TestResultSample testResultSample;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
@@ -28,10 +25,9 @@ public class TestResult {
     public TestResult() {
     }
 
-    public TestResult(Long id, TestOrder testOrder, TestResultSample testResultSample, Account account, String result, String resultUrl) {
+    public TestResult(Long id, TestOrder testOrder, Account account, String result, String resultUrl) {
         this.id = id;
         this.testOrder = testOrder;
-        this.testResultSample = testResultSample;
         this.account = account;
         this.result = result;
         this.resultUrl = resultUrl;
@@ -51,14 +47,6 @@ public class TestResult {
 
     public void setTestOrder(TestOrder testOrder) {
         this.testOrder = testOrder;
-    }
-
-    public TestResultSample getTestResultSample() {
-        return testResultSample;
-    }
-
-    public void setTestResultSample(TestResultSample testResultSample) {
-        this.testResultSample = testResultSample;
     }
 
     public Account getAccount() {

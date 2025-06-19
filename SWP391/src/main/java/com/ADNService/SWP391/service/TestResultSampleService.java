@@ -5,20 +5,11 @@ import com.ADNService.SWP391.dto.TestResultSampleDTO;
 import java.util.List;
 
 public interface TestResultSampleService {
-
-    TestResultSampleDTO createTestResultSample(TestResultSampleDTO dto);
-
-    List<TestResultSampleDTO> getAllTestResultSamples();
-
+    List<TestResultSampleDTO> getTestResultSamplesByTestSampleId(Long testSampleId);
     TestResultSampleDTO getTestResultSampleById(Long id);
-
-    List<TestResultSampleDTO> getTestResultSampleIdByTestSampleId(String testSampleId);
-
-
+    TestResultSampleDTO createTestResultSample(TestResultSampleDTO dto);
     TestResultSampleDTO updateTestResultSample(Long id, TestResultSampleDTO dto);
-
     void deleteTestResultSample(Long id);
+    List<TestResultSampleDTO> createTestResultSamples(List<TestResultSampleDTO> dtoList);
 
-
-    List<TestResultSampleDTO> getTestResultSamplesByOrderId(String orderId);
 }

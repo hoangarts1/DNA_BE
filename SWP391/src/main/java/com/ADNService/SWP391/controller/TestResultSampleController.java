@@ -1,29 +1,22 @@
 package com.ADNService.SWP391.controller;
 
 import com.ADNService.SWP391.dto.TestResultSampleDTO;
-import com.ADNService.SWP391.entity.TestResultSample;
 import com.ADNService.SWP391.service.TestResultSampleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/TestResultSamples")
+@RequestMapping("/api/test-result-samples")
 public class TestResultSampleController {
 
     @Autowired
     private TestResultSampleService testResultSampleService;
 
-    @PostMapping
-    public TestResultSampleDTO create(@RequestBody TestResultSampleDTO dto) {
-        return testResultSampleService.createTestResultSample(dto);
-    }
-
-    @GetMapping
-    public List<TestResultSampleDTO> getAll() {
-        return testResultSampleService.getAllTestResultSamples();
+    @GetMapping("/by-test-sample/{testSampleId}")
+    public List<TestResultSampleDTO> getByTestSampleId(@PathVariable Long testSampleId) {
+        return testResultSampleService.getTestResultSamplesByTestSampleId(testSampleId);
     }
 
     @GetMapping("/{id}")
@@ -31,27 +24,23 @@ public class TestResultSampleController {
         return testResultSampleService.getTestResultSampleById(id);
     }
 
+    @PostMapping
+    public TestResultSampleDTO createTestResultSample(@RequestBody TestResultSampleDTO dto) {
+        return testResultSampleService.createTestResultSample(dto);
+    }
+
     @PutMapping("/{id}")
-    public TestResultSampleDTO update(@PathVariable Long id, @RequestBody TestResultSampleDTO dto) {
+    public TestResultSampleDTO updateTestResultSample(@PathVariable Long id, @RequestBody TestResultSampleDTO dto) {
         return testResultSampleService.updateTestResultSample(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void deleteTestResultSample(@PathVariable Long id) {
         testResultSampleService.deleteTestResultSample(id);
     }
-
-    @GetMapping("/TestSample/{testSampleId}")
-    public ResponseEntity<List<TestResultSampleDTO>> getTestResultSampleIdsByTestSampleId(@PathVariable String testSampleId) {
-        List<TestResultSampleDTO> ids = testResultSampleService.getTestResultSampleIdByTestSampleId(testSampleId);
-        return ResponseEntity.ok(ids);
+    @PostMapping("/list")
+    public List<TestResultSampleDTO> createTestResultSamples(@RequestBody List<TestResultSampleDTO> dtoList) {
+        return testResultSampleService.createTestResultSamples(dtoList);
     }
-    @GetMapping("/TestOrder/{orderId}")
-    public ResponseEntity<List<TestResultSampleDTO>> getTestResultSamplesByOrderId(@PathVariable String orderId) {
-        List<TestResultSampleDTO> result = testResultSampleService.getTestResultSamplesByOrderId(orderId);
-        return ResponseEntity.ok(result);
-    }
-
-
 
 }
