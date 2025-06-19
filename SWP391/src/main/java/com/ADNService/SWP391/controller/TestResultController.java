@@ -41,10 +41,10 @@ public class TestResultController {
         testResultService.deleteTestResult(id);
     }
     // TestResultController.java
-    @GetMapping("/TestResult/{testResultId}/TestResultSamples")
-    public ResponseEntity<List<TestResultSampleDTO>> getTestResultSamplesByTestResultId(@PathVariable Long testResultId) {
-        List<TestResultSampleDTO> samples = testResultService.getTestResultSamplesByTestResultId(testResultId);
-        return ResponseEntity.ok(samples);
-    }
+//    @GetMapping("/TestResult/{testResultId}/TestResultSamples")
+//    public ResponseEntity<List<TestResultSampleDTO>> getTestResultSamplesByTestResultId(@PathVariable Long testResultId) {
+//        List<TestResultSampleDTO> samples = testResultService.getTestResultSamplesByTestResultId(testResultId);
+//        return ResponseEntity.ok(samples);
+//    }
 
 }
