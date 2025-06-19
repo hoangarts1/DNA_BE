@@ -47,11 +47,6 @@ public class TestSampleServiceImpl implements TestSampleService {
                     .orElseThrow(() -> new RuntimeException("Staff with ID " + dto.getStaffId() + " does not exist."));
         }
 
-//        Optional<TestSample> existingSample = testSampleRepository.findById(dto.getOrderId());
-//        if (existingSample.isPresent()) {
-//            throw new RuntimeException("Test Sample with Order ID " + dto.getOrderId() + " already exists.");
-//        }
-
         TestSample sample = new TestSample();
         sample.setOrder(order);
         sample.setCustomer(customer);
@@ -71,6 +66,7 @@ public class TestSampleServiceImpl implements TestSampleService {
         sample.setRelationship(dto.getRelationship());
         sample.setMedicalHistory(dto.getMedicalHistory());
         sample.setFingerprint(dto.getFingerprint());
+        sample.setKitCode(dto.getKitCode()); // <-- thêm dòng này
 
         TestSample savedSample = testSampleRepository.save(sample);
         return convertToDTO(savedSample);
@@ -95,7 +91,6 @@ public class TestSampleServiceImpl implements TestSampleService {
         List<TestSample> samples = testSampleRepository.getTestSamplesByOrderId(orderId);
         return samples.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
-
 
     @Override
     public TestSampleDTO updateTestSample(Long id, TestSampleDTO dto) {
@@ -135,6 +130,7 @@ public class TestSampleServiceImpl implements TestSampleService {
         sample.setRelationship(dto.getRelationship());
         sample.setMedicalHistory(dto.getMedicalHistory());
         sample.setFingerprint(dto.getFingerprint());
+        sample.setKitCode(dto.getKitCode()); // <-- thêm dòng này
 
         TestSample updatedSample = testSampleRepository.save(sample);
         return convertToDTO(updatedSample);
@@ -148,7 +144,6 @@ public class TestSampleServiceImpl implements TestSampleService {
         }
         testSampleRepository.deleteById(id);
     }
-
 
     private TestSampleDTO convertToDTO(TestSample sample) {
         TestSampleDTO dto = new TestSampleDTO();
@@ -171,6 +166,7 @@ public class TestSampleServiceImpl implements TestSampleService {
         dto.setRelationship(sample.getRelationship());
         dto.setMedicalHistory(sample.getMedicalHistory());
         dto.setFingerprint(sample.getFingerprint());
+        dto.setKitCode(sample.getKitCode()); // <-- thêm dòng này
 
         return dto;
     }
@@ -180,5 +176,4 @@ public class TestSampleServiceImpl implements TestSampleService {
         List<TestSample> samples = testSampleRepository.findByOrder_OrderId(orderId);
         return samples.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
-
 }

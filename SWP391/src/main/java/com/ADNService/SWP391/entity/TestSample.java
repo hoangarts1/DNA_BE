@@ -41,6 +41,16 @@ public class TestSample {
     private String relationship;
     private String medicalHistory;
     private String fingerprint;
+    private String kitCode;
+
+    public String getKitCode() {
+        return kitCode;
+    }
+
+    public void setKitCode(String kitCode) {
+        this.kitCode = kitCode;
+    }
+
 
     public TestSample() {
     }

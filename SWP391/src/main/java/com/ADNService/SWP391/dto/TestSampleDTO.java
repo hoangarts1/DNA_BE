@@ -26,10 +26,17 @@ public class TestSampleDTO {
     private String medicalHistory;
     private String fingerprint;
 
+    private String kitCode;
+
+
+
+
+
+
     public TestSampleDTO() {
     }
 
-    public TestSampleDTO(Long id, Long orderId, Long customerId, Long staffId, String name, String gender, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, String sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint) {
+    public TestSampleDTO(Long id, Long orderId, Long customerId, Long staffId, String name, String gender, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, String sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint, String kitCode) {
         this.id = id;
         this.orderId = orderId;
         this.customerId = customerId;
@@ -49,8 +56,15 @@ public class TestSampleDTO {
         this.relationship = relationship;
         this.medicalHistory = medicalHistory;
         this.fingerprint = fingerprint;
+        this.kitCode = kitCode;
+    }
+    public String getKitCode() {
+        return kitCode;
     }
 
+    public void setKitCode(String kitCode) {
+        this.kitCode = kitCode;
+    }
     public String getGender() {
         return gender;
     }

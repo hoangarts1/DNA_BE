@@ -35,7 +35,6 @@ public class TestOrder {
     private String sampleType;
     private String resultDeliveryMethod;
     private String resultDeliverAddress;
-    private String kitCode;
 
     private int sampleQuantity;
     private int amount;
@@ -120,14 +119,6 @@ public class TestOrder {
 
     public void setResultDeliverAddress(String resultDeliverAddress) {
         this.resultDeliverAddress = resultDeliverAddress;
-    }
-
-    public String getKitCode() {
-        return kitCode;
-    }
-
-    public void setKitCode(String kitCode) {
-        this.kitCode = kitCode;
     }
 
     public int getSampleQuantity() {
