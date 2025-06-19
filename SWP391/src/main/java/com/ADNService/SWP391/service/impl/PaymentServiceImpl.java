@@ -14,12 +14,12 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
-
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -33,15 +33,14 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private TestOrderRepository testOrderRepository;
 
-    public String createVNPayPayment(int amount, Long orderId, Long customerId) {
+    @Override
+    public String createVNPayPayment(int amount, Long orderId, Long customerId) throws UnsupportedEncodingException {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
         TestOrder order = testOrderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
-
-
-        String vnp_TxnRef = String.valueOf(System.currentTimeMillis());
+        String vnp_TxnRef = orderId + "_" + customerId + "_" + System.currentTimeMillis();
         String vnp_OrderInfo = "Thanh toan don hang " + orderId;
         String vnp_IpAddr = "127.0.0.1";
         String vnp_Amount = String.valueOf(amount * 100);
@@ -62,22 +61,32 @@ public class PaymentServiceImpl implements PaymentService {
 
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
         Collections.sort(fieldNames);
+
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
 
         for (String fieldName : fieldNames) {
             String value = vnp_Params.get(fieldName);
-            hashData.append(fieldName).append('=').append(URLEncoder.encode(value, StandardCharsets.US_ASCII)).append('&');
-            query.append(fieldName).append('=').append(URLEncoder.encode(value, StandardCharsets.US_ASCII)).append('&');
+            String encodedValue = URLEncoder.encode(value, StandardCharsets.US_ASCII.toString());
+            hashData.append(fieldName).append('=').append(encodedValue).append('&');
+            query.append(fieldName).append('=').append(encodedValue).append('&');
         }
 
-        String queryUrl = query.substring(0, query.length() - 1);
-        String secureHash = HmacSHA512(VNPayConfig.vnp_HashSecret, hashData.substring(0, hashData.length() - 1));
-        queryUrl += "&vnp_SecureHash=" + secureHash;
+        String finalHashData = hashData.substring(0, hashData.length() - 1);
+        String secureHash = HmacSHA512(VNPayConfig.vnp_HashSecret, finalHashData);
 
-        return VNPayConfig.vnp_PayUrl + "?" + queryUrl;
+        query.append("vnp_SecureHash=").append(secureHash);
+        String paymentUrl = VNPayConfig.vnp_PayUrl + "?" + query;
+
+        // Debug:
+        System.out.println("DEBUG Payment URL: " + paymentUrl);
+        System.out.println("DEBUG HashData: " + finalHashData);
+        System.out.println("DEBUG SecureHash: " + secureHash);
+
+        return paymentUrl;
     }
 
+    @Override
     public String handleVNPayReturn(HttpServletRequest request) {
         Map<String, String[]> fields = request.getParameterMap();
         Map<String, String> vnpData = new HashMap<>();
@@ -95,39 +104,49 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         String calculatedHash = HmacSHA512(VNPayConfig.vnp_HashSecret, hashData.substring(0, hashData.length() - 1));
-
-        if (calculatedHash.equals(receivedHash)) {
-            // Lưu vào DB
-            Long orderId = Long.valueOf(vnpData.get("vnp_TxnRef")); // hoặc mapping riêng
-            Payment payment = new Payment();
-            payment.setAmount(Integer.parseInt(vnpData.get("vnp_Amount")) / 100);
-            payment.setPaymentMethod("VNPAY");
-            payment.setPaymentStatus("SUCCESS");
-            payment.setPaymentTime(LocalDate.now());
-            payment.setQrUrl(""); // hoặc lưu link nếu có
-            payment.setCustomer(customerRepository.findById(1L).orElse(null)); // xử lý đúng thực tế
-            payment.setTestOrder(testOrderRepository.findById(1L).orElse(null));
-            paymentRepository.save(payment);
-
-            return "Thanh toán thành công!";
+        if (!calculatedHash.equals(receivedHash)) {
+            return "Giao dịch thất bại! Mã xác thực không khớp.";
         }
 
-        return "Thanh toán thất bại!";
+        if (!"00".equals(vnpData.get("vnp_ResponseCode"))) {
+            return "Giao dịch thất bại. Mã lỗi: " + vnpData.get("vnp_ResponseCode");
+        }
+
+        String[] refParts = vnpData.get("vnp_TxnRef").split("_");
+        Long orderId = Long.parseLong(refParts[0]);
+        Long customerId = Long.parseLong(refParts[1]);
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+        TestOrder order = testOrderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        Payment payment = new Payment();
+        payment.setAmount(Integer.parseInt(vnpData.get("vnp_Amount")) / 100);
+        payment.setPaymentMethod("VNPAY");
+        payment.setPaymentStatus("SUCCESS");
+        payment.setPaymentTime(LocalDate.now());
+        payment.setQrUrl("N/A");
+        payment.setCustomer(customer);
+        payment.setTestOrder(order);
+        paymentRepository.save(payment);
+
+        return "Thanh toán thành công!";
     }
 
     private String HmacSHA512(String key, String data) {
         try {
-            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "HmacSHA512");
-            Mac mac = Mac.getInstance("HmacSHA512");
-            mac.init(secretKey);
-            byte[] bytes = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            Mac hmac = Mac.getInstance("HmacSHA512");
+            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA512");
+            hmac.init(secretKey);
+            byte[] bytes = hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
             StringBuilder hash = new StringBuilder();
             for (byte b : bytes) {
                 hash.append(String.format("%02x", b));
             }
             return hash.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("Lỗi khi tạo HmacSHA512", e);
+        } catch (Exception ex) {
+            throw new RuntimeException("Lỗi khi tạo HMAC SHA512", ex);
         }
     }
 }

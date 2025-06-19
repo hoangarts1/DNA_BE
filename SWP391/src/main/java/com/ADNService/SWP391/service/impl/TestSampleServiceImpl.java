@@ -170,4 +170,11 @@ public class TestSampleServiceImpl implements TestSampleService {
 
         return dto;
     }
+
+    @Override
+    public List<TestSampleDTO> getTestSamplesByOrderId(Long orderId) {
+        List<TestSample> samples = testSampleRepository.findByOrder_OrderId(orderId);
+        return samples.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
 }
