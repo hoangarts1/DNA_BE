@@ -6,9 +6,6 @@ public class UpdateTestOrderStatusDTO {
     private Long staffId;
     private String orderStatus;
 
-    public UpdateTestOrderStatusDTO() {
-    }
-
     public UpdateTestOrderStatusDTO(String orderStatus, Long staffId) {
         this.orderStatus = orderStatus;
         this.staffId = staffId;
