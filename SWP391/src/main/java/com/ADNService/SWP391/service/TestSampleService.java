@@ -10,4 +10,6 @@ public interface TestSampleService {
     TestSampleDTO getTestSampleById(Long id);
     TestSampleDTO updateTestSample(Long id, TestSampleDTO dto);
     void deleteTestSample(Long id);
+    List<TestSampleDTO> getTestSamplesByOrderId(Long orderId);
+
 }
