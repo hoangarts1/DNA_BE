@@ -1,6 +1,5 @@
 package com.ADNService.SWP391.service.impl;
 
-import com.ADNService.SWP391.dto.CustomerDTO;
 import com.ADNService.SWP391.dto.TestSampleDTO;
 import com.ADNService.SWP391.entity.*;
 import com.ADNService.SWP391.repository.*;
@@ -91,6 +90,11 @@ public class TestSampleServiceImpl implements TestSampleService {
                 .orElse(null);
     }
 
+    @Override
+    public List<TestSampleDTO> getTestSamplesByOrderId(String orderId) {
+        List<TestSample> samples = testSampleRepository.getTestSamplesByOrderId(orderId);
+        return samples.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
 
 
     @Override

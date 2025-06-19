@@ -12,7 +12,13 @@ public interface TestResultSampleService {
 
     TestResultSampleDTO getTestResultSampleById(Long id);
 
+    List<TestResultSampleDTO> getTestResultSampleIdByTestSampleId(String testSampleId);
+
+
     TestResultSampleDTO updateTestResultSample(Long id, TestResultSampleDTO dto);
 
     void deleteTestResultSample(Long id);
+
+
+    List<TestResultSampleDTO> getTestResultSamplesByOrderId(String orderId);
 }

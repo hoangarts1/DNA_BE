@@ -1,6 +1,7 @@
 package com.ADNService.SWP391.service.impl;
 
 import com.ADNService.SWP391.dto.TestResultDTO;
+import com.ADNService.SWP391.dto.TestResultSampleDTO;
 import com.ADNService.SWP391.entity.*;
 import com.ADNService.SWP391.repository.*;
 import com.ADNService.SWP391.service.TestResultService;
@@ -71,6 +72,18 @@ public class TestResultServiceImpl implements TestResultService {
                 .map(this::convertToDTO)
                 .orElse(null);
     }
+
+    // TestResultServiceImpl.java
+    @Override
+    public List<TestResultSampleDTO> getTestResultSamplesByTestResultId(Long testResultId) {
+        List<TestResultSample> samples = testResultRepository.getTestResultSampleByTestResultId(testResultId);
+        return samples.stream()
+                .map(this::convertToTestResultSampleDTO)
+                .collect(Collectors.toList());
+
+    }
+
+
 
     @Override
     public TestResultDTO updateTestResult(Long id, TestResultDTO dto) {
@@ -197,5 +210,34 @@ public class TestResultServiceImpl implements TestResultService {
         testResultRepository.save(testResult);
     }
 
+
+    private TestResultSampleDTO convertToTestResultSampleDTO(TestResultSample sample) {
+        TestResultSampleDTO dto = new TestResultSampleDTO();
+        dto.setId(sample.getId());
+        dto.setTestSampleId(sample.getTestSample() != null ? sample.getTestSample().getId() : null);
+        dto.setAmelogenin(sample.getAmelogenin());
+        dto.setD3S1358(sample.getD3S1358());
+        dto.setD2S441(sample.getD2S441());
+        dto.setD10S1248(sample.getD10S1248());
+        dto.setD13S317(sample.getD13S317());
+        dto.setD16S539(sample.getD16S539());
+        dto.setCsf1po(sample.getCsf1po());
+        dto.setTh01(sample.getTh01());
+        dto.setVwa(sample.getVwa());
+        dto.setD7S820(sample.getD7S820());
+        dto.setD21S11(sample.getD21S11());
+        dto.setPentaE(sample.getPentaE());
+        dto.setFga(sample.getFga());
+        dto.setD22S1045(sample.getD22S1045());
+        dto.setD8S1179(sample.getD8S1179());
+        dto.setD18S51(sample.getD18S51());
+        dto.setPentaD(sample.getPentaD());
+        dto.setD2S1339(sample.getD2S1339());
+        dto.setD19S433(sample.getD19S433());
+        dto.setD5S818(sample.getD5S818());
+        dto.setD1S1656(sample.getD1S1656());
+        dto.setTpox(sample.getTpox());
+        return dto;
+    }
 
 }
