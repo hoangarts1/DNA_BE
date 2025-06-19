@@ -40,6 +40,13 @@ public class TestSampleController {
         testSampleService.deleteTestSample(id);
     }
 
+    @GetMapping("/TestOrder/{orderId}/TestSamples")
+    public ResponseEntity<List<TestSampleDTO>> getTestSamplesByOrderId(@PathVariable String orderId) {
+        List<TestSampleDTO> samples = testSampleService.getTestSamplesByOrderId(orderId);
+        return ResponseEntity.ok(samples);
+    }
+
+
     @GetMapping("/order/{orderId}")
     public ResponseEntity<List<TestSampleDTO>> getByOrderId(@PathVariable Long orderId) {
         List<TestSampleDTO> samples = testSampleService.getTestSamplesByOrderId(orderId);
