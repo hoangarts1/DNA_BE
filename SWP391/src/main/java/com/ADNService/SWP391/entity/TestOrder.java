@@ -2,6 +2,7 @@ package com.ADNService.SWP391.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "TestOrder")
@@ -21,6 +22,8 @@ public class TestOrder {
     @ManyToOne
     @JoinColumn(name = "serviceID")
     private Services services;
+    @OneToMany(mappedBy = "order")
+    private List<TestSample> testSamples;
 
     private LocalDate orderDate;
     private String orderStatus;

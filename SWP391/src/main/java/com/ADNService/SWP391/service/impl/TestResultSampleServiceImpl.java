@@ -75,6 +75,20 @@ public class TestResultSampleServiceImpl implements TestResultSampleService {
                 .orElse(null);
     }
 
+
+@Override
+public List<TestResultSampleDTO> getTestResultSampleIdByTestSampleId(String testSampleId) {
+        List<TestResultSample> rs = testResultSampleRepository.getTestResultSampleIdByTestSampleId(testSampleId);
+        return rs.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    public List<TestResultSampleDTO> getTestResultSamplesByOrderId(String orderId) {
+        List<TestResultSample> samples = testResultSampleRepository.getTestResultSamplesByOrderId(orderId);
+        return samples.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     @Override
     public TestResultSampleDTO updateTestResultSample(Long id, TestResultSampleDTO dto) {
         TestResultSample resultSample = testResultSampleRepository.findById(id)

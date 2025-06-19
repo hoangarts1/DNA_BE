@@ -8,6 +8,9 @@ public interface TestSampleService {
     TestSampleDTO createTestSample(TestSampleDTO dto);
     List<TestSampleDTO> getAllTestSamples();
     TestSampleDTO getTestSampleById(Long id);
+
+    List<TestSampleDTO> getTestSamplesByOrderId(String orderId);
+
     TestSampleDTO updateTestSample(Long id, TestSampleDTO dto);
     void deleteTestSample(Long id);
 }
