@@ -40,7 +40,7 @@ public class TestOrderServiceImpl implements TestOrderService {
         dto.setServiceId(order.getServices().getServiceID());
         dto.setOrderDate(order.getOrderDate());
         dto.setOrderStatus(order.getOrderStatus());
-        dto.setSampleType(order.getSampleType());
+        dto.setSampleType(order.getSampleMethod());
         dto.setResultDeliveryMethod(order.getResultDeliveryMethod());
         dto.setResultDeliverAddress(order.getResultDeliverAddress());
         dto.setSampleQuantity(order.getSampleQuantity());
@@ -98,7 +98,7 @@ public class TestOrderServiceImpl implements TestOrderService {
         }
 
         if (dto.getSampleType() != null) {
-            order.setSampleType(dto.getSampleType());
+            order.setSampleMethod(dto.getSampleType());
         }
 
         if (dto.getResultDeliveryMethod() != null) {

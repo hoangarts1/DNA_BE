@@ -11,25 +11,32 @@ public class Payment {
     private Long paymentId;
 
     @ManyToOne
-    @JoinColumn(name = "orderId")
-    private TestOrder testOrder;
+    @JoinColumn(name = "order_id", nullable = false)
+    private TestOrder order;
 
     @ManyToOne
-    @JoinColumn(name = "customerId")
+    @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
     private int amount;
+
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String paymentMethod;
-    private String qrUrl;
+
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String paymentStatus;
+
     private LocalDate paymentTime;
+
+    @Column(columnDefinition = "NVARCHAR(MAX)")
+    private String qrUrl;
+
+    private String transactionId;
 
     public Payment() {
     }
 
-    public Payment(int amount, Customer customer, Long paymentId, String paymentMethod, String paymentStatus, LocalDate paymentTime, String qrUrl, TestOrder testOrder) {
+    public Payment(int amount, Customer customer, Long paymentId, String paymentMethod, String paymentStatus, LocalDate paymentTime, String qrUrl, TestOrder testOrder, String transactionId) {
         this.amount = amount;
         this.customer = customer;
         this.paymentId = paymentId;
@@ -37,7 +44,24 @@ public class Payment {
         this.paymentStatus = paymentStatus;
         this.paymentTime = paymentTime;
         this.qrUrl = qrUrl;
-        this.testOrder = testOrder;
+        this.order = testOrder;
+        this.transactionId = transactionId;
+    }
+
+    public TestOrder getOrder() {
+        return order;
+    }
+
+    public void setOrder(TestOrder order) {
+        this.order = order;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 
     public int getAmount() {
@@ -97,10 +121,10 @@ public class Payment {
     }
 
     public TestOrder getTestOrder() {
-        return testOrder;
+        return order;
     }
 
     public void setTestOrder(TestOrder testOrder) {
-        this.testOrder = testOrder;
+        this.order = testOrder;
     }
 }

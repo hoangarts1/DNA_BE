@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="SWP391@localhost" uuid="60f31be3-717e-4051-a86e-3729391672ad">
+    <data-source source="LOCAL" name="SWP@localhost" uuid="76974992-72eb-407c-96c9-a3b9bfb8dbf3">
       <driver-ref>sqlserver.ms</driver-ref>
       <synchronize>true</synchronize>
-      <imported>true</imported>
-      <remarks>$PROJECT_DIR$/SWP391/src/main/resources/application.properties</remarks>
       <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
-      <jdbc-url>jdbc:sqlserver://localhost:1433;databaseName=SWP391;encrypt=true;trustServerCertificate=true</jdbc-url>
+      <jdbc-url>jdbc:sqlserver://localhost\KTEAM:1433;database=SWP</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
