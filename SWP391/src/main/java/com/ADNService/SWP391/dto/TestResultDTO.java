@@ -3,7 +3,7 @@ package com.ADNService.SWP391.dto;
 public class TestResultDTO {
     private Long id;
     private Long orderId;
-    private Long accountId;
+    private Long customerId;
     private String result;
     private String resultUrl;
 //    private Long sampleId1;
@@ -13,10 +13,10 @@ public class TestResultDTO {
     public TestResultDTO() {
     }
 
-    public TestResultDTO(Long id, Long orderId, Long accountId, String result, String resultUrl) {
+    public TestResultDTO(Long id, Long orderId, Long customerId, String result, String resultUrl) {
         this.id = id;
         this.orderId = orderId;
-        this.accountId = accountId;
+        this.customerId = customerId;
         this.result = result;
         this.resultUrl = resultUrl;
     }
@@ -37,12 +37,12 @@ public class TestResultDTO {
         this.orderId = orderId;
     }
 
-    public Long getAccountId() {
-        return accountId;
+    public Long getCustomerId() {
+        return customerId;
     }
 
-    public void setAccountId(Long accountId) {
-        this.accountId = accountId;
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 
     public String getResult() {

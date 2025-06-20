@@ -3,7 +3,7 @@ package com.ADNService.SWP391.dto;
 public class ServiceDTO {
     private Long serviceID;
     private String serviceName;
-    private String servicePurpose;
+    private String serviceType;
     private int timeTest;
     private String describe;
     private double price;
@@ -11,10 +11,10 @@ public class ServiceDTO {
     public ServiceDTO() {
     }
 
-    public ServiceDTO( Long serviceID, String serviceName, String servicePurpose,  double price, int timeTest, String describe) {
+    public ServiceDTO( Long serviceID, String serviceName, String serviceType,  double price, int timeTest, String describe) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
-        this.servicePurpose = servicePurpose;
+        this.serviceType = serviceType;
         this.price = price;
         this.timeTest = timeTest;
         this.describe = describe;
@@ -52,12 +52,12 @@ public class ServiceDTO {
         this.serviceName = serviceName;
     }
 
-    public String getServicePurpose() {
-        return servicePurpose;
+    public String getServiceType() {
+        return serviceType;
     }
 
-    public void setServicePurpose(String servicePurpose) {
-        this.servicePurpose = servicePurpose;
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
     }
 
     public int getTimeTest() {

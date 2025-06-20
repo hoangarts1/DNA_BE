@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface TestResultSampleRepository extends JpaRepository<TestResultSample, Long> {
     List<TestResultSample> findByTestSampleId(Long testSampleId);
     Optional<TestResultSample> findByTestSampleIdAndLocusName(Long testSampleId, String locusName);
+    List<TestResultSample> findByTestSample_Id(Long testSampleId);
 
 }

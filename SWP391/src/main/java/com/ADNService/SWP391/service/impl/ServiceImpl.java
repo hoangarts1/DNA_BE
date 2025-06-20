@@ -26,7 +26,7 @@ public class ServiceImpl implements ServiceInterface {
 
         service.setServiceID(dto.getServiceID());
         service.setServiceName(dto.getServiceName());
-        service.setServiceType(dto.getServicePurpose());
+        service.setServiceType(dto.getServiceType());
         service.setTimeTest(dto.getTimeTest());
         service.setDescribe(dto.getDescribe());
         service.setServicePrice(dto.getPrice());
@@ -36,7 +36,7 @@ public class ServiceImpl implements ServiceInterface {
         ServiceDTO result = new ServiceDTO();
         result.setServiceID(savedService.getServiceID());
         result.setServiceName(savedService.getServiceName());
-        result.setServicePurpose(savedService.getServiceType());
+        result.setServiceType(savedService.getServiceType());
         result.setTimeTest(savedService.getTimeTest());
         result.setDescribe(savedService.getDescribe());
         result.setPrice(savedService.getServicePrice());
@@ -53,7 +53,7 @@ public class ServiceImpl implements ServiceInterface {
         ServiceDTO dto = new ServiceDTO();
         dto.setServiceID(service.getServiceID());
         dto.setServiceName(service.getServiceName());
-        dto.setServicePurpose(service.getServiceType());
+        dto.setServiceType(service.getServiceType());
         dto.setTimeTest(service.getTimeTest());
         dto.setDescribe(service.getDescribe());
         dto.setPrice(service.getServicePrice());
@@ -69,7 +69,7 @@ public class ServiceImpl implements ServiceInterface {
             ServiceDTO dto = new ServiceDTO();
             dto.setServiceID(service.getServiceID());
             dto.setServiceName(service.getServiceName());
-            dto.setServicePurpose(service.getServiceType());
+            dto.setServiceType(service.getServiceType());
             dto.setTimeTest(service.getTimeTest());
             dto.setDescribe(service.getDescribe());
             dto.setPrice(service.getServicePrice());
@@ -84,7 +84,7 @@ public class ServiceImpl implements ServiceInterface {
 
 
         service.setServiceName(dto.getServiceName());
-        service.setServiceType(dto.getServicePurpose());
+        service.setServiceType(dto.getServiceType());
         service.setTimeTest(dto.getTimeTest());
         service.setDescribe(dto.getDescribe());
         service.setServicePrice(dto.getPrice());
@@ -94,7 +94,7 @@ public class ServiceImpl implements ServiceInterface {
         ServiceDTO result = new ServiceDTO();
         result.setServiceID(updated.getServiceID());
         result.setServiceName(updated.getServiceName());
-        result.setServicePurpose(updated.getServiceType());
+        result.setServiceType(updated.getServiceType());
         result.setTimeTest(updated.getTimeTest());
         result.setDescribe(updated.getDescribe());
         result.setPrice(updated.getServicePrice());

@@ -14,8 +14,8 @@ public class TestResult {
 
 
     @ManyToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String result;
@@ -25,10 +25,10 @@ public class TestResult {
     public TestResult() {
     }
 
-    public TestResult(Long id, TestOrder testOrder, Account account, String result, String resultUrl) {
+    public TestResult(Long id, TestOrder testOrder, Customer customer, String result, String resultUrl) {
         this.id = id;
         this.testOrder = testOrder;
-        this.account = account;
+        this.customer = customer;
         this.result = result;
         this.resultUrl = resultUrl;
     }
@@ -49,12 +49,12 @@ public class TestResult {
         this.testOrder = testOrder;
     }
 
-    public Account getAccount() {
-        return account;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     public String getResult() {

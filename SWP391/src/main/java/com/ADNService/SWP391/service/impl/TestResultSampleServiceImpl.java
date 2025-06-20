@@ -1,10 +1,10 @@
 package com.ADNService.SWP391.service.impl;
 
 import com.ADNService.SWP391.dto.TestResultSampleDTO;
+import com.ADNService.SWP391.entity.TestResult;
 import com.ADNService.SWP391.entity.TestResultSample;
 import com.ADNService.SWP391.entity.TestSample;
-import com.ADNService.SWP391.repository.TestResultSampleRepository;
-import com.ADNService.SWP391.repository.TestSampleRepository;
+import com.ADNService.SWP391.repository.*;
 import com.ADNService.SWP391.service.TestResultSampleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +22,12 @@ public class TestResultSampleServiceImpl implements TestResultSampleService {
 
     @Autowired
     private TestSampleRepository testSampleRepository;
+    @Autowired
+    private TestOrderRepository testOrderRepository;
+    @Autowired
+    private TestResultRepository testResultRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @Override
     public List<TestResultSampleDTO> getTestResultSamplesByTestSampleId(Long testSampleId) {
@@ -109,4 +115,53 @@ public class TestResultSampleServiceImpl implements TestResultSampleService {
         }
     }
 
+    // Hàm so sánh 2 locus
+    public boolean isLocusMatched(TestResultSample sample1, TestResultSample sample2) {
+        if (!sample1.getLocusName().equals(sample2.getLocusName())) {
+            return false;
+        }
+        return (sample1.getAllele1().equals(sample2.getAllele1()) || sample1.getAllele1().equals(sample2.getAllele2()) ||
+                sample1.getAllele2().equals(sample2.getAllele1()) || sample1.getAllele2().equals(sample2.getAllele2()));
+    }
+//
+//    // Hàm so sánh toàn bộ locus
+//    public String compareSamples(List<TestResultSample> sampleList1, List<TestResultSample> sampleList2) {
+//        int matchedLocus = 0;
+//        int totalLocus = sampleList1.size();
+//
+//        for (TestResultSample s1 : sampleList1) {
+//            for (TestResultSample s2 : sampleList2) {
+//                if (isLocusMatched(s1, s2)) {
+//                    matchedLocus++;
+//                    break;
+//                }
+//            }
+//        }
+//
+//        double matchPercentage = (double) matchedLocus / totalLocus * 100;
+//
+//        if (matchPercentage >= 80) {
+//            return "Có quan hệ huyết thống";
+//        } else {
+//            return "Không có quan hệ huyết thống";
+//        }
+//    }
+//
+//    // Hàm tạo và lưu kết quả
+//    public TestResult generateTestResult(Long orderId, Long sampleId1, Long sampleId2, Long customerId) {
+//        List<TestResultSample> sampleList1 = testResultSampleRepository.findByTestSampleId(sampleId1);
+//        List<TestResultSample> sampleList2 = testResultSampleRepository.findByTestSampleId(sampleId2);
+//
+//        String result = compareSamples(sampleList1, sampleList2);
+//
+//        TestResult testResult = new TestResult();
+//        testResult.setTestOrder(testOrderRepository.findById(orderId).orElse(null));
+//        testResult.setCustomer(customerRepository.findById(customerId).orElse(null));
+//        testResult.setResult(result);
+//        testResult.setResultUrl("Kết quả sẽ cập nhật sau");
+//
+//        return testResultRepository.save(testResult);
+//    }
 }
+
+

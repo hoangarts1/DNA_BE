@@ -40,11 +40,6 @@ public class TestResultController {
     public void delete(@PathVariable Long id) {
         testResultService.deleteTestResult(id);
     }
-    // TestResultController.java
-//    @GetMapping("/TestResult/{testResultId}/TestResultSamples")
-//    public ResponseEntity<List<TestResultSampleDTO>> getTestResultSamplesByTestResultId(@PathVariable Long testResultId) {
-//        List<TestResultSampleDTO> samples = testResultService.getTestResultSamplesByTestResultId(testResultId);
-//        return ResponseEntity.ok(samples);
-//    }
+ 
 
 }
