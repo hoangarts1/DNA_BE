@@ -14,8 +14,8 @@ public class Services {
     @Column(name = "service_name", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String serviceName;
 
-    @Column(name = "service_purpose", nullable = false, columnDefinition = "NVARCHAR(255)")
-    private String servicePurpose;
+    @Column(name = "service_type", nullable = false, columnDefinition = "NVARCHAR(255)")
+    private String serviceType;
 
     @Column(name = "describe", nullable = true, columnDefinition = "NVARCHAR(255)")
     private String describe;
@@ -34,7 +34,7 @@ public class Services {
                     String describe, double servicePrice) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
-        this.servicePurpose = servicePurpose;
+        this.serviceType = servicePurpose;
         this.timeTest = timeTest;
         this.describe = describe;
         this.servicePrice = servicePrice;
@@ -57,12 +57,12 @@ public class Services {
         this.serviceName = serviceName;
     }
 
-    public String getServicePurpose() {
-        return servicePurpose;
+    public String getServiceType() {
+        return serviceType;
     }
 
-    public void setServicePurpose(String servicePurpose) {
-        this.servicePurpose = servicePurpose;
+    public void setServiceType(String servicePurpose) {
+        this.serviceType = servicePurpose;
     }
 
     public String getDescribe() {

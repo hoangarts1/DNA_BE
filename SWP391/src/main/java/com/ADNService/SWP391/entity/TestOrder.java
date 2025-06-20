@@ -32,7 +32,7 @@ public class TestOrder {
     private LocalDate orderDate;
 
     private String orderStatus;
-    private String sampleType;
+    private String sampleMethod;
     private String resultDeliveryMethod;
     private String resultDeliverAddress;
 
@@ -97,12 +97,12 @@ public class TestOrder {
         this.orderStatus = orderStatus;
     }
 
-    public String getSampleType() {
-        return sampleType;
+    public String getSampleMethod() {
+        return sampleMethod;
     }
 
-    public void setSampleType(String sampleType) {
-        this.sampleType = sampleType;
+    public void setSampleMethod(String sampleType) {
+        this.sampleMethod = sampleType;
     }
 
     public String getResultDeliveryMethod() {
