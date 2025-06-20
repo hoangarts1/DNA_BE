@@ -18,6 +18,7 @@ public class TestOrder {
     @ManyToOne
     @JoinColumn(name = "service_id")
     private Services services;
+
     @OneToMany(mappedBy = "order")
     private List<TestSample> testSamples;
 

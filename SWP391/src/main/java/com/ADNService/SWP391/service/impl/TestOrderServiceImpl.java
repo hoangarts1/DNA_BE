@@ -40,7 +40,7 @@ public class TestOrderServiceImpl implements TestOrderService {
         dto.setServiceId(order.getServices().getServiceID());
         dto.setOrderDate(order.getOrderDate());
         dto.setOrderStatus(order.getOrderStatus());
-        dto.setSampleType(order.getSampleMethod());
+        dto.setSampleMethod(order.getSampleMethod());
         dto.setResultDeliveryMethod(order.getResultDeliveryMethod());
         dto.setResultDeliverAddress(order.getResultDeliverAddress());
         dto.setSampleQuantity(order.getSampleQuantity());
@@ -62,7 +62,7 @@ public class TestOrderServiceImpl implements TestOrderService {
             if (dto.getServiceId() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Service ID is required");
             }
-            if (dto.getSampleType() == null) {
+            if (dto.getSampleMethod() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sample type is required");
             }
 
@@ -97,8 +97,8 @@ public class TestOrderServiceImpl implements TestOrderService {
             order.setOrderDate(dto.getOrderDate());
         }
 
-        if (dto.getSampleType() != null) {
-            order.setSampleMethod(dto.getSampleType());
+        if (dto.getSampleMethod() != null) {
+            order.setSampleMethod(dto.getSampleMethod());
         }
 
         if (dto.getResultDeliveryMethod() != null) {

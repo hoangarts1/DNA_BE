@@ -41,16 +41,10 @@ public class TestSampleServiceImpl implements TestSampleService {
         Customer customer = customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer with ID " + dto.getCustomerId() + " does not exist."));
 
-        Staff staff = null;
-        if (dto.getStaffId() != null) {
-            staff = staffRepository.findById(dto.getStaffId())
-                    .orElseThrow(() -> new RuntimeException("Staff with ID " + dto.getStaffId() + " does not exist."));
-        }
 
         TestSample sample = new TestSample();
         sample.setOrder(order);
         sample.setCustomer(customer);
-        sample.setStaff(staff);
         sample.setName(dto.getName());
         sample.setGender(dto.getGender());
         sample.setDateOfBirth(dto.getDateOfBirth());
@@ -87,8 +81,8 @@ public class TestSampleServiceImpl implements TestSampleService {
     }
 
     @Override
-    public List<TestSampleDTO> getTestSamplesByOrderId(String orderId) {
-        List<TestSample> samples = testSampleRepository.getTestSamplesByOrderId(orderId);
+    public List<TestSampleDTO> getTestSamplesByOrderId(Long orderId) {
+        List<TestSample> samples = testSampleRepository.getTestSamplesByOrder_OrderId(orderId);
         return samples.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
@@ -107,13 +101,6 @@ public class TestSampleServiceImpl implements TestSampleService {
             sample.setCustomer(customer);
         }
 
-        if (dto.getStaffId() != null) {
-            Staff staff = staffRepository.findById(dto.getStaffId())
-                    .orElseThrow(() -> new RuntimeException("Staff with ID " + dto.getStaffId() + " does not exist."));
-            sample.setStaff(staff);
-        } else {
-            sample.setStaff(null);
-        }
 
         sample.setName(dto.getName());
         sample.setGender(dto.getGender());
@@ -150,7 +137,6 @@ public class TestSampleServiceImpl implements TestSampleService {
         dto.setId(sample.getId());
         dto.setOrderId(sample.getOrder() != null ? sample.getOrder().getOrderId() : null);
         dto.setCustomerId(sample.getCustomer() != null ? sample.getCustomer().getId() : null);
-        dto.setStaffId(sample.getStaff() != null ? sample.getStaff().getId() : null);
         dto.setName(sample.getName());
         dto.setGender(sample.getGender());
         dto.setDateOfBirth(sample.getDateOfBirth());
@@ -171,9 +157,4 @@ public class TestSampleServiceImpl implements TestSampleService {
         return dto;
     }
 
-    @Override
-    public List<TestSampleDTO> getTestSamplesByOrderId(Long orderId) {
-        List<TestSample> samples = testSampleRepository.findByOrder_OrderId(orderId);
-        return samples.stream().map(this::convertToDTO).collect(Collectors.toList());
-    }
 }

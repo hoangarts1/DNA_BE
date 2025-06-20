@@ -41,7 +41,7 @@ public class TestSampleController {
     }
 
     @GetMapping("/TestOrder/{orderId}/TestSamples")
-    public ResponseEntity<List<TestSampleDTO>> getTestSamplesByOrderId(@PathVariable String orderId) {
+    public ResponseEntity<List<TestSampleDTO>> getTestSamplesByOrderId(@PathVariable Long orderId) {
         List<TestSampleDTO> samples = testSampleService.getTestSamplesByOrderId(orderId);
         return ResponseEntity.ok(samples);
     }

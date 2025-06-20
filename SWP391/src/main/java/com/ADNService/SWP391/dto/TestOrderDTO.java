@@ -10,10 +10,9 @@ public class TestOrderDTO {
     private Long serviceId;
     private LocalDate orderDate;
     private String orderStatus;
-    private String sampleType;
+    private String sampleMethod;
     private String resultDeliveryMethod;
     private String resultDeliverAddress;
-    private String kitCode;
     private int sampleQuantity;
     private int amount;
 
@@ -22,7 +21,7 @@ public class TestOrderDTO {
 
     public TestOrderDTO(Long orderId, Long customerId, Long registrationStaffId, Long testingStaffId,
                         Long serviceId, LocalDate orderDate, String orderStatus, String sampleType,
-                        String resultDeliverAddress, String resultDeliveryMethod, String kitCode,
+                        String resultDeliverAddress, String resultDeliveryMethod,
                         int sampleQuantity, int amount) {
         this.orderId = orderId;
         this.customerId = customerId;
@@ -31,10 +30,9 @@ public class TestOrderDTO {
         this.serviceId = serviceId;
         this.orderDate = orderDate;
         this.orderStatus = orderStatus;
-        this.sampleType = sampleType;
+        this.sampleMethod = sampleType;
         this.resultDeliverAddress = resultDeliverAddress;
         this.resultDeliveryMethod = resultDeliveryMethod;
-        this.kitCode = kitCode;
         this.sampleQuantity = sampleQuantity;
         this.amount = amount;
     }
@@ -95,12 +93,12 @@ public class TestOrderDTO {
         this.orderStatus = orderStatus;
     }
 
-    public String getSampleType() {
-        return sampleType;
+    public String getSampleMethod() {
+        return sampleMethod;
     }
 
-    public void setSampleType(String sampleType) {
-        this.sampleType = sampleType;
+    public void setSampleMethod(String sampleMethod) {
+        this.sampleMethod = sampleMethod;
     }
 
     public String getResultDeliveryMethod() {
@@ -117,14 +115,6 @@ public class TestOrderDTO {
 
     public void setResultDeliverAddress(String resultDeliverAddress) {
         this.resultDeliverAddress = resultDeliverAddress;
-    }
-
-    public String getKitCode() {
-        return kitCode;
-    }
-
-    public void setKitCode(String kitCode) {
-        this.kitCode = kitCode;
     }
 
     public int getSampleQuantity() {

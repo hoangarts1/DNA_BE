@@ -26,10 +26,6 @@ public class TestSample {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToOne
-    @JoinColumn(name = "staff_id")
-    private Staff staff;
-
     private String name;
     private String gender;
     private Date dateOfBirth;
@@ -59,11 +55,10 @@ public class TestSample {
     public TestSample() {
     }
 
-    public TestSample(Long id, TestOrder order, Customer customer, Staff staff, String name, String gender, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, String sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint) {
+    public TestSample(Long id, TestOrder order, Customer customer, String name, String gender, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, String sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint) {
         this.id = id;
         this.order = order;
         this.customer = customer;
-        this.staff = staff;
         this.name = name;
         this.gender = gender;
         this.dateOfBirth = dateOfBirth;
@@ -112,14 +107,6 @@ public class TestSample {
 
     public void setCustomer(Customer customer) {
         this.customer = customer;
-    }
-
-    public Staff getStaff() {
-        return staff;
-    }
-
-    public void setStaff(Staff staff) {
-        this.staff = staff;
     }
 
     public String getName() {

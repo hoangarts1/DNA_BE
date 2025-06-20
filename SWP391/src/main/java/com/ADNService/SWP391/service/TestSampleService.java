@@ -9,10 +9,10 @@ public interface TestSampleService {
     List<TestSampleDTO> getAllTestSamples();
     TestSampleDTO getTestSampleById(Long id);
 
-    List<TestSampleDTO> getTestSamplesByOrderId(String orderId);
+    List<TestSampleDTO> getTestSamplesByOrderId(Long orderId);
 
     TestSampleDTO updateTestSample(Long id, TestSampleDTO dto);
     void deleteTestSample(Long id);
-    List<TestSampleDTO> getTestSamplesByOrderId(Long orderId);
+//    List<TestSampleDTO> getTestSamplesByOrderId(Long orderId);
 
 }
