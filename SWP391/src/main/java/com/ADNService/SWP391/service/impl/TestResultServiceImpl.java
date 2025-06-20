@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,15 +34,10 @@ public class TestResultServiceImpl implements TestResultService {
         TestOrder order = testOrderRepository.findById(dto.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Order with ID " + dto.getOrderId() + " does not exist."));
 
-        if (testResultRepository.findAll().stream().anyMatch(result ->
-                result.getTestOrder().getOrderId().equals(dto.getOrderId()))) {
-            throw new RuntimeException("OrderID already exists in TestResult.");
-        }
-
         Customer customer = customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("CustomerID " + dto.getCustomerId() + " does not exist."));
 
-        // ✅ Lấy TestSample theo OrderId
+        // Lấy TestSample theo OrderId
         List<TestSample> samples = testSampleRepository.findByOrder_OrderId(dto.getOrderId());
 
         if (samples.size() < 2) {
@@ -58,11 +54,14 @@ public class TestResultServiceImpl implements TestResultService {
 
         // So sánh kết quả
         String result = compareSamples(sampleList1, sampleList2);
+        // Tính phần trăm kết quả trùng
+        String resultPercent = String.format("%.2f%%", calculateRelationshipProbability(sampleList1, sampleList2, Map.of()));
 
         TestResult testResult = new TestResult();
         testResult.setTestOrder(order);
         testResult.setCustomer(customer);
         testResult.setResult(result);
+        testResult.setResultPercent(resultPercent);
         testResult.setResultUrl("Kết quả sẽ được cập nhật sau");
 
         TestResult saved = testResultRepository.save(testResult);
@@ -82,6 +81,15 @@ public class TestResultServiceImpl implements TestResultService {
         return testResultRepository.findById(id)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new RuntimeException("TestResult with ID " + id + " does not exist."));
+    }
+
+    @Override
+    public List<TestResultDTO> getTestResultByOrderId(Long orderId) {
+        List<TestResult> results = testResultRepository.findByTestOrder_OrderId(orderId);
+
+        return results.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -116,10 +124,14 @@ public class TestResultServiceImpl implements TestResultService {
         // So sánh và kết luận
         String resultText = compareSamples(sampleList1, sampleList2);
 
+        // Tính phần trăm kết quả trùng
+        String resultPercentText = String.format("%.2f%%", calculateRelationshipProbability(sampleList1, sampleList2, Map.of()));
+
         // Cập nhật kết quả
         result.setTestOrder(order);
         result.setCustomer(customer);
         result.setResult(resultText);
+        result.setResultPercent(resultPercentText);
         result.setResultUrl(dto.getResultUrl());
 
         TestResult updated = testResultRepository.save(result);
@@ -150,13 +162,14 @@ public class TestResultServiceImpl implements TestResultService {
 
             if (!matched) {
                 unmatchedCount++;
-                if (unmatchedCount >= 2) {
+                if (unmatchedCount >= 1) {
                     return "Không có quan hệ huyết thống";
                 }
             }
         }
         return "Có quan hệ huyết thống";
     }
+
 
     // Hàm so sánh locus
     private boolean isLocusMatched(TestResultSample sample1, TestResultSample sample2) {
@@ -167,6 +180,59 @@ public class TestResultServiceImpl implements TestResultService {
                 || sample1.getAllele2().equals(sample2.getAllele1()) || sample1.getAllele2().equals(sample2.getAllele2()));
     }
 
+    // Hàm tính phần trăm quan hệ huyết thống
+    private double calculateRelationshipProbability(List<TestResultSample> sampleList1, List<TestResultSample> sampleList2, Map<String, Map<String, Double>> alleleFrequencies) {
+        double cpi = 1.0;
+
+        for (TestResultSample s1 : sampleList1) {
+            TestResultSample matchingSample = null;
+
+            // Tìm locus trùng nhau
+            for (TestResultSample s2 : sampleList2) {
+                if (s1.getLocusName().equalsIgnoreCase(s2.getLocusName())) {
+                    matchingSample = s2;
+                    break;
+                }
+            }
+
+            // Nếu không có locus trùng thì loại trừ quan hệ
+            if (matchingSample == null) {
+                return 0.0;
+            }
+
+            // Tính PI cho locus này
+            double pi = calculatePI(s1, matchingSample, alleleFrequencies);
+
+            // Nếu PI = 0, loại trừ luôn
+            if (pi == 0.0) {
+                return 0.0;
+            }
+
+            cpi *= pi;
+        }
+
+        // Tính phần trăm quan hệ huyết thống
+        return (cpi / (cpi + 1)) * 100.0;
+    }
+    private double calculatePI(TestResultSample childSample, TestResultSample fatherSample, Map<String, Map<String, Double>> alleleFrequencies) {
+        String locusName = childSample.getLocusName();
+
+        List<String> childAlleles = List.of(childSample.getAllele1(), childSample.getAllele2());
+        List<String> fatherAlleles = List.of(fatherSample.getAllele1(), fatherSample.getAllele2());
+
+        for (String childAllele : childAlleles) {
+            if (fatherAlleles.contains(childAllele)) {
+                double frequency = getAlleleFrequency(locusName, childAllele, alleleFrequencies);
+                return 1.0 / frequency;
+            }
+        }
+        return 0.0; // Không khớp allele nào → loại trừ
+    }
+    private double getAlleleFrequency(String locus, String allele, Map<String, Map<String, Double>> alleleFrequencies) {
+        return alleleFrequencies.getOrDefault(locus, Map.of()).getOrDefault(allele, 0.1); // Nếu không có tần suất, mặc định 0.1
+    }
+
+
     // Chuyển đổi sang DTO
     private TestResultDTO convertToDTO(TestResult result) {
         TestResultDTO dto = new TestResultDTO();
@@ -174,6 +240,7 @@ public class TestResultServiceImpl implements TestResultService {
         dto.setOrderId(result.getTestOrder() != null ? result.getTestOrder().getOrderId() : null);
         dto.setCustomerId(result.getCustomer() != null ? result.getCustomer().getId() : null);
         dto.setResult(result.getResult());
+        dto.setResultPercent(result.getResultPercent());
         dto.setResultUrl(result.getResultUrl());
         return dto;
     }

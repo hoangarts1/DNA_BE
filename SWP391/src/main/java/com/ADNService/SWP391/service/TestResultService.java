@@ -18,8 +18,7 @@ public interface TestResultService {
 
     void deleteTestResult(Long id);
 
-//    void compareAndSaveResult(Long testResultId, Long sampleId1, Long sampleId2);
+    List<TestResultDTO> getTestResultByOrderId(Long orderId);
 
-//    List<TestResultSampleDTO> getTestResultSamplesByTestResultId(Long testResultId);
 
 }

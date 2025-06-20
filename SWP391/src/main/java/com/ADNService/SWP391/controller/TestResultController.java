@@ -3,6 +3,7 @@ package com.ADNService.SWP391.controller;
 import com.ADNService.SWP391.dto.TestResultDTO;
 import com.ADNService.SWP391.service.TestResultService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,15 @@ public class TestResultController {
     public TestResultDTO getTestResultById(@PathVariable Long id) {
         return testResultService.getTestResultById(id);
     }
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<List<TestResultDTO>> getTestResultByOrderId(@PathVariable Long orderId) {
+        List<TestResultDTO> results = testResultService.getTestResultByOrderId(orderId);
+        if (results.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(results);
+    }
+
 
     // Cập nhật kết quả xét nghiệm
     @PutMapping("/{id}")

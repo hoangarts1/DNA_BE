@@ -9,5 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface TestResultRepository extends JpaRepository<TestResult, Long> {
+    List<TestResult> findByTestOrder_OrderId(Long orderId);
 
 }

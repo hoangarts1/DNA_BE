@@ -8,7 +8,7 @@ public class TestResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "order_id")
     private TestOrder testOrder;
 
@@ -20,16 +20,19 @@ public class TestResult {
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String result;
 
+    private String resultPercent;
+
     private String resultUrl;
 
     public TestResult() {
     }
 
-    public TestResult(Long id, TestOrder testOrder, Customer customer, String result, String resultUrl) {
+    public TestResult(Long id, TestOrder testOrder, Customer customer, String result, String resultPercent, String resultUrl) {
         this.id = id;
         this.testOrder = testOrder;
         this.customer = customer;
         this.result = result;
+        this.resultPercent = resultPercent;
         this.resultUrl = resultUrl;
     }
 
@@ -63,6 +66,14 @@ public class TestResult {
 
     public void setResult(String result) {
         this.result = result;
+    }
+
+    public String getResultPercent() {
+        return resultPercent;
+    }
+
+    public void setResultPercent(String resultPercent) {
+        this.resultPercent = resultPercent;
     }
 
     public String getResultUrl() {
