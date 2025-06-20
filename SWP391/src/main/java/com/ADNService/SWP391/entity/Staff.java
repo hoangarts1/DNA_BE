@@ -24,6 +24,7 @@ public class Staff {
 
     private String fingerprint;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StaffType role;
 
