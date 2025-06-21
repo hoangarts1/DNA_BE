@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,29 +39,40 @@ public class TestResultServiceImpl implements TestResultService {
         // Lấy TestSample theo OrderId
         List<TestSample> samples = testSampleRepository.findByOrder_OrderId(dto.getOrderId());
 
-        if (samples.size() < 2) {
-            throw new RuntimeException("Không đủ 2 mẫu để so sánh trong đơn hàng này.");
+        Long sampleId1 = dto.getSampleId1();
+        Long sampleId2 = dto.getSampleId2();
+
+        // Check 2 mẫu không được trùng nhau
+        if (sampleId1.equals(sampleId2)) {
+            throw new RuntimeException("Hai mẫu so sánh không được trùng nhau.");
         }
 
-        // Lấy sampleId1 và sampleId2
-        Long sampleId1 = samples.get(0).getId();
-        Long sampleId2 = samples.get(1).getId();
+        TestSample sample1 = testSampleRepository.findById(sampleId1)
+                .orElseThrow(() -> new RuntimeException("Sample1 does not exist"));
+        TestSample sample2 = testSampleRepository.findById(sampleId2)
+                .orElseThrow(() -> new RuntimeException("Sample2 does not exist"));
 
-        // Lấy TestResultSample từ 2 mẫu trên
+        // Check 2 mẫu phải thuộc cùng 1 Order
+        if (!sample1.getOrder().getOrderId().equals(order.getOrderId()) ||
+                !sample2.getOrder().getOrderId().equals(order.getOrderId())) {
+            throw new RuntimeException("Hai mẫu phải thuộc cùng một đơn hàng.");
+        }
         List<TestResultSample> sampleList1 = testResultSampleRepository.findByTestSampleId(sampleId1);
         List<TestResultSample> sampleList2 = testResultSampleRepository.findByTestSampleId(sampleId2);
 
+
         // So sánh kết quả
-        String result = compareSamples(sampleList1, sampleList2);
+        String result =getRelationshipResult(sample1, sample2, sampleList1, sampleList2) ;
+
         // Tính phần trăm kết quả trùng
-        String resultPercent = String.format("%.2f%%", calculateRelationshipProbability(sampleList1, sampleList2, Map.of()));
+        String resultPercent = String.format("%.2f%%", calculateMatchingPercentage(sampleList1, sampleList2));
 
         TestResult testResult = new TestResult();
         testResult.setTestOrder(order);
         testResult.setCustomer(customer);
         testResult.setResult(result);
         testResult.setResultPercent(resultPercent);
-        testResult.setResultUrl("Kết quả sẽ được cập nhật sau");
+        testResult.setResultUrl(dto.getResultUrl());
 
         TestResult saved = testResultRepository.save(testResult);
 
@@ -106,28 +116,42 @@ public class TestResultServiceImpl implements TestResultService {
         Customer customer = customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("CustomerID " + dto.getCustomerId() + " does not exist."));
 
-        // Lấy TestSample theo orderId
+        // Lấy danh sách mẫu thuộc order
         List<TestSample> samples = testSampleRepository.findByOrder_OrderId(dto.getOrderId());
 
-        if (samples.size() < 2) {
-            throw new RuntimeException("Không đủ 2 mẫu để so sánh trong đơn hàng này.");
+        Long sampleId1 = dto.getSampleId1();
+        Long sampleId2 = dto.getSampleId2();
+
+        // Kiểm tra 2 mẫu không được trùng nhau
+        if (sampleId1.equals(sampleId2)) {
+            throw new RuntimeException("Hai mẫu so sánh không được trùng nhau.");
         }
 
-        // Lấy sampleId1 và sampleId2
-        Long sampleId1 = samples.get(0).getId();
-        Long sampleId2 = samples.get(1).getId();
+        // Kiểm tra 2 mẫu phải thuộc cùng đơn hàng
+        boolean isSample1InOrder = samples.stream().anyMatch(s -> s.getId().equals(sampleId1));
+        boolean isSample2InOrder = samples.stream().anyMatch(s -> s.getId().equals(sampleId2));
 
-        // Lấy danh sách allele để so sánh
+        if (!isSample1InOrder || !isSample2InOrder) {
+            throw new RuntimeException("Hai mẫu phải thuộc đơn hàng " + order.getOrderId());
+        }
+
+        // Lấy mẫu từ DB
+        TestSample sample1 = testSampleRepository.findById(sampleId1)
+                .orElseThrow(() -> new RuntimeException("Sample1 does not exist"));
+        TestSample sample2 = testSampleRepository.findById(sampleId2)
+                .orElseThrow(() -> new RuntimeException("Sample2 does not exist"));
+
+        // Lấy dữ liệu so sánh
         List<TestResultSample> sampleList1 = testResultSampleRepository.findByTestSampleId(sampleId1);
         List<TestResultSample> sampleList2 = testResultSampleRepository.findByTestSampleId(sampleId2);
 
         // So sánh và kết luận
-        String resultText = compareSamples(sampleList1, sampleList2);
+        String resultText = getRelationshipResult(sample1, sample2, sampleList1, sampleList2);
 
         // Tính phần trăm kết quả trùng
-        String resultPercentText = String.format("%.2f%%", calculateRelationshipProbability(sampleList1, sampleList2, Map.of()));
+        String resultPercentText = String.format("%.2f%%", calculateMatchingPercentage(sampleList1, sampleList2));
 
-        // Cập nhật kết quả
+        // Cập nhật dữ liệu
         result.setTestOrder(order);
         result.setCustomer(customer);
         result.setResult(resultText);
@@ -139,6 +163,7 @@ public class TestResultServiceImpl implements TestResultService {
     }
 
 
+
     @Override
     public void deleteTestResult(Long id) {
         TestResult result = testResultRepository.findById(id)
@@ -146,92 +171,66 @@ public class TestResultServiceImpl implements TestResultService {
         testResultRepository.deleteById(id);
     }
 
-    // Hàm so sánh chính
-    private String compareSamples(List<TestResultSample> sampleList1, List<TestResultSample> sampleList2) {
-        int unmatchedCount = 0;
+    private String getRelationshipResult(TestSample sample1, TestSample sample2, List<TestResultSample> sampleList1, List<TestResultSample> sampleList2) {
+//        double probability = calculateRelationshipProbability(sampleList1, sampleList2, Map.of());
+        double probability = calculateMatchingPercentage(sampleList1, sampleList2);
+        String relationshipCode = relationship(sample1, sample2);
 
-        for (TestResultSample s1 : sampleList1) {
-            boolean matched = false;
-
-            for (TestResultSample s2 : sampleList2) {
-                if (isLocusMatched(s1, s2)) {
-                    matched = true;
-                    break;
-                }
-            }
-
-            if (!matched) {
-                unmatchedCount++;
-                if (unmatchedCount >= 1) {
-                    return "Không có quan hệ huyết thống";
-                }
-            }
+        if (relationshipCode.equals("Cha-Mẹ-Con") && probability >= 99.0) {
+            return "có quan hệ huyết thống";
+        } else if (relationshipCode.equals("Ông-Bà-Cháu") && probability >= 25.0) {
+            return "có quan hệ huyết thống";
+        } else if (relationshipCode.equals("Anh-Chị-Em") && probability >= 50.0) {
+            return "có quan hệ huyết thống";
+        } else {
+            return "không có quan hệ huyết thống";
         }
-        return "Có quan hệ huyết thống";
     }
 
 
-    // Hàm so sánh locus
-    private boolean isLocusMatched(TestResultSample sample1, TestResultSample sample2) {
-        if (!sample1.getLocusName().equals(sample2.getLocusName())) {
-            return false;
-        }
-        return (sample1.getAllele1().equals(sample2.getAllele1()) || sample1.getAllele1().equals(sample2.getAllele2())
-                || sample1.getAllele2().equals(sample2.getAllele1()) || sample1.getAllele2().equals(sample2.getAllele2()));
-    }
-
-    // Hàm tính phần trăm quan hệ huyết thống
-    private double calculateRelationshipProbability(List<TestResultSample> sampleList1, List<TestResultSample> sampleList2, Map<String, Map<String, Double>> alleleFrequencies) {
-        double cpi = 1.0;
+    private double calculateMatchingPercentage(List<TestResultSample> sampleList1, List<TestResultSample> sampleList2) {
+        int totalLocus = sampleList1.size();
+        int matchedLocus = 0;
 
         for (TestResultSample s1 : sampleList1) {
-            TestResultSample matchingSample = null;
-
-            // Tìm locus trùng nhau
             for (TestResultSample s2 : sampleList2) {
                 if (s1.getLocusName().equalsIgnoreCase(s2.getLocusName())) {
-                    matchingSample = s2;
-                    break;
+                    // Chỉ cần 1 allele trùng là tính
+                    if (s1.getAllele1().equals(s2.getAllele1()) || s1.getAllele1().equals(s2.getAllele2())
+                            || s1.getAllele2().equals(s2.getAllele1()) || s1.getAllele2().equals(s2.getAllele2())) {
+                        matchedLocus++;
+                        break; // Nếu trùng rồi thì nhảy qua locus tiếp theo
+                    }
                 }
             }
-
-            // Nếu không có locus trùng thì loại trừ quan hệ
-            if (matchingSample == null) {
-                return 0.0;
-            }
-
-            // Tính PI cho locus này
-            double pi = calculatePI(s1, matchingSample, alleleFrequencies);
-
-            // Nếu PI = 0, loại trừ luôn
-            if (pi == 0.0) {
-                return 0.0;
-            }
-
-            cpi *= pi;
         }
 
-        // Tính phần trăm quan hệ huyết thống
-        return (cpi / (cpi + 1)) * 100.0;
+        return (double) matchedLocus / totalLocus * 100.0;
     }
-    private double calculatePI(TestResultSample childSample, TestResultSample fatherSample, Map<String, Map<String, Double>> alleleFrequencies) {
-        String locusName = childSample.getLocusName();
 
-        List<String> childAlleles = List.of(childSample.getAllele1(), childSample.getAllele2());
-        List<String> fatherAlleles = List.of(fatherSample.getAllele1(), fatherSample.getAllele2());
 
-        for (String childAllele : childAlleles) {
-            if (fatherAlleles.contains(childAllele)) {
-                double frequency = getAlleleFrequency(locusName, childAllele, alleleFrequencies);
-                return 1.0 / frequency;
-            }
+
+    private String relationship(TestSample sample1, TestSample sample2) {
+        if ((sample1.getRelationship().equalsIgnoreCase("CHA") && sample2.getRelationship().equalsIgnoreCase("CON")
+                || sample1.getRelationship().equalsIgnoreCase("MẸ") && sample2.getRelationship().equalsIgnoreCase("CON"))
+            ||(sample1.getRelationship().equalsIgnoreCase("CON") && sample2.getRelationship().equalsIgnoreCase("CHA")
+                || sample1.getRelationship().equalsIgnoreCase("CON") && sample2.getRelationship().equalsIgnoreCase("MẸ"))){
+            return "Cha-Mẹ-Con";
         }
-        return 0.0; // Không khớp allele nào → loại trừ
+        else if ((sample1.getRelationship().equalsIgnoreCase("ÔNG") && sample2.getRelationship().equalsIgnoreCase("CHÁU")
+                || sample1.getRelationship().equalsIgnoreCase("BÀ") && sample2.getRelationship().equalsIgnoreCase("CHÁU"))
+                ||(sample1.getRelationship().equalsIgnoreCase("CHÁU") && sample2.getRelationship().equalsIgnoreCase("ÔNG")
+                || sample1.getRelationship().equalsIgnoreCase("CHÁU") && sample2.getRelationship().equalsIgnoreCase("BÀ"))){
+            return "Ông-Bà-Cháu";
+        }
+        else if ((sample1.getRelationship().equalsIgnoreCase("ANH") && sample2.getRelationship().equalsIgnoreCase("EM")
+                || sample1.getRelationship().equalsIgnoreCase("CHỊ") && sample2.getRelationship().equalsIgnoreCase("EM"))
+                ||(sample1.getRelationship().equalsIgnoreCase("EM") && sample2.getRelationship().equalsIgnoreCase("ANH")
+                || sample1.getRelationship().equalsIgnoreCase("EM") && sample2.getRelationship().equalsIgnoreCase("CHỊ"))){
+            return "Anh-Chị-Em";
+        }
+        return "0";
     }
-    private double getAlleleFrequency(String locus, String allele, Map<String, Map<String, Double>> alleleFrequencies) {
-        return alleleFrequencies.getOrDefault(locus, Map.of()).getOrDefault(allele, 0.1); // Nếu không có tần suất, mặc định 0.1
-    }
-
 
     // Chuyển đổi sang DTO
     private TestResultDTO convertToDTO(TestResult result) {
