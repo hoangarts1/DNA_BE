@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +46,6 @@ public class TestOrderController {
     }
 
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
         testOrderService.deleteOrder(id);
@@ -66,20 +67,48 @@ public class TestOrderController {
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
 
         TestOrder order = opt.get();
-        order.setOrderStatus(dto.getOrderStatus());
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        String role = authentication.getAuthorities().stream()
+                .findFirst().map(auth -> auth.getAuthority().replace("ROLE_", "")).orElse("");
+
+        if ("CUSTOMER".equals(role)) {
+            if (!"SEND_SAMPLE".equals(dto.getOrderStatus())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("CUSTOMER chỉ được cập nhật trạng thái SEND_SAMPLE");
+            }
+            order.setOrderStatus(dto.getOrderStatus());
+            testOrderRepository.save(order);
+            return ResponseEntity.ok("Cập nhật thành công");
+        }
+
+        // 🎯 Phân quyền STAFF
+        if ("NORMAL_STAFF".equals(role)) {
+            if (!List.of("PENDING", "SEND_KIT", "COLLECT_SAMPLE", "COMPLETED").contains(dto.getOrderStatus())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("NORMAL_STAFF không được cập nhật trạng thái " + dto.getOrderStatus());
+            }
+        } else if ("LAB_STAFF".equals(role)) {
+            if (!List.of("TESTED").contains(dto.getOrderStatus())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("LAB_STAFF không được cập nhật trạng thái " + dto.getOrderStatus());
+            }
+        }
+
+        order.setOrderStatus(dto.getOrderStatus());
         Staff staff = staffRepository.findById(dto.getStaffId()).orElse(null);
         if (staff == null) return ResponseEntity.badRequest().body("Không tìm thấy staff");
 
-        // Phân quyền gán đúng vai trò
-        if (List.of("PENDING", "PREPARING", "COLLECTING", "TRANSFERRING").contains(dto.getOrderStatus())) {
+        if (List.of("PENDING", "SEND_KIT", "COLLECT_SAMPLE", "COMPLETED").contains(dto.getOrderStatus())) {
             order.setRegistrationStaff(staff);
-        } else if (List.of("TESTING", "COMPLETED").contains(dto.getOrderStatus())) {
+        } else if ("TESTED".equals(dto.getOrderStatus())) {
             order.setTestingStaff(staff);
         }
 
         testOrderRepository.save(order);
         return ResponseEntity.ok("Cập nhật thành công");
     }
+
 
 }
