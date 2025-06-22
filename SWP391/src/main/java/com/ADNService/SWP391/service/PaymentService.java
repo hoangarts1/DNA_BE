@@ -8,4 +8,7 @@ import java.util.List;
 public interface PaymentService {
         void create(PaymentDTO dto);
         List<Payment> getPaymentsByCustomerId(Long customerId);
+        void markPaymentSuccess(String transactionId);
+        void markPaymentFailed(String transactionId, String responseCode);
+
 }

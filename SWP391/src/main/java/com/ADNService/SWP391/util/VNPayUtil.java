@@ -2,6 +2,7 @@ package com.ADNService.SWP391.util;
 
 import com.ADNService.SWP391.config.VNPayConfig;
 import com.ADNService.SWP391.dto.PaymentDTO;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -10,6 +11,21 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class VNPayUtil {
+
+    public static Map<String, String> getVNPayResponseParams(HttpServletRequest request) {
+        Map<String, String> fields = new HashMap<>();
+        Map<String, String[]> requestParams = request.getParameterMap();
+
+        for (Map.Entry<String, String[]> entry : requestParams.entrySet()) {
+            String key = entry.getKey();
+            String[] values = entry.getValue();
+            String value = String.join(",", values);
+            fields.put(key, value);
+        }
+
+        return fields;
+    }
+
 
     public static String getCurrentDate() {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
