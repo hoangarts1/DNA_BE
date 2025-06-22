@@ -1,7 +1,6 @@
 package com.ADNService.SWP391.entity;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDate;
 
 @Entity
@@ -14,9 +13,8 @@ public class Payment {
     @JoinColumn(name = "order_id", nullable = false)
     private TestOrder order;
 
-    @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
+    @Column(name = "customer_id") // chỉ lưu ID, KHÔNG liên kết
+    private Long customerId;
 
     private int amount;
 
@@ -33,35 +31,30 @@ public class Payment {
 
     private String transactionId;
 
-    public Payment() {
+    // --- Getters & Setters ---
+
+    public Long getPaymentId() {
+        return paymentId;
     }
 
-    public Payment(int amount, Customer customer, Long paymentId, String paymentMethod, String paymentStatus, LocalDate paymentTime, String qrUrl, TestOrder testOrder, String transactionId) {
-        this.amount = amount;
-        this.customer = customer;
+    public void setPaymentId(Long paymentId) {
         this.paymentId = paymentId;
-        this.paymentMethod = paymentMethod;
-        this.paymentStatus = paymentStatus;
-        this.paymentTime = paymentTime;
-        this.qrUrl = qrUrl;
-        this.order = testOrder;
-        this.transactionId = transactionId;
     }
 
-    public TestOrder getOrder() {
+    public TestOrder getTestOrder() {
         return order;
     }
 
-    public void setOrder(TestOrder order) {
-        this.order = order;
+    public void setTestOrder(TestOrder testOrder) {
+        this.order = testOrder;
     }
 
-    public String getTransactionId() {
-        return transactionId;
+    public Long getCustomerId() {
+        return customerId;
     }
 
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 
     public int getAmount() {
@@ -70,22 +63,6 @@ public class Payment {
 
     public void setAmount(int amount) {
         this.amount = amount;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
-    public Long getPaymentId() {
-        return paymentId;
-    }
-
-    public void setPaymentId(Long paymentId) {
-        this.paymentId = paymentId;
     }
 
     public String getPaymentMethod() {
@@ -120,11 +97,11 @@ public class Payment {
         this.qrUrl = qrUrl;
     }
 
-    public TestOrder getTestOrder() {
-        return order;
+    public String getTransactionId() {
+        return transactionId;
     }
 
-    public void setTestOrder(TestOrder testOrder) {
-        this.order = testOrder;
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 }

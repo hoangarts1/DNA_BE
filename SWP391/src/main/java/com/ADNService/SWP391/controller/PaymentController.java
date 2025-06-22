@@ -80,4 +80,35 @@ public class PaymentController {
             return ResponseEntity.status(500).body(error);
         }
     }
+
+    @GetMapping("/vnpay-return")
+    public ResponseEntity<?> handleVNPayReturn(HttpServletRequest request) {
+        Map<String, String> params = VNPayUtil.getVNPayResponseParams(request);
+        String vnp_ResponseCode = params.get("vnp_ResponseCode");
+        String transactionId = params.get("vnp_TxnRef");
+
+        try {
+            if ("00".equals(vnp_ResponseCode)) {
+                paymentService.markPaymentSuccess(transactionId);
+                return ResponseEntity.ok("✅ Thanh toán thành công!");
+            } else {
+                paymentService.markPaymentFailed(transactionId, vnp_ResponseCode);
+                return ResponseEntity.status(400).body("❌ Thanh toán thất bại hoặc bị hủy. Mã lỗi: " + vnp_ResponseCode);
+            }
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(404).body("Không tìm thấy giao dịch: " + transactionId);
+        }
+    }
+
+
+    @GetMapping("/by-customer")
+    public ResponseEntity<List<PaymentDTO>> getPaymentsByCustomer(@RequestParam Long customerId) {
+        List<Payment> payments = paymentService.getPaymentsByCustomerId(customerId);
+        List<PaymentDTO> dtos = payments.stream()
+                .map(PaymentDTO::fromEntity)
+                .toList();
+        return ResponseEntity.ok(dtos);
+    }
+
+
 }

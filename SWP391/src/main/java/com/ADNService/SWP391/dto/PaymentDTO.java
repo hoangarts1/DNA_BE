@@ -52,7 +52,7 @@ public class PaymentDTO {
         PaymentDTO dto = new PaymentDTO();
         dto.setPaymentId(payment.getPaymentId());
         dto.setOrderId(payment.getTestOrder().getOrderId());
-        dto.setCustomerId(payment.getCustomer().getId());
+        dto.setCustomerId(payment.getCustomerId());
         dto.setAmount(payment.getAmount());
         dto.setPaymentMethod(payment.getPaymentMethod());
         dto.setPaymentStatus(payment.getPaymentStatus());
