@@ -1,8 +1,9 @@
 package com.ADNService.SWP391.entity;
 
 import jakarta.persistence.*;
+
 @Entity
-@Table(name = "TestResult")
+@Table(name = "result")
 public class TestResult {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,6 +13,14 @@ public class TestResult {
     @JoinColumn(name = "order_id")
     private TestOrder testOrder;
 
+    @ManyToOne
+    @JoinColumn(name = "sample_id1")
+    private TestSample sampleId1; // Thêm trường sampleId1
+
+    @ManyToOne
+    @JoinColumn(name = "sample_id2")
+    private TestSample sampleId2; // Thêm trường sampleId2
+
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String result;
 
@@ -19,17 +28,20 @@ public class TestResult {
 
     private String resultUrl;
 
-    public TestResult() {
-    }
+    // Constructors
+    public TestResult() {}
 
-    public TestResult(Long id, TestOrder testOrder, String result, String resultPercent, String resultUrl) {
+    public TestResult(Long id, TestOrder testOrder, TestSample sampleId1, TestSample sampleId2, String result, String resultPercent, String resultUrl) {
         this.id = id;
         this.testOrder = testOrder;
+        this.sampleId1 = sampleId1;
+        this.sampleId2 = sampleId2;
         this.result = result;
         this.resultPercent = resultPercent;
         this.resultUrl = resultUrl;
     }
 
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -44,6 +56,22 @@ public class TestResult {
 
     public void setTestOrder(TestOrder testOrder) {
         this.testOrder = testOrder;
+    }
+
+    public TestSample getSampleId1() {
+        return sampleId1;
+    }
+
+    public void setSampleId1(TestSample sampleId1) {
+        this.sampleId1 = sampleId1;
+    }
+
+    public TestSample getSampleId2() {
+        return sampleId2;
+    }
+
+    public void setSampleId2(TestSample sampleId2) {
+        this.sampleId2 = sampleId2;
     }
 
     public String getResult() {
