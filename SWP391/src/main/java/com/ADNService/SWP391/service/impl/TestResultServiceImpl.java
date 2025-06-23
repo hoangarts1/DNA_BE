@@ -24,9 +24,9 @@ public class TestResultServiceImpl implements TestResultService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
     @Autowired
     private TestSampleRepository testSampleRepository;
-
 
     @Override
     public TestResultDTO createTestResult(TestResultDTO dto) {
@@ -54,18 +54,20 @@ public class TestResultServiceImpl implements TestResultService {
                 !sample2.getOrder().getOrderId().equals(order.getOrderId())) {
             throw new RuntimeException("Hai mẫu phải thuộc cùng một đơn hàng.");
         }
+
         List<TestResultSample> sampleList1 = testResultSampleRepository.findByTestSampleId(sampleId1);
         List<TestResultSample> sampleList2 = testResultSampleRepository.findByTestSampleId(sampleId2);
 
-
         // So sánh kết quả
-        String result =getRelationshipResult(sample1, sample2, sampleList1, sampleList2) ;
+        String result = getRelationshipResult(sample1, sample2, sampleList1, sampleList2);
 
         // Tính phần trăm kết quả trùng
         String resultPercent = String.format("%.2f%%", calculateMatchingPercentage(sampleList1, sampleList2));
 
         TestResult testResult = new TestResult();
         testResult.setTestOrder(order);
+        testResult.setSampleId1(sample1); // Lưu sampleId1
+        testResult.setSampleId2(sample2); // Lưu sampleId2
         testResult.setResult(result);
         testResult.setResultPercent(resultPercent);
         testResult.setResultUrl(dto.getResultUrl());
@@ -73,29 +75,6 @@ public class TestResultServiceImpl implements TestResultService {
         TestResult saved = testResultRepository.save(testResult);
 
         return convertToDTO(saved);
-    }
-
-    @Override
-    public List<TestResultDTO> getAllTestResults() {
-        return testResultRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public TestResultDTO getTestResultById(Long id) {
-        return testResultRepository.findById(id)
-                .map(this::convertToDTO)
-                .orElseThrow(() -> new RuntimeException("TestResult with ID " + id + " does not exist."));
-    }
-
-    @Override
-    public List<TestResultDTO> getTestResultByOrderId(Long orderId) {
-        List<TestResult> results = testResultRepository.findByTestOrder_OrderId(orderId);
-
-        return results.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -145,6 +124,8 @@ public class TestResultServiceImpl implements TestResultService {
 
         // Cập nhật dữ liệu
         result.setTestOrder(order);
+        result.setSampleId1(sample1); // Cập nhật sampleId1
+        result.setSampleId2(sample2); // Cập nhật sampleId2
         result.setResult(resultText);
         result.setResultPercent(resultPercentText);
         result.setResultUrl(dto.getResultUrl());
@@ -153,7 +134,41 @@ public class TestResultServiceImpl implements TestResultService {
         return convertToDTO(updated);
     }
 
+    // Cập nhật convertToDTO
+    private TestResultDTO convertToDTO(TestResult result) {
+        TestResultDTO dto = new TestResultDTO();
+        dto.setId(result.getId());
+        dto.setOrderId(result.getTestOrder() != null ? result.getTestOrder().getOrderId() : null);
+        dto.setSampleId1(result.getSampleId1() != null ? result.getSampleId1().getId() : null); // Ánh xạ sampleId1
+        dto.setSampleId2(result.getSampleId2() != null ? result.getSampleId2().getId() : null); // Ánh xạ sampleId2
+        dto.setResult(result.getResult());
+        dto.setResultPercent(result.getResultPercent());
+        dto.setResultUrl(result.getResultUrl());
+        return dto;
+    }
 
+    // Các phương thức khác giữ nguyên
+    @Override
+    public List<TestResultDTO> getAllTestResults() {
+        return testResultRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public TestResultDTO getTestResultById(Long id) {
+        return testResultRepository.findById(id)
+                .map(this::convertToDTO)
+                .orElseThrow(() -> new RuntimeException("TestResult with ID " + id + " does not exist."));
+    }
+
+    @Override
+    public List<TestResultDTO> getTestResultByOrderId(Long orderId) {
+        List<TestResult> results = testResultRepository.findByTestOrder_OrderId(orderId);
+        return results.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public void deleteTestResult(Long id) {
@@ -163,7 +178,6 @@ public class TestResultServiceImpl implements TestResultService {
     }
 
     private String getRelationshipResult(TestSample sample1, TestSample sample2, List<TestResultSample> sampleList1, List<TestResultSample> sampleList2) {
-//        double probability = calculateRelationshipProbability(sampleList1, sampleList2, Map.of());
         double probability = calculateMatchingPercentage(sampleList1, sampleList2);
         String relationshipCode = relationship(sample1, sample2);
 
@@ -178,7 +192,6 @@ public class TestResultServiceImpl implements TestResultService {
         }
     }
 
-
     private double calculateMatchingPercentage(List<TestResultSample> sampleList1, List<TestResultSample> sampleList2) {
         int totalLocus = sampleList1.size();
         int matchedLocus = 0;
@@ -186,11 +199,10 @@ public class TestResultServiceImpl implements TestResultService {
         for (TestResultSample s1 : sampleList1) {
             for (TestResultSample s2 : sampleList2) {
                 if (s1.getLocusName().equalsIgnoreCase(s2.getLocusName())) {
-                    // Chỉ cần 1 allele trùng là tính
                     if (s1.getAllele1().equals(s2.getAllele1()) || s1.getAllele1().equals(s2.getAllele2())
                             || s1.getAllele2().equals(s2.getAllele1()) || s1.getAllele2().equals(s2.getAllele2())) {
                         matchedLocus++;
-                        break; // Nếu trùng rồi thì nhảy qua locus tiếp theo
+                        break;
                     }
                 }
             }
@@ -199,38 +211,23 @@ public class TestResultServiceImpl implements TestResultService {
         return (double) matchedLocus / totalLocus * 100.0;
     }
 
-
-
     private String relationship(TestSample sample1, TestSample sample2) {
         if ((sample1.getRelationship().equalsIgnoreCase("CHA") && sample2.getRelationship().equalsIgnoreCase("CON")
                 || sample1.getRelationship().equalsIgnoreCase("MẸ") && sample2.getRelationship().equalsIgnoreCase("CON"))
-            ||(sample1.getRelationship().equalsIgnoreCase("CON") && sample2.getRelationship().equalsIgnoreCase("CHA")
-                || sample1.getRelationship().equalsIgnoreCase("CON") && sample2.getRelationship().equalsIgnoreCase("MẸ"))){
+                || (sample1.getRelationship().equalsIgnoreCase("CON") && sample2.getRelationship().equalsIgnoreCase("CHA")
+                || sample1.getRelationship().equalsIgnoreCase("CON") && sample2.getRelationship().equalsIgnoreCase("MẸ"))) {
             return "Cha-Mẹ-Con";
-        }
-        else if ((sample1.getRelationship().equalsIgnoreCase("ÔNG") && sample2.getRelationship().equalsIgnoreCase("CHÁU")
+        } else if ((sample1.getRelationship().equalsIgnoreCase("ÔNG") && sample2.getRelationship().equalsIgnoreCase("CHÁU")
                 || sample1.getRelationship().equalsIgnoreCase("BÀ") && sample2.getRelationship().equalsIgnoreCase("CHÁU"))
-                ||(sample1.getRelationship().equalsIgnoreCase("CHÁU") && sample2.getRelationship().equalsIgnoreCase("ÔNG")
-                || sample1.getRelationship().equalsIgnoreCase("CHÁU") && sample2.getRelationship().equalsIgnoreCase("BÀ"))){
+                || (sample1.getRelationship().equalsIgnoreCase("CHÁU") && sample2.getRelationship().equalsIgnoreCase("ÔNG")
+                || sample1.getRelationship().equalsIgnoreCase("CHÁU") && sample2.getRelationship().equalsIgnoreCase("BÀ"))) {
             return "Ông-Bà-Cháu";
-        }
-        else if ((sample1.getRelationship().equalsIgnoreCase("ANH") && sample2.getRelationship().equalsIgnoreCase("EM")
+        } else if ((sample1.getRelationship().equalsIgnoreCase("ANH") && sample2.getRelationship().equalsIgnoreCase("EM")
                 || sample1.getRelationship().equalsIgnoreCase("CHỊ") && sample2.getRelationship().equalsIgnoreCase("EM"))
-                ||(sample1.getRelationship().equalsIgnoreCase("EM") && sample2.getRelationship().equalsIgnoreCase("ANH")
-                || sample1.getRelationship().equalsIgnoreCase("EM") && sample2.getRelationship().equalsIgnoreCase("CHỊ"))){
+                || (sample1.getRelationship().equalsIgnoreCase("EM") && sample2.getRelationship().equalsIgnoreCase("ANH")
+                || sample1.getRelationship().equalsIgnoreCase("EM") && sample2.getRelationship().equalsIgnoreCase("CHỊ"))) {
             return "Anh-Chị-Em";
         }
         return "0";
-    }
-
-    // Chuyển đổi sang DTO
-    private TestResultDTO convertToDTO(TestResult result) {
-        TestResultDTO dto = new TestResultDTO();
-        dto.setId(result.getId());
-        dto.setOrderId(result.getTestOrder() != null ? result.getTestOrder().getOrderId() : null);
-        dto.setResult(result.getResult());
-        dto.setResultPercent(result.getResultPercent());
-        dto.setResultUrl(result.getResultUrl());
-        return dto;
     }
 }
