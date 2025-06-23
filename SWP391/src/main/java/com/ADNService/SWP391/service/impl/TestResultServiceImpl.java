@@ -33,9 +33,6 @@ public class TestResultServiceImpl implements TestResultService {
         TestOrder order = testOrderRepository.findById(dto.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Order with ID " + dto.getOrderId() + " does not exist."));
 
-        Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("CustomerID " + dto.getCustomerId() + " does not exist."));
-
         // Lấy TestSample theo OrderId
         List<TestSample> samples = testSampleRepository.findByOrder_OrderId(dto.getOrderId());
 
@@ -69,7 +66,6 @@ public class TestResultServiceImpl implements TestResultService {
 
         TestResult testResult = new TestResult();
         testResult.setTestOrder(order);
-        testResult.setCustomer(customer);
         testResult.setResult(result);
         testResult.setResultPercent(resultPercent);
         testResult.setResultUrl(dto.getResultUrl());
@@ -112,10 +108,6 @@ public class TestResultServiceImpl implements TestResultService {
         TestOrder order = testOrderRepository.findById(dto.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Order with ID " + dto.getOrderId() + " does not exist."));
 
-        // Kiểm tra Customer tồn tại
-        Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("CustomerID " + dto.getCustomerId() + " does not exist."));
-
         // Lấy danh sách mẫu thuộc order
         List<TestSample> samples = testSampleRepository.findByOrder_OrderId(dto.getOrderId());
 
@@ -153,7 +145,6 @@ public class TestResultServiceImpl implements TestResultService {
 
         // Cập nhật dữ liệu
         result.setTestOrder(order);
-        result.setCustomer(customer);
         result.setResult(resultText);
         result.setResultPercent(resultPercentText);
         result.setResultUrl(dto.getResultUrl());
@@ -237,7 +228,6 @@ public class TestResultServiceImpl implements TestResultService {
         TestResultDTO dto = new TestResultDTO();
         dto.setId(result.getId());
         dto.setOrderId(result.getTestOrder() != null ? result.getTestOrder().getOrderId() : null);
-        dto.setCustomerId(result.getCustomer() != null ? result.getCustomer().getId() : null);
         dto.setResult(result.getResult());
         dto.setResultPercent(result.getResultPercent());
         dto.setResultUrl(result.getResultUrl());

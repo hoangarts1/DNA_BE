@@ -22,12 +22,6 @@ public class TestResultSampleServiceImpl implements TestResultSampleService {
 
     @Autowired
     private TestSampleRepository testSampleRepository;
-    @Autowired
-    private TestOrderRepository testOrderRepository;
-    @Autowired
-    private TestResultRepository testResultRepository;
-    @Autowired
-    private CustomerRepository customerRepository;
 
     @Override
     public List<TestResultSampleDTO> getTestResultSamplesByTestSampleId(Long testSampleId) {
@@ -113,67 +107,6 @@ public class TestResultSampleServiceImpl implements TestResultSampleService {
                 throw new RuntimeException("Duplicate locus: " + dto.getLocusName() + " for TestSampleId: " + dto.getTestSampleId());
             }
         }
-    }
-
-    // Hàm so sánh 2 locus
-    public boolean isLocusMatched(TestResultSample sample1, TestResultSample sample2) {
-        if (!sample1.getLocusName().equals(sample2.getLocusName())) {
-            return false;
-        }
-        return (sample1.getAllele1().equals(sample2.getAllele1()) || sample1.getAllele1().equals(sample2.getAllele2()) ||
-                sample1.getAllele2().equals(sample2.getAllele1()) || sample1.getAllele2().equals(sample2.getAllele2()));
-    }
-
-    // Hàm so sánh toàn bộ locus
-    public String compareSamples(List<TestResultSample> sampleList1, List<TestResultSample> sampleList2) {
-        int unmatchedCount = 0;
-
-        for (TestResultSample s1 : sampleList1) {
-            boolean matched = false;
-
-            for (TestResultSample s2 : sampleList2) {
-                if (isLocusMatched(s1, s2)) {
-                    matched = true;
-                    break;
-                }
-            }
-
-            if (!matched) {
-                unmatchedCount++;
-                // Nếu đã có 2 locus không trùng thì kết luận luôn
-                if (unmatchedCount >= 2) {
-                    return "Không có quan hệ huyết thống";
-                }
-            }
-        }
-
-        // Nếu chưa có 2 locus không trùng thì kết luận có quan hệ
-        return "Có quan hệ huyết thống";
-    }
-
-
-    public TestResult generateTestResult(Long orderId, Long sampleId1, Long sampleId2, Long customerId) {
-        // Lấy danh sách locus của mẫu 1 và mẫu 2
-        List<TestResultSample> sampleList1 = testResultSampleRepository.findByTestSampleId(sampleId1);
-        List<TestResultSample> sampleList2 = testResultSampleRepository.findByTestSampleId(sampleId2);
-
-        // So sánh và kết luận quan hệ huyết thống
-        String result = compareSamples(sampleList1, sampleList2);
-
-        // Tạo đối tượng TestResult
-        TestResult testResult = new TestResult();
-
-        // Set TestOrder nếu tìm thấy
-        testOrderRepository.findById(orderId).ifPresent(testResult::setTestOrder);
-
-        // Set Customer nếu tìm thấy
-        customerRepository.findById(customerId).ifPresent(testResult::setCustomer);
-
-        testResult.setResult(result);
-        testResult.setResultUrl("Kết quả sẽ được cập nhật sau");
-
-        // Lưu vào database và trả về kết quả
-        return testResultRepository.save(testResult);
     }
 
 }
