@@ -62,7 +62,14 @@ public class PaymentServiceImpl implements PaymentService {
 
         payment.setPaymentStatus("SUCCESS");
         paymentRepository.save(payment);
+
+        TestOrder order = payment.getTestOrder();
+        if (order != null) {
+            order.setOrderStatus("CONFIRM");
+            testOrderRepository.save(order);
+        }
     }
+
 
     @Override
     public void markPaymentFailed(String transactionId, String responseCode) {
