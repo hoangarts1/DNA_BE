@@ -11,4 +11,6 @@ public interface TestOrderService {
     TestOrderDTO updateOrder(String id, TestOrderDTO dto);
     void deleteOrder(String id);
     List<TestOrderDTO> getOrdersByCustomerId(Long customerId);
+    byte[] generateTestOrderPdf(Long id);
+
 }
