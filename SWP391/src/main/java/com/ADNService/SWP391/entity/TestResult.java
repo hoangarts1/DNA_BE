@@ -3,7 +3,7 @@ package com.ADNService.SWP391.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "result")
+@Table(name = "test_result")
 public class TestResult {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -39,6 +39,14 @@ public class TestOrderServiceImpl implements TestOrderService {
         this.serviceRepo = serviceRepo;
     }
 
+    @Override
+    public TestOrderDTO getTestOrderById(Long orderId) {
+        TestOrder order = testOrderRepository.findById(orderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+        return convertToDTO(order);
+    }
+
+
     private TestOrderDTO convertToDTO(TestOrder order) {
         TestOrderDTO dto = new TestOrderDTO();
         dto.setOrderId(order.getOrderId());
