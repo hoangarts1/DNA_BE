@@ -4,12 +4,18 @@ import com.ADNService.SWP391.dto.TestOrderDTO;
 import com.ADNService.SWP391.entity.TestOrder;
 import com.ADNService.SWP391.repository.*;
 import com.ADNService.SWP391.service.TestOrderService;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.properties.TextAlignment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -184,4 +190,47 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public byte[] generateTestOrderPdf(Long id) {
+        TestOrder order = testOrderRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try {
+            PdfWriter writer = new PdfWriter(out);
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document document = new Document(pdfDoc);
+
+            // Tiêu đề
+            document.add(new Paragraph("ĐƠN YÊU CẦU PHÂN TÍCH ADN").setBold().setFontSize(16).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Mã đơn: " + order.getOrderId()).setTextAlignment(TextAlignment.RIGHT));
+
+            // Thông tin khách hàng
+            document.add(new Paragraph("1. Thông tin khách hàng"));
+            document.add(new Paragraph("Họ tên: " + order.getCustomer().getAccount().getFullName()));
+            document.add(new Paragraph("Email: " + order.getCustomer().getAccount().getEmail()));
+            document.add(new Paragraph("Số điện thoại: " + order.getCustomer().getAccount().getPhone()));
+
+            // Thông tin dịch vụ
+            document.add(new Paragraph("\n2. Thông tin xét nghiệm"));
+            document.add(new Paragraph("Dịch vụ: " + order.getServices().getServiceName()));
+            document.add(new Paragraph("Số mẫu: " + order.getSampleQuantity()));
+            document.add(new Paragraph("Ngày đăng ký: " + order.getOrderDate()));
+            document.add(new Paragraph("Phương thức lấy mẫu: " + order.getSampleMethod()));
+            document.add(new Paragraph("Phương thức trả kết quả: " + order.getResultDeliveryMethod()));
+            document.add(new Paragraph("Địa chỉ trả kết quả: " + order.getResultDeliverAddress()));
+            document.add(new Paragraph("Tổng tiền: " + order.getAmount() + " VND"));
+
+            document.add(new Paragraph("\nChữ ký khách hàng: ________________________"));
+
+            document.close();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating PDF: " + e.getMessage());
+        }
+
+        return out.toByteArray();
+    }
+
 }

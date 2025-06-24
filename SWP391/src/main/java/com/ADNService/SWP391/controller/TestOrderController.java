@@ -8,12 +8,12 @@ import com.ADNService.SWP391.repository.StaffRepository;
 import com.ADNService.SWP391.repository.TestOrderRepository;
 import com.ADNService.SWP391.service.TestOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -110,5 +110,15 @@ public class TestOrderController {
         return ResponseEntity.ok("Cập nhật thành công");
     }
 
+    @GetMapping("/{id}/export-pdf")
+    public ResponseEntity<byte[]> exportTestOrderPdf(@PathVariable Long id) throws IOException {
+        byte[] pdfBytes = testOrderService.generateTestOrderPdf(id);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition.inline().filename("TestOrder_" + id + ".pdf").build());
+
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+    }
 
 }
