@@ -30,4 +30,22 @@ public class TestResultPDFController {
         OutputStream out = response.getOutputStream();
         pdfExportService.generatePDF(report, out);
     }
+    @GetMapping("/export/samples")
+    public void exportPDFBySamples(
+            @RequestParam Long sampleId1,
+            @RequestParam Long sampleId2,
+            HttpServletResponse response) throws Exception {
+
+        TestResultPDFDTO report = reportService.getTestResultReportBySamples(sampleId1, sampleId2);
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=result.pdf");
+
+        try (OutputStream out = response.getOutputStream()) {
+            pdfExportService.generatePDF(report, out);
+            out.flush(); // đảm bảo ghi hết dữ liệu
+        }
+    }
+
+
 }

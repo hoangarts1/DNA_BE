@@ -7,19 +7,17 @@ public class TestResultDTO {
     private Long sampleId2;
     private String result;
     private String resultPercent;
-    private String resultUrl;
 
     public TestResultDTO() {
     }
 
-    public TestResultDTO(Long id, Long orderId, Long sampleId1, Long sampleId2, String result, String resultPercent, String resultUrl) {
+    public TestResultDTO(Long id, Long orderId, Long sampleId1, Long sampleId2, String result, String resultPercent) {
         this.id = id;
         this.orderId = orderId;
         this.sampleId1 = sampleId1;
         this.sampleId2 = sampleId2;
         this.result = result;
         this.resultPercent = resultPercent;
-        this.resultUrl = resultUrl;
     }
 
     public Long getId() {
@@ -65,14 +63,6 @@ public class TestResultDTO {
 
     public void setResultPercent(String resultPercent) {
         this.resultPercent = resultPercent;
-    }
-
-    public String getResultUrl() {
-        return resultUrl;
-    }
-
-    public void setResultUrl(String resultUrl) {
-        this.resultUrl = resultUrl;
     }
 
 }

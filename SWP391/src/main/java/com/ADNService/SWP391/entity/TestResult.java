@@ -27,20 +27,17 @@ public class TestResult {
     @Column(unique = true, columnDefinition = "NVARCHAR(255)")
     private String resultPercent;
 
-    @Column(unique = true, columnDefinition = "NVARCHAR(255)")
-    private String resultUrl;
 
     // Constructors
     public TestResult() {}
 
-    public TestResult(Long id, TestOrder testOrder, TestSample sampleId1, TestSample sampleId2, String result, String resultPercent, String resultUrl) {
+    public TestResult(Long id, TestOrder testOrder, TestSample sampleId1, TestSample sampleId2, String result, String resultPercent) {
         this.id = id;
         this.testOrder = testOrder;
         this.sampleId1 = sampleId1;
         this.sampleId2 = sampleId2;
         this.result = result;
         this.resultPercent = resultPercent;
-        this.resultUrl = resultUrl;
     }
 
     // Getters and setters
@@ -92,11 +89,4 @@ public class TestResult {
         this.resultPercent = resultPercent;
     }
 
-    public String getResultUrl() {
-        return resultUrl;
-    }
-
-    public void setResultUrl(String resultUrl) {
-        this.resultUrl = resultUrl;
-    }
 }

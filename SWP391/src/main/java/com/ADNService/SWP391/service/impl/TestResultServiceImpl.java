@@ -54,6 +54,15 @@ public class TestResultServiceImpl implements TestResultService {
                 !sample2.getOrder().getOrderId().equals(order.getOrderId())) {
             throw new RuntimeException("Hai mẫu phải thuộc cùng một đơn hàng.");
         }
+        List<TestResult> existingResults = testResultRepository.findBySampleIdPair(sampleId1, sampleId2);
+        boolean isDuplicate = existingResults.stream().anyMatch(r ->
+                r.getTestOrder().getOrderId().equals(dto.getOrderId())
+        );
+
+        if (isDuplicate) {
+            throw new RuntimeException("Đã tồn tại kết quả với cùng đơn hàng và 2 mẫu này.");
+        }
+
 
         List<TestResultSample> sampleList1 = testResultSampleRepository.findByTestSampleId(sampleId1);
         List<TestResultSample> sampleList2 = testResultSampleRepository.findByTestSampleId(sampleId2);
@@ -70,7 +79,6 @@ public class TestResultServiceImpl implements TestResultService {
         testResult.setSampleId2(sample2); // Lưu sampleId2
         testResult.setResult(result);
         testResult.setResultPercent(resultPercent);
-        testResult.setResultUrl(dto.getResultUrl());
 
         TestResult saved = testResultRepository.save(testResult);
 
@@ -128,7 +136,6 @@ public class TestResultServiceImpl implements TestResultService {
         result.setSampleId2(sample2); // Cập nhật sampleId2
         result.setResult(resultText);
         result.setResultPercent(resultPercentText);
-        result.setResultUrl(dto.getResultUrl());
 
         TestResult updated = testResultRepository.save(result);
         return convertToDTO(updated);
@@ -143,7 +150,6 @@ public class TestResultServiceImpl implements TestResultService {
         dto.setSampleId2(result.getSampleId2() != null ? result.getSampleId2().getId() : null); // Ánh xạ sampleId2
         dto.setResult(result.getResult());
         dto.setResultPercent(result.getResultPercent());
-        dto.setResultUrl(result.getResultUrl());
         return dto;
     }
 
@@ -169,6 +175,15 @@ public class TestResultServiceImpl implements TestResultService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<TestResultDTO> getTestResultBySampleIds(Long sampleId1, Long sampleId2) {
+        return testResultRepository.findBySampleIdPair(sampleId1, sampleId2)
+                .stream()
+                .map(result -> convertToDTO(result))
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public void deleteTestResult(Long id) {
