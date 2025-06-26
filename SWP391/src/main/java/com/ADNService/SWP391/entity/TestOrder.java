@@ -42,6 +42,15 @@ public class TestOrder {
 
 // Getter & Setter
 
+
+    public List<TestSample> getTestSamples() {
+        return testSamples;
+    }
+
+    public void setTestSamples(List<TestSample> testSamples) {
+        this.testSamples = testSamples;
+    }
+
     public Long getOrderId() {
         return orderId;
     }

@@ -46,6 +46,7 @@ public class SecurityConfig {
 //                        .requestMatchers("/api/services/**").permitAll() //
 //                        .requestMatchers("/api/testSamples/**").permitAll()
 //                        .requestMatchers("/api/staff/**").permitAll()
+//                        .requestMatchers("/api/payments/vnpay-return").permitAll()
 //                        .anyRequest().authenticated()
 //                )
 //                .addFilterBefore((request, response, chain) -> {
@@ -83,6 +84,6 @@ public class SecurityConfig {
 //        source.registerCorsConfiguration("/**", config);
 //        return source;
 //    }
-//
+
 
 }
