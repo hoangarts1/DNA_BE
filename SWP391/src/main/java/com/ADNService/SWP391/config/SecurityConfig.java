@@ -30,7 +30,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
     @Autowired
     private JwtUtil jwtUtil;
 
