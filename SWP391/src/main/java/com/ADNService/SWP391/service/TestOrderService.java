@@ -13,4 +13,5 @@ public interface TestOrderService {
     List<TestOrderDTO> getOrdersByCustomerId(Long customerId);
     byte[] generateTestOrderPdf(Long id);
 
+    TestOrderDTO getTestOrderById(Long orderId);
 }

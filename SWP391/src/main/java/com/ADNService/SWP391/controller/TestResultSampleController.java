@@ -2,6 +2,7 @@ package com.ADNService.SWP391.controller;
 
 import com.ADNService.SWP391.dto.TestResultSampleDTO;
 import com.ADNService.SWP391.service.TestResultSampleService;
+import com.ADNService.SWP391.service.impl.TestResultPDFServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,8 @@ public class TestResultSampleController {
 
     @Autowired
     private TestResultSampleService testResultSampleService;
+    @Autowired
+    private TestResultPDFServiceImpl testResultPDFService;
 
     @GetMapping("/by-test-sample/{testSampleId}")
     public List<TestResultSampleDTO> getByTestSampleId(@PathVariable Long testSampleId) {
@@ -50,4 +53,6 @@ public class TestResultSampleController {
     public void deleteTestResultSample(@PathVariable Long id) {
         testResultSampleService.deleteTestResultSample(id);
     }
+
+
 }

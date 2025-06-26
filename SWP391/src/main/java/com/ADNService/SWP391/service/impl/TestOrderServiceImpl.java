@@ -1,5 +1,7 @@
 package com.ADNService.SWP391.service.impl;
 
+import com.ADNService.SWP391.dto.AccountDTO;
+import com.ADNService.SWP391.dto.CustomerDTO;
 import com.ADNService.SWP391.dto.TestOrderDTO;
 import com.ADNService.SWP391.entity.Account;
 import com.ADNService.SWP391.entity.Customer;
@@ -56,6 +58,37 @@ public class TestOrderServiceImpl implements TestOrderService {
         this.staffRepo = staffRepo;
         this.serviceRepo = serviceRepo;
     }
+
+    public TestOrderDTO getTestOrderById(Long orderId) {
+        TestOrder order = testOrderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        Customer customer = order.getCustomer();
+        Account account = customer.getAccount();  // Truy xuất Account từ Customer
+
+        TestOrderDTO dto = new TestOrderDTO();
+        dto.setOrderId(order.getOrderId());
+        dto.setCustomerId(customer.getId());
+        dto.setOrderDate(order.getOrderDate());
+        // ... các field khác
+
+        // Set CustomerDTO
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setAddress(customer.getAddress());
+        // ... các field khác
+        dto.setCustomer(customerDTO);
+
+        // Set AccountDTO
+        AccountDTO accountDTO = new AccountDTO();
+        accountDTO.setFullName(account.getFullName());
+        // ... các field khác
+        dto.setAccount(accountDTO);
+
+        return dto;
+    }
+
+
+
 
     private TestOrderDTO convertToDTO(TestOrder order) {
         TestOrderDTO dto = new TestOrderDTO();

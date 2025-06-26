@@ -22,6 +22,7 @@ public class Staff {
     @JoinColumn(name = "account_id", referencedColumnName = "id")
     private Account account;
 
+    @Column(unique = true, columnDefinition = "NVARCHAR(255)")
     private String fingerprint;
 
     @Enumerated(EnumType.STRING)

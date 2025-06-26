@@ -15,6 +15,11 @@ public class TestOrderDTO {
     private String resultDeliverAddress;
     private int sampleQuantity;
     private int amount;
+    private AccountDTO account;
+    private CustomerDTO customer;
+    private String serviceType;
+
+
 
     public TestOrderDTO() {
     }
@@ -132,4 +137,26 @@ public class TestOrderDTO {
     public void setAmount(int amount) {
         this.amount = amount;
     }
+
+    public AccountDTO getAccount() {
+        return account;
+    }
+
+    public CustomerDTO getCustomer() {
+        return customer;
+    }
+    public void setAccount(AccountDTO account) {
+        this.account = account;
+    }
+    public void setCustomer(CustomerDTO customer) {
+        this.customer = customer;
+    }
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
 }

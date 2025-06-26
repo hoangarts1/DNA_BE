@@ -2,6 +2,7 @@ package com.ADNService.SWP391.service;
 
 import com.ADNService.SWP391.dto.TestResultSampleDTO;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 public interface TestResultSampleService {
@@ -12,4 +13,5 @@ public interface TestResultSampleService {
     void deleteTestResultSample(Long id);
     List<TestResultSampleDTO> createTestResultSamples(List<TestResultSampleDTO> dtoList);
     List<TestResultSampleDTO> getTestResultSamplesByOrderId(Long orderId); // Thêm phương thức mới
+
 }

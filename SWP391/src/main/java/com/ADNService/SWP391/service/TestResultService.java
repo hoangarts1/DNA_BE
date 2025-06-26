@@ -21,4 +21,5 @@ public interface TestResultService {
     List<TestResultDTO> getTestResultByOrderId(Long orderId);
 
 
+    List<TestResultDTO> getTestResultBySampleIds(Long sampleId1, Long sampleId2);
 }

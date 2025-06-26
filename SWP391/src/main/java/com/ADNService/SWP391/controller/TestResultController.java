@@ -53,5 +53,6 @@ public class TestResultController {
     public void deleteTestResult(@PathVariable Long id) {
         testResultService.deleteTestResult(id);
     }
+
 }
 
