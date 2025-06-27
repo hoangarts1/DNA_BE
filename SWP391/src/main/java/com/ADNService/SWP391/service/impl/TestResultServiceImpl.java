@@ -64,21 +64,12 @@ public class TestResultServiceImpl implements TestResultService {
         }
 
 
-        List<TestResultSample> sampleList1 = testResultSampleRepository.findByTestSampleId(sampleId1);
-        List<TestResultSample> sampleList2 = testResultSampleRepository.findByTestSampleId(sampleId2);
-
-        // So sánh kết quả
-        String result = getRelationshipResult(sample1, sample2, sampleList1, sampleList2);
-
-        // Tính phần trăm kết quả trùng
-        String resultPercent = String.format("%.2f%%", calculateMatchingPercentage(sampleList1, sampleList2));
-
         TestResult testResult = new TestResult();
         testResult.setTestOrder(order);
         testResult.setSampleId1(sample1); // Lưu sampleId1
         testResult.setSampleId2(sample2); // Lưu sampleId2
-        testResult.setResult(result);
-        testResult.setResultPercent(resultPercent);
+        testResult.setResult(dto.getResult());
+        testResult.setResultPercent(dto.getResultPercent());
 
         TestResult saved = testResultRepository.save(testResult);
 
@@ -114,28 +105,18 @@ public class TestResultServiceImpl implements TestResultService {
             throw new RuntimeException("Hai mẫu phải thuộc đơn hàng " + order.getOrderId());
         }
 
-        // Lấy mẫu từ DB
+        // Kiểm tra 2 mẫu có tồn tại không
         TestSample sample1 = testSampleRepository.findById(sampleId1)
                 .orElseThrow(() -> new RuntimeException("Sample1 does not exist"));
         TestSample sample2 = testSampleRepository.findById(sampleId2)
                 .orElseThrow(() -> new RuntimeException("Sample2 does not exist"));
 
-        // Lấy dữ liệu so sánh
-        List<TestResultSample> sampleList1 = testResultSampleRepository.findByTestSampleId(sampleId1);
-        List<TestResultSample> sampleList2 = testResultSampleRepository.findByTestSampleId(sampleId2);
-
-        // So sánh và kết luận
-        String resultText = getRelationshipResult(sample1, sample2, sampleList1, sampleList2);
-
-        // Tính phần trăm kết quả trùng
-        String resultPercentText = String.format("%.2f%%", calculateMatchingPercentage(sampleList1, sampleList2));
-
         // Cập nhật dữ liệu
         result.setTestOrder(order);
         result.setSampleId1(sample1); // Cập nhật sampleId1
         result.setSampleId2(sample2); // Cập nhật sampleId2
-        result.setResult(resultText);
-        result.setResultPercent(resultPercentText);
+        result.setResult(dto.getResult());
+        result.setResultPercent(dto.getResultPercent());
 
         TestResult updated = testResultRepository.save(result);
         return convertToDTO(updated);
@@ -192,57 +173,4 @@ public class TestResultServiceImpl implements TestResultService {
         testResultRepository.deleteById(id);
     }
 
-    private String getRelationshipResult(TestSample sample1, TestSample sample2, List<TestResultSample> sampleList1, List<TestResultSample> sampleList2) {
-        double probability = calculateMatchingPercentage(sampleList1, sampleList2);
-        String relationshipCode = relationship(sample1, sample2);
-
-        if (relationshipCode.equals("Cha-Mẹ-Con") && probability >= 99.0) {
-            return "có quan hệ huyết thống";
-        } else if (relationshipCode.equals("Ông-Bà-Cháu") && probability >= 25.0) {
-            return "có quan hệ huyết thống";
-        } else if (relationshipCode.equals("Anh-Chị-Em") && probability >= 50.0) {
-            return "có quan hệ huyết thống";
-        } else {
-            return "không có quan hệ huyết thống";
-        }
-    }
-
-    private double calculateMatchingPercentage(List<TestResultSample> sampleList1, List<TestResultSample> sampleList2) {
-        int totalLocus = sampleList1.size();
-        int matchedLocus = 0;
-
-        for (TestResultSample s1 : sampleList1) {
-            for (TestResultSample s2 : sampleList2) {
-                if (s1.getLocusName().equalsIgnoreCase(s2.getLocusName())) {
-                    if (s1.getAllele1().equals(s2.getAllele1()) || s1.getAllele1().equals(s2.getAllele2())
-                            || s1.getAllele2().equals(s2.getAllele1()) || s1.getAllele2().equals(s2.getAllele2())) {
-                        matchedLocus++;
-                        break;
-                    }
-                }
-            }
-        }
-
-        return (double) matchedLocus / totalLocus * 100.0;
-    }
-
-    private String relationship(TestSample sample1, TestSample sample2) {
-        if ((sample1.getRelationship().equalsIgnoreCase("CHA") && sample2.getRelationship().equalsIgnoreCase("CON")
-                || sample1.getRelationship().equalsIgnoreCase("MẸ") && sample2.getRelationship().equalsIgnoreCase("CON"))
-                || (sample1.getRelationship().equalsIgnoreCase("CON") && sample2.getRelationship().equalsIgnoreCase("CHA")
-                || sample1.getRelationship().equalsIgnoreCase("CON") && sample2.getRelationship().equalsIgnoreCase("MẸ"))) {
-            return "Cha-Mẹ-Con";
-        } else if ((sample1.getRelationship().equalsIgnoreCase("ÔNG") && sample2.getRelationship().equalsIgnoreCase("CHÁU")
-                || sample1.getRelationship().equalsIgnoreCase("BÀ") && sample2.getRelationship().equalsIgnoreCase("CHÁU"))
-                || (sample1.getRelationship().equalsIgnoreCase("CHÁU") && sample2.getRelationship().equalsIgnoreCase("ÔNG")
-                || sample1.getRelationship().equalsIgnoreCase("CHÁU") && sample2.getRelationship().equalsIgnoreCase("BÀ"))) {
-            return "Ông-Bà-Cháu";
-        } else if ((sample1.getRelationship().equalsIgnoreCase("ANH") && sample2.getRelationship().equalsIgnoreCase("EM")
-                || sample1.getRelationship().equalsIgnoreCase("CHỊ") && sample2.getRelationship().equalsIgnoreCase("EM"))
-                || (sample1.getRelationship().equalsIgnoreCase("EM") && sample2.getRelationship().equalsIgnoreCase("ANH")
-                || sample1.getRelationship().equalsIgnoreCase("EM") && sample2.getRelationship().equalsIgnoreCase("CHỊ"))) {
-            return "Anh-Chị-Em";
-        }
-        return "0";
-    }
 }
