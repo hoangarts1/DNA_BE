@@ -13,13 +13,13 @@ public class TestResultSample {
     @JoinColumn(name = "test_sample_id")
     private TestSample testSample;
 
-    @Column(name = "locus_name", unique = true, columnDefinition = "NVARCHAR(255)")
+    @Column(name = "locus_name", columnDefinition = "NVARCHAR(255)")
     private String locusName;
 
-    @Column(name = "allele1", unique = true, columnDefinition = "NVARCHAR(255)")
+    @Column(name = "allele1", columnDefinition = "NVARCHAR(255)")
     private String allele1;
 
-    @Column(name = "allele2", unique = true, columnDefinition = "NVARCHAR(255)")
+    @Column(name = "allele2", columnDefinition = "NVARCHAR(255)")
     private String allele2;
 
     public TestResultSample() {
