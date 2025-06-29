@@ -12,16 +12,14 @@ import com.ADNService.SWP391.service.TestOrderService;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.AreaBreak;
-import com.itextpdf.layout.element.Image;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.AreaBreakType;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
@@ -244,113 +242,313 @@ public class TestOrderServiceImpl implements TestOrderService {
 
     @Override
     public byte[] generateTestOrderPdf(Long id) {
-        TestOrder order = testOrderRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn xét nghiệm"));
+            TestOrder order = testOrderRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn xét nghiệm"));
 
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            PdfWriter writer = new PdfWriter(out);
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document document = new Document(pdfDoc, PageSize.A4);
+            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                PdfWriter writer = new PdfWriter(out);
+                PdfDocument pdfDoc = new PdfDocument(writer);
+                Document document = new Document(pdfDoc, PageSize.A4);
 
-            // Font mặc định hỗ trợ UTF-8 (tốt trên máy có sẵn Helvetica hoặc tương đương)
-            document.setFontSize(11);
-            document.setMargins(30, 30, 30, 30);
+//                PdfFont font = PdfFontFactory.createFont("fonts/arial.ttf", PdfEncodings.IDENTITY_H, true);
+//                document.setFont(font);
 
-            // === Tiêu đề
-            Paragraph title = new Paragraph("ĐƠN ĐĂNG KÝ PHÂN TÍCH ADN")
-                    .setBold().setFontSize(16).setTextAlignment(TextAlignment.CENTER);
-            document.add(title);
-            document.add(new Paragraph(" "));
+                document.setMargins(20, 20, 20, 20);
 
-            // === Thông tin khách hàng
-            Customer customer = order.getCustomer();
-            Account acc = customer.getAccount();
+                String serviceType = order.getServices().getServiceType();
 
-            document.add(new Paragraph("I. Thông tin khách hàng").setBold());
+                if (serviceType.equalsIgnoreCase("Dân Sự")) {
+                    generateFormDanSu(document, order);
+                } else if (serviceType.equalsIgnoreCase("Hành Chính")) {
+                    generateFormHanhChinh(document, order);
+                } else {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Loại dịch vụ không hợp lệ");
+                }
 
-            Table customerTable = new Table(UnitValue.createPercentArray(new float[]{25, 75})).useAllAvailableWidth();
-            customerTable.addCell("Họ tên:");
-            customerTable.addCell(acc.getFullName());
-            customerTable.addCell("Email:");
-            customerTable.addCell(acc.getEmail());
-            customerTable.addCell("Số điện thoại:");
-            customerTable.addCell(acc.getPhone());
-            customerTable.addCell("Địa chỉ:");
-            customerTable.addCell(customer.getAddress());
-            customerTable.addCell("Giới tính:");
-            customerTable.addCell(customer.getGender());
-            customerTable.addCell("CCCD:");
-            customerTable.addCell(customer.getCccd());
-            customerTable.addCell("Ngày cấp:");
-            customerTable.addCell(customer.getDateOfIssue() != null ? customer.getDateOfIssue().toString() : "");
-            customerTable.addCell("Nơi cấp:");
-            customerTable.addCell(customer.getPlaceOfIssue());
-            document.add(customerTable);
-            document.add(new Paragraph(" "));
-
-            // === Thông tin xét nghiệm
-            document.add(new Paragraph("II. Thông tin xét nghiệm").setBold());
-
-            Table orderTable = new Table(UnitValue.createPercentArray(new float[]{35, 65})).useAllAvailableWidth();
-            orderTable.addCell("Mã đơn:");
-            orderTable.addCell(order.getOrderId().toString());
-            orderTable.addCell("Ngày đăng ký:");
-            orderTable.addCell(order.getOrderDate() != null ? order.getOrderDate().toString() : "");
-            orderTable.addCell("Dịch vụ:");
-            orderTable.addCell(order.getServices().getServiceName());
-            orderTable.addCell("Số mẫu:");
-            orderTable.addCell(String.valueOf(order.getSampleQuantity()));
-            orderTable.addCell("Phương thức lấy mẫu:");
-            orderTable.addCell(order.getSampleMethod());
-            orderTable.addCell("Phương thức trả kết quả:");
-            orderTable.addCell(order.getResultDeliveryMethod());
-            orderTable.addCell("Địa chỉ trả kết quả:");
-            orderTable.addCell(order.getResultDeliverAddress());
-            orderTable.addCell("Tổng tiền:");
-            orderTable.addCell(order.getAmount() + " VND");
-            document.add(orderTable);
-            document.add(new Paragraph(" "));
-
-            // === Danh sách mẫu xét nghiệm
-            List<TestSample> samples = testSampleRepository.findByOrder_OrderId(order.getOrderId());
-            document.add(new Paragraph("III. Danh sách mẫu xét nghiệm").setBold());
-
-            Table sampleTable = new Table(new float[]{1, 3, 2, 2, 2, 2, 2, 3}).useAllAvailableWidth();
-            sampleTable.addHeaderCell("STT");
-            sampleTable.addHeaderCell("Họ tên");
-            sampleTable.addHeaderCell("Năm sinh");
-            sampleTable.addHeaderCell("Giới tính");
-            sampleTable.addHeaderCell("Mối quan hệ");
-            sampleTable.addHeaderCell("Loại mẫu");
-            sampleTable.addHeaderCell("Ngày thu mẫu");
-            sampleTable.addHeaderCell("Ghi chú");
-
-            int index = 1;
-            for (TestSample sample : samples) {
-                sampleTable.addCell(String.valueOf(index++));
-                sampleTable.addCell(sample.getName());
-                sampleTable.addCell(sample.getDateOfBirth() != null ? sample.getDateOfBirth().toString() : "");
-                sampleTable.addCell(sample.getGender());
-                sampleTable.addCell(sample.getRelationship());
-                sampleTable.addCell(sample.getSampleType());
-                sampleTable.addCell(sample.getNumberOfSample() != null ? sample.getNumberOfSample().toString() : "");
-                sampleTable.addCell(sample.getKitCode() != null ? sample.getKitCode() : "");
+                document.close();
+                return out.toByteArray();
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi tạo PDF: " + e.getMessage());
             }
-            document.add(sampleTable);
-            document.add(new Paragraph(" "));
 
-            // === Chữ ký
-            LocalDate today = LocalDate.now();
-            String dateStr = "......, ngày " + today.getDayOfMonth() + " tháng " + today.getMonthValue() + " năm " + today.getYear();
-            document.add(new Paragraph(dateStr).setTextAlignment(TextAlignment.RIGHT));
-            document.add(new Paragraph("Người đăng ký").setTextAlignment(TextAlignment.RIGHT).setBold());
-            document.add(new Paragraph(acc.getFullName()).setTextAlignment(TextAlignment.RIGHT).setItalic());
 
-            document.close();
-            return out.toByteArray();
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi tạo PDF: " + e.getMessage());
-        }
     }
+
+    private void generateFormDanSu(Document document, TestOrder order) {
+        Customer customer = order.getCustomer();
+        Account acc = customer.getAccount();
+
+        // Tiêu đề
+        document.add(new Paragraph("ĐƠN YÊU CẦU PHÂN TÍCH ADN")
+                .setTextAlignment(TextAlignment.CENTER)
+                .setFontSize(16).setBold());
+        document.add(new Paragraph("Kính gửi: Viện Công Nghệ ADN và Phân Tích Di Truyền").setItalic());
+
+        document.add(new Paragraph(" "));
+
+        // Phần form thông tin khách hàng
+        document.add(new Paragraph()
+                .add("Tôi tên là (viết hoa): ")
+                .add(new Text(acc.getFullName()).setBold().setUnderline())
+                .add("      Giới tính: [X] Nam [ ] Nữ [ ] Khác"));
+
+        document.add(new Paragraph()
+                .add("Địa chỉ: ")
+                .add(new Text(customer.getAddress()).setUnderline()));
+
+        document.add(new Paragraph()
+                .add("CMND/CCCD/Passport: ")
+                .add(new Text(customer.getCccd()).setUnderline())
+                .add("    ngày cấp: ")
+                .add(new Text(customer.getDateOfIssue() != null ? customer.getDateOfIssue().toString() : "").setUnderline())
+                .add("    nơi cấp: ")
+                .add(new Text(customer.getPlaceOfIssue()).setUnderline()));
+
+        document.add(new Paragraph()
+                .add("Số điện thoại: ")
+                .add(new Text(acc.getPhone()).setUnderline())
+                .add("     Email/zalo: ")
+                .add(new Text(acc.getEmail()).setUnderline()));
+
+        document.add(new Paragraph(
+                "Đề nghị Viện phân tích ADN và xác định mối quan hệ huyết thống cho những người cung cấp mẫu dưới đây:"));
+
+        // bảng danh sách mẫu
+        Table table = new Table(new float[]{1, 3, 2, 2, 2, 2, 2, 3}).useAllAvailableWidth();
+        table.addHeaderCell("STT");
+        table.addHeaderCell("Họ tên");
+        table.addHeaderCell("Năm sinh");
+        table.addHeaderCell("Giới tính");
+        table.addHeaderCell("Mối quan hệ");
+        table.addHeaderCell("Loại mẫu");
+        table.addHeaderCell("Ngày lấy mẫu");
+        table.addHeaderCell("Ghi chú");
+
+        List<TestSample> samples = testSampleRepository.findByOrder_OrderId(order.getOrderId());
+        int stt = 1;
+        for (TestSample s : samples) {
+            table.addCell(String.valueOf(stt++));
+            table.addCell(s.getName());
+            table.addCell(s.getDateOfBirth() != null ? s.getDateOfBirth().toString() : "");
+            table.addCell(s.getGender());
+            table.addCell(s.getRelationship());
+            table.addCell(s.getSampleType());
+            table.addCell(s.getDateOfIssue() != null ? s.getDateOfIssue().toString() : "");
+            table.addCell(""); // ghi chú nếu cần
+        }
+        document.add(table);
+
+        // phần cam kết (tóm lược)
+        document.add(new Paragraph("\nTôi xin cam kết:").setBold());
+        document.add(new Paragraph("1. Tôi tự nguyện đề nghị xét nghiệm ADN... (ghi đầy đủ cam kết như mẫu scan)"));
+        // bạn có thể bổ sung tiếp các điều khoản cam kết giống hình nếu muốn
+
+        // phần chữ ký
+        LocalDate today = LocalDate.now();
+        String dateStr = today.getDayOfMonth() + "/" + today.getMonthValue() + "/" + today.getYear();
+        document.add(new Paragraph("\nTP. HCM, ngày " + dateStr)
+                .setTextAlignment(TextAlignment.RIGHT));
+        document.add(new Paragraph("Người yêu cầu").setTextAlignment(TextAlignment.RIGHT));
+        document.add(new Paragraph(acc.getFullName()).setTextAlignment(TextAlignment.RIGHT).setItalic());
+    }
+
+    private void generateFormHanhChinh(Document document, TestOrder order) {
+        Customer customer = order.getCustomer();
+        Account acc = customer.getAccount();
+
+        // Tiêu đề
+        document.add(new Paragraph("CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM")
+                .setTextAlignment(TextAlignment.CENTER)
+                .setBold());
+        document.add(new Paragraph("Độc lập - Tự do - Hạnh phúc").setTextAlignment(TextAlignment.CENTER));
+
+        document.add(new Paragraph("\nBIÊN BẢN LẤY MẪU XÉT NGHIỆM")
+                .setBold().setTextAlignment(TextAlignment.CENTER));
+
+        // ngày, địa điểm
+        LocalDate today = LocalDate.now();
+        document.add(new Paragraph("Hôm nay, ngày " + today.getDayOfMonth() + " tháng " + today.getMonthValue() + " năm " + today.getYear()
+                + ", tại địa chỉ: " + customer.getAddress()));
+
+        // Người thu mẫu
+        document.add(new Paragraph("Người thu mẫu: TRẦN TRUNG TÂM")); // ví dụ tên người thu mẫu cố định
+        document.add(new Paragraph("Người yêu cầu xét nghiệm: " + acc.getFullName()));
+
+        document.add(new Paragraph("\nChúng tôi tiến hành lấy mẫu của những người liên quan như sau:"));
+
+        // Bảng danh sách mẫu chi tiết
+        Table table = new Table(new float[]{1, 3, 3, 3, 3, 3, 3}).useAllAvailableWidth();
+        table.addHeaderCell("STT");
+        table.addHeaderCell("Họ tên");
+        table.addHeaderCell("Loại giấy tờ");
+        table.addHeaderCell("Ngày hết hạn");
+        table.addHeaderCell("Địa chỉ");
+        table.addHeaderCell("Loại mẫu");
+        table.addHeaderCell("Mối quan hệ");
+
+        List<TestSample> samples = testSampleRepository.findByOrder_OrderId(order.getOrderId());
+        int stt = 1;
+        for (TestSample s : samples) {
+            table.addCell(String.valueOf(stt++));
+            table.addCell(s.getName());
+            table.addCell(s.getDocumentType() + " - " + s.getDocumentNumber());
+            table.addCell(s.getExpirationDate() != null ? s.getExpirationDate().toString() : "");
+            table.addCell(s.getAddress());
+            table.addCell(s.getSampleType());
+            table.addCell(s.getRelationship());
+        }
+        document.add(table);
+
+        // checkbox bệnh truyền nhiễm
+        document.add(new Paragraph("\nCó tiền sử bệnh máu, truyền máu hoặc ghép tạng trong 6 tháng: [ ] Có   [X] Không"));
+
+        // phần chữ ký
+        document.add(new Paragraph("\nNgười thu mẫu: __________________"));
+        document.add(new Paragraph("Người yêu cầu xét nghiệm: __________________"));
+
+        // có thể thêm dấu vân tay (scan) nếu có file ảnh PNG rồi vẽ Image iText
+    }
+
+//        TestOrder order = testOrderRepository.findById(id)
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn xét nghiệm"));
+//
+//        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+//            PdfWriter writer = new PdfWriter(out);
+//            PdfDocument pdfDoc = new PdfDocument(writer);
+//            Document document = new Document(pdfDoc, PageSize.A4);
+//
+//
+//            document.setMargins(20, 20, 20, 20);
+//
+//            // === Tiêu đề ===
+//            Paragraph title = new Paragraph("ĐƠN YÊU CẦU PHÂN TÍCH ADN")
+//                    .setTextAlignment(TextAlignment.CENTER)
+//                    .setFontSize(16).setBold();
+//            document.add(title);
+//
+//            document.add(new Paragraph("Kính gửi: Viện Công Nghệ ADN và Phân Tích Di Truyền").setItalic().setFontSize(11));
+//
+//            document.add(new Paragraph(" "));
+//
+//            Customer customer = order.getCustomer();
+//            Account acc = customer.getAccount();
+//
+//            // === Phần form với dòng chấm ===
+//            String fullName = acc.getFullName();
+//            String gender = customer.getGender();
+//            String phone = acc.getPhone();
+//            String email = acc.getEmail();
+//            String address = customer.getAddress();
+//            String cccd = customer.getCccd();
+//            String placeOfIssue = customer.getPlaceOfIssue();
+//            String dateOfIssue = customer.getDateOfIssue() != null ? customer.getDateOfIssue().toString() : "";
+//
+//            document.add(new Paragraph()
+//                    .add("Tôi tên là (viết hoa): ")
+//                    .add(new Text(fullName).setBold().setUnderline())
+//                    .add("            Giới tính: ")
+//                    .add("[X] Nam [ ] Nữ [ ] Không xác định")
+//            );
+//
+//            document.add(new Paragraph()
+//                    .add("Địa chỉ: ")
+//                    .add(new Text(address).setUnderline())
+//            );
+//
+//            document.add(new Paragraph()
+//                    .add("CMND/CCCD/Passport: ")
+//                    .add(new Text(cccd).setUnderline())
+//                    .add("     ngày cấp: ")
+//                    .add(new Text(dateOfIssue).setUnderline())
+//                    .add("     nơi cấp: ")
+//                    .add(new Text(placeOfIssue).setUnderline())
+//            );
+//
+//            document.add(new Paragraph()
+//                    .add("Số điện thoại: ")
+//                    .add(new Text(phone).setUnderline())
+//                    .add("     Email/zalo: ")
+//                    .add(new Text(email).setUnderline())
+//            );
+//
+//            document.add(new Paragraph(
+//                    "Đề nghị Viện phân tích ADN và xác định mối quan hệ huyết thống cho những người cung cấp mẫu dưới đây:"
+//            ));
+//
+//            // === Bảng danh sách mẫu xét nghiệm ===
+//            document.add(new Paragraph("Bệnh viện phân tích ADN và xác định quan hệ huyết thống cho những người sau:"));
+//
+//            Table sampleTable = new Table(new float[]{1, 3, 2, 2, 2, 2, 2, 3}).useAllAvailableWidth();
+//            sampleTable.addHeaderCell("STT");
+//            sampleTable.addHeaderCell("Họ tên");
+//            sampleTable.addHeaderCell("Năm sinh");
+//            sampleTable.addHeaderCell("Giới tính");
+//            sampleTable.addHeaderCell("Mối quan hệ");
+//            sampleTable.addHeaderCell("Loại mẫu");
+//            sampleTable.addHeaderCell("Ngày lấy mẫu");
+//            sampleTable.addHeaderCell("Ghi chú");
+//
+//            List<TestSample> samples = testSampleRepository.findByOrder_OrderId(order.getOrderId());
+//            int stt = 1;
+//            for (TestSample s : samples) {
+//                sampleTable.addCell(String.valueOf(stt++));
+//                sampleTable.addCell(s.getName());
+//                sampleTable.addCell(s.getDateOfBirth() != null ? s.getDateOfBirth().toString() : "");
+//                sampleTable.addCell(s.getGender());
+//                sampleTable.addCell(s.getRelationship());
+//                sampleTable.addCell(s.getSampleType());
+//                sampleTable.addCell(
+//                        s.getDateOfIssue() != null ? s.getDateOfIssue().toString() : ""
+//                );
+//                sampleTable.addCell(""); // ghi chú nếu cần
+//            }
+//            document.add(sampleTable);
+//
+//            document.add(new Paragraph(" "));
+//
+//            // === checkbox cam kết ===
+//            document.add(new Paragraph("Cam kết:").setBold());
+//            document.add(new Paragraph("""
+//1. Tôi tự nguyện đề nghị xét nghiệm ADN và chấp nhận chi phí xét nghiệm.
+//2. Tôi xác nhận thông tin tôi cung cấp là trung thực.
+//3. Tôi đã được giải thích rõ mục đích, ý nghĩa, phạm vi và tính chất pháp lý của kết quả xét nghiệm ADN.
+//4. Tôi đồng ý ký vào phiếu này và chịu trách nhiệm về mọi thông tin kê khai.
+//        """));
+//
+//            document.add(new Paragraph("[X] Tôi đã đọc và đồng ý").setFontColor(ColorConstants.BLUE));
+//
+//            // === Hình thức nhận kết quả ===
+//            document.add(new Paragraph("Hình thức nhận kết quả:").setBold());
+//            document.add(new Paragraph("[ ] Nhận tại văn phòng   [X] Nhận qua Email/Zalo"));
+//
+//            // === Chữ ký
+//            LocalDate today = LocalDate.now();
+//            document.add(new Paragraph("TP. HCM, ngày " + today.getDayOfMonth() + " tháng " + today.getMonthValue() + " năm " + today.getYear())
+//                    .setTextAlignment(TextAlignment.RIGHT));
+//            document.add(new Paragraph("Người yêu cầu phân tích").setTextAlignment(TextAlignment.RIGHT).setBold());
+//            document.add(new Paragraph(acc.getFullName()).setTextAlignment(TextAlignment.RIGHT).setItalic());
+//
+//            // === TRANG 2 điều khoản ===
+//            pdfDoc.addNewPage();
+//            document.add(new Paragraph("ĐIỀU KHOẢN").setBold().setTextAlignment(TextAlignment.CENTER));
+//
+//            document.add(new Paragraph("""
+//1. Viện Công nghệ ADN và Phân tích di truyền được Bộ Khoa học và Công nghệ cấp phép hoạt động.
+//2. Người yêu cầu xét nghiệm phải khai báo trung thực mọi thông tin liên quan.
+//3. Mẫu này chỉ có giá trị tham khảo và không có giá trị pháp lý.
+//4. Viện có quyền từ chối nếu phát hiện giả mạo giấy tờ hoặc vi phạm pháp luật.
+//...
+//(ghi đầy đủ 18 điều khoản theo file gốc của bạn)
+//        """).setFontSize(9));
+//
+//            document.close();
+//            return out.toByteArray();
+//
+//        } catch (Exception e) {
+//            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi tạo PDF: " + e.getMessage());
+//        }
+//    }
+//
+//
 
 }
