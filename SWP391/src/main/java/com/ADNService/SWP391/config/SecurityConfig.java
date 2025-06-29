@@ -30,9 +30,10 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-//    @Autowired
-//    private JwtUtil jwtUtil;
-//
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
 //    @Bean
 //    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 //        http
@@ -83,6 +84,5 @@ public class SecurityConfig {
 //        source.registerCorsConfiguration("/**", config);
 //        return source;
 //    }
-
 
 }

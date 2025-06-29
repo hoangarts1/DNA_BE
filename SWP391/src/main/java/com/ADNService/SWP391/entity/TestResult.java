@@ -24,7 +24,7 @@ public class TestResult {
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String result;
 
-    @Column(unique = true, columnDefinition = "NVARCHAR(255)")
+    @Column(columnDefinition = "NVARCHAR(255)")
     private String resultPercent;
 
 

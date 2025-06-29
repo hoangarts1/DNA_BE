@@ -32,16 +32,16 @@ public class TestOrder {
 
     private LocalDate orderDate;
 
-    @Column(unique = true, columnDefinition = "NVARCHAR(255)")
+    @Column(columnDefinition = "NVARCHAR(255)")
     private String orderStatus;
 
-    @Column(unique = true, columnDefinition = "NVARCHAR(255)")
+    @Column( columnDefinition = "NVARCHAR(255)")
     private String sampleMethod;
 
-    @Column(unique = true, columnDefinition = "NVARCHAR(255)")
+    @Column( columnDefinition = "NVARCHAR(255)")
     private String resultDeliveryMethod;
 
-    @Column(unique = true, columnDefinition = "NVARCHAR(255)")
+    @Column(columnDefinition = "NVARCHAR(255)")
     private String resultDeliverAddress;
 
     private int sampleQuantity;

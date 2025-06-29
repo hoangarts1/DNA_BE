@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/test-results")
@@ -15,23 +16,26 @@ public class TestResultController {
     @Autowired
     private TestResultService testResultService;
 
-    // Tạo kết quả xét nghiệm mới (Chỉ cần truyền orderId và customerId)
+    // Tạo một hoặc nhiều kết quả xét nghiệm mới
     @PostMapping("/create")
-    public TestResultDTO createTestResult(@RequestBody TestResultDTO dto) {
-        return testResultService.createTestResult(dto);
+    public ResponseEntity<List<TestResultDTO>> createTestResults(@RequestBody List<TestResultDTO> dtos) {
+        List<TestResultDTO> results = dtos.stream()
+                .map(dto -> testResultService.createTestResult(dto))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(results);
     }
 
-    // Lấy tất cả kết quả xét nghiệm
+    // Các phương thức khác giữ nguyên
     @GetMapping
     public List<TestResultDTO> getAllTestResults() {
         return testResultService.getAllTestResults();
     }
 
-    // Lấy kết quả xét nghiệm theo ID
     @GetMapping("/{id}")
     public TestResultDTO getTestResultById(@PathVariable Long id) {
         return testResultService.getTestResultById(id);
     }
+
     @GetMapping("/order/{orderId}")
     public ResponseEntity<List<TestResultDTO>> getTestResultByOrderId(@PathVariable Long orderId) {
         List<TestResultDTO> results = testResultService.getTestResultByOrderId(orderId);
@@ -41,18 +45,13 @@ public class TestResultController {
         return ResponseEntity.ok(results);
     }
 
-
-    // Cập nhật kết quả xét nghiệm
     @PutMapping("/{id}")
     public TestResultDTO updateTestResult(@PathVariable Long id, @RequestBody TestResultDTO dto) {
         return testResultService.updateTestResult(id, dto);
     }
 
-    // Xóa kết quả xét nghiệm
     @DeleteMapping("/{id}")
     public void deleteTestResult(@PathVariable Long id) {
         testResultService.deleteTestResult(id);
     }
-
 }
-

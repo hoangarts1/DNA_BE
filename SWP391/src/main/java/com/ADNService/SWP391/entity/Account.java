@@ -28,10 +28,10 @@ public class Account {
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String fullName;
 
-    @Column(unique = true, columnDefinition = "NVARCHAR(255)")
+    @Column( columnDefinition = "NVARCHAR(255)")
     private String email;
 
-    @Column(unique = true, columnDefinition = "NVARCHAR(255)")
+    @Column( columnDefinition = "NVARCHAR(255)")
     private String phone;
 
     @Enumerated(EnumType.STRING)
