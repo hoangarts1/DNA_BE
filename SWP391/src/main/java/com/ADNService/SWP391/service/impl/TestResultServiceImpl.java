@@ -33,48 +33,49 @@ public class TestResultServiceImpl implements TestResultService {
         TestOrder order = testOrderRepository.findById(dto.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Order with ID " + dto.getOrderId() + " does not exist."));
 
-        // Lấy TestSample theo OrderId
-        List<TestSample> samples = testSampleRepository.findByOrder_OrderId(dto.getOrderId());
-
-        Long sampleId1 = dto.getSampleId1();
-        Long sampleId2 = dto.getSampleId2();
+        // Lấy TestSample dựa trên sampleId1 và sampleId2
+        TestSample sample1 = testSampleRepository.findById(dto.getSampleId1())
+                .orElseThrow(() -> new RuntimeException("Sample1 with ID " + dto.getSampleId1() + " does not exist."));
+        TestSample sample2 = testSampleRepository.findById(dto.getSampleId2())
+                .orElseThrow(() -> new RuntimeException("Sample2 with ID " + dto.getSampleId2() + " does not exist."));
 
         // Check 2 mẫu không được trùng nhau
-        if (sampleId1.equals(sampleId2)) {
+        if (sample1.getId().equals(sample2.getId())) {
             throw new RuntimeException("Hai mẫu so sánh không được trùng nhau.");
         }
-
-        TestSample sample1 = testSampleRepository.findById(sampleId1)
-                .orElseThrow(() -> new RuntimeException("Sample1 does not exist"));
-        TestSample sample2 = testSampleRepository.findById(sampleId2)
-                .orElseThrow(() -> new RuntimeException("Sample2 does not exist"));
 
         // Check 2 mẫu phải thuộc cùng 1 Order
         if (!sample1.getOrder().getOrderId().equals(order.getOrderId()) ||
                 !sample2.getOrder().getOrderId().equals(order.getOrderId())) {
             throw new RuntimeException("Hai mẫu phải thuộc cùng một đơn hàng.");
         }
-        List<TestResult> existingResults = testResultRepository.findBySampleIdPair(sampleId1, sampleId2);
-        boolean isDuplicate = existingResults.stream().anyMatch(r ->
-                r.getTestOrder().getOrderId().equals(dto.getOrderId())
-        );
 
-        if (isDuplicate) {
-            throw new RuntimeException("Đã tồn tại kết quả với cùng đơn hàng và 2 mẫu này.");
+        // Kiểm tra xem đã tồn tại kết quả nào với cặp mẫu và order này chưa
+        List<TestResult> existingResults = testResultRepository.findBySampleIdPair(sample1.getId(), sample2.getId());
+        TestResult existingResult = existingResults.stream()
+                .filter(r -> r.getTestOrder().getOrderId().equals(dto.getOrderId()))
+                .findFirst()
+                .orElse(null);
+
+        TestResult testResult;
+        if (existingResult != null) {
+            // Nếu đã tồn tại, thực hiện cập nhật
+            return updateTestResult(existingResult.getId(), dto);
+        } else {
+            // Nếu không tồn tại, tạo mới
+            testResult = new TestResult();
+            testResult.setTestOrder(order);
+            testResult.setSampleId1(sample1);
+            testResult.setSampleId2(sample2);
+            testResult.setResult(dto.getResult());
+            testResult.setResultPercent(dto.getResultPercent());
+
+            TestResult saved = testResultRepository.save(testResult);
+            return convertToDTO(saved);
         }
-
-
-        TestResult testResult = new TestResult();
-        testResult.setTestOrder(order);
-        testResult.setSampleId1(sample1); // Lưu sampleId1
-        testResult.setSampleId2(sample2); // Lưu sampleId2
-        testResult.setResult(dto.getResult());
-        testResult.setResultPercent(dto.getResultPercent());
-
-        TestResult saved = testResultRepository.save(testResult);
-
-        return convertToDTO(saved);
     }
+
+
 
     @Override
     public TestResultDTO updateTestResult(Long id, TestResultDTO dto) {
