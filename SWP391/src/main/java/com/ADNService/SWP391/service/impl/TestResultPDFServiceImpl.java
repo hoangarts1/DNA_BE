@@ -171,8 +171,13 @@ public class TestResultPDFServiceImpl implements TestResultPDFService {
             List<TestResultSampleDTO> results = entry.getValue();
 
             locusTable.addCell(locus);
+            //----------------------------------
             Map<Long, TestResultSampleDTO> alleleMap = results.stream()
-                    .collect(Collectors.toMap(TestResultSampleDTO::getTestSampleId, r -> r));
+                    .collect(Collectors.toMap(
+                            TestResultSampleDTO::getTestSampleId,
+                            r -> r,
+                            (r1, r2) -> r1 // hoặc r2 nếu muốn lấy record mới
+                    ));//-------------------------------
 
             for (Long id : sampleIds) {
                 TestResultSampleDTO r = alleleMap.get(id);
@@ -204,7 +209,7 @@ public class TestResultPDFServiceImpl implements TestResultPDFService {
                     .orElse("");
 
             document.add(new Paragraph("- Người có mẫu " + name1 + " và người có mẫu " + name2 +": "+
-                     rs.getResult()+ " " + rel1 + " - " + rel2 ));
+                    rs.getResult()+ " " + rel1 + " - " + rel2 ));
         }
 
         // === GHI CHÚ + CHỮ KÝ ===
