@@ -1,10 +1,8 @@
 package com.ADNService.SWP391.service.impl;
 
 import com.ADNService.SWP391.dto.RatingFeedbackDTO;
-import com.ADNService.SWP391.entity.Customer;
 import com.ADNService.SWP391.entity.RatingFeedback;
 import com.ADNService.SWP391.entity.TestOrder;
-import com.ADNService.SWP391.repository.CustomerRepository;
 import com.ADNService.SWP391.repository.RatingFeedbackRepository;
 import com.ADNService.SWP391.repository.TestOrderRepository;
 import com.ADNService.SWP391.service.RatingFeedbackService;
@@ -23,7 +21,6 @@ public class RatingFeedbackServiceImpl implements RatingFeedbackService {
     @Autowired
     private TestOrderRepository testOrderRepository;
 
-
     @Override
     public RatingFeedbackDTO create(RatingFeedbackDTO dto) {
         TestOrder order = testOrderRepository.findById(dto.getTestOrderId())
@@ -38,12 +35,18 @@ public class RatingFeedbackServiceImpl implements RatingFeedbackService {
         return convertToDTO(ratingFeedbackRepository.save(feedback));
     }
 
-
     @Override
     public RatingFeedbackDTO getById(Long id) {
         return ratingFeedbackRepository.findById(id)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new RuntimeException("Rating feedback not found"));
+    }
+
+    @Override
+    public RatingFeedbackDTO getByOrderId(Long orderId) {
+        return ratingFeedbackRepository.findByTestOrderOrderId(orderId)
+                .map(this::convertToDTO)
+                .orElse(null); // Trả về null nếu không tìm thấy
     }
 
     @Override

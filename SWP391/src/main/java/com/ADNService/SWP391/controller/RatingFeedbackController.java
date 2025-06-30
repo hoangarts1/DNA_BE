@@ -25,6 +25,15 @@ public class RatingFeedbackController {
         return ResponseEntity.ok(ratingFeedbackService.getById(id));
     }
 
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<RatingFeedbackDTO> getByOrderId(@PathVariable Long orderId) {
+        RatingFeedbackDTO feedback = ratingFeedbackService.getByOrderId(orderId);
+        if (feedback == null) {
+            return ResponseEntity.noContent().build(); // Trả về 204 nếu không có feedback
+        }
+        return ResponseEntity.ok(feedback);
+    }
+
     @GetMapping
     public ResponseEntity<List<RatingFeedbackDTO>> getAll() {
         return ResponseEntity.ok(ratingFeedbackService.getAll());

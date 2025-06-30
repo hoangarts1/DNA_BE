@@ -10,4 +10,5 @@ public interface RatingFeedbackService {
     List<RatingFeedbackDTO> getAll();
     RatingFeedbackDTO update(Long id, RatingFeedbackDTO dto);
     void delete(Long id);
+    RatingFeedbackDTO getByOrderId(Long orderId); // Thêm phương thức mới
 }
