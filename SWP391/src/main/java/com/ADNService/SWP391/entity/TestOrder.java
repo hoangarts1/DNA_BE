@@ -47,6 +47,17 @@ public class TestOrder {
     private int sampleQuantity;
     private int amount;
 
+    @OneToMany(mappedBy = "testOrder")
+    private List<RatingFeedback> ratingFeedbacks;
+
+    public List<RatingFeedback> getRatingFeedbacks() {
+        return ratingFeedbacks;
+    }
+
+    public void setRatingFeedbacks(List<RatingFeedback> ratingFeedbacks) {
+        this.ratingFeedbacks = ratingFeedbacks;
+    }
+
 // Getter & Setter
 
 
