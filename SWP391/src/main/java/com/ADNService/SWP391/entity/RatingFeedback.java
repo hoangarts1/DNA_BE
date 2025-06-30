@@ -12,8 +12,8 @@ public class RatingFeedback {
     private Long ratingFeedbackId;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
+    @JoinColumn(name = "order_id", nullable = false)
+    private TestOrder testOrder;
 
     @Column(nullable = false)
     private int rating;  // must be 1-5
@@ -26,9 +26,9 @@ public class RatingFeedback {
     public RatingFeedback() {
     }
 
-    public RatingFeedback(String comment, Customer customer, LocalDate date, int rating, Long ratingFeedbackId) {
+    public RatingFeedback(String comment, TestOrder testOrder, LocalDate date, int rating, Long ratingFeedbackId) {
         this.comment = comment;
-        this.customer = customer;
+        this.testOrder = testOrder;
         this.date = date;
         this.rating = rating;
         this.ratingFeedbackId = ratingFeedbackId;
@@ -42,12 +42,12 @@ public class RatingFeedback {
         this.comment = comment;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public TestOrder getTestOrder() {
+        return testOrder;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setTestOrder(TestOrder testOrder) {
+        this.testOrder = testOrder;
     }
 
     public LocalDate getDate() {
