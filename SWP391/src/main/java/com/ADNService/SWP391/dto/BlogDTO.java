@@ -1,31 +1,27 @@
 package com.ADNService.SWP391.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Date;
+import java.util.List;
 
 public class BlogDTO {
     private Long blogId;
     private String blogName;
-    private String urlBlog;
+    private String content;
+    private String imgDetailBase64;
+    private List<String> imagesBase64;
+    private String blogType;
     private Date blogDate;
 
     public BlogDTO() {
     }
 
-    public BlogDTO(Date blogDate, Long blogId, String blogName, String urlBlog) {
-        this.blogDate = blogDate;
+    public BlogDTO(Long blogId, String blogName, String content, String imgDetailBase64, List<String> imagesBase64, String blogType, Date blogDate) {
         this.blogId = blogId;
         this.blogName = blogName;
-        this.urlBlog = urlBlog;
-    }
-
-    public Date getBlogDate() {
-        return blogDate;
-    }
-
-    public void setBlogDate(Date blogDate) {
+        this.content = content;
+        this.imgDetailBase64 = imgDetailBase64;
+        this.imagesBase64 = imagesBase64;
+        this.blogType = blogType;
         this.blogDate = blogDate;
     }
 
@@ -45,11 +41,43 @@ public class BlogDTO {
         this.blogName = blogName;
     }
 
-    public String getUrlBlog() {
-        return urlBlog;
+    public String getContent() {
+        return content;
     }
 
-    public void setUrlBlog(String urlBlog) {
-        this.urlBlog = urlBlog;
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getImgDetailBase64() {
+        return imgDetailBase64;
+    }
+
+    public void setImgDetailBase64(String imgDetailBase64) {
+        this.imgDetailBase64 = imgDetailBase64;
+    }
+
+    public List<String> getImagesBase64() {
+        return imagesBase64;
+    }
+
+    public void setImagesBase64(List<String> imagesBase64) {
+        this.imagesBase64 = imagesBase64;
+    }
+
+    public String getBlogType() {
+        return blogType;
+    }
+
+    public void setBlogType(String blogType) {
+        this.blogType = blogType;
+    }
+
+    public Date getBlogDate() {
+        return blogDate;
+    }
+
+    public void setBlogDate(Date blogDate) {
+        this.blogDate = blogDate;
     }
 }

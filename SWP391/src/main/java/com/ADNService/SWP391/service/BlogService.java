@@ -10,4 +10,5 @@ public interface BlogService {
     BlogDTO createBlog(BlogDTO blogDTO);
     BlogDTO updateBlog(Long id, BlogDTO blogDTO);
     void deleteBlog(Long id);
+    List<BlogDTO> getBlogsByType(String blogType);
 }

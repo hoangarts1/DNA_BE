@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/blogs")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class BlogController {
 
     @Autowired
@@ -37,5 +38,10 @@ public class BlogController {
     @DeleteMapping("/{id}")
     public void deleteBlog(@PathVariable Long id) {
         blogService.deleteBlog(id);
+    }
+
+    @GetMapping("/type/{blogType}")
+    public List<BlogDTO> getBlogsByType(@PathVariable String blogType) {
+        return blogService.getBlogsByType(blogType);
     }
 }
