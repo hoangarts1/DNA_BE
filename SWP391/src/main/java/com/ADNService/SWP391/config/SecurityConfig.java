@@ -49,6 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/payments/vnpay-return").permitAll()
                         .requestMatchers("api/test-results/**").permitAll()
                         .requestMatchers("api/pdf/**").permitAll()
+                        .requestMatchers("/api/blogs/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore((request, response, chain) -> {
