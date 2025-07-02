@@ -32,6 +32,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
+import java.util.Base64;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -86,8 +87,6 @@ public class TestOrderServiceImpl implements TestOrderService {
 
         return dto;
     }
-
-
 
 
     private TestOrderDTO convertToDTO(TestOrder order) {
@@ -244,39 +243,39 @@ public class TestOrderServiceImpl implements TestOrderService {
 
     @Override
     public byte[] generateTestOrderPdf(Long id) {
-            TestOrder order = testOrderRepository.findById(id)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn xét nghiệm"));
+        TestOrder order = testOrderRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn xét nghiệm"));
 
-            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-                PdfWriter writer = new PdfWriter(out);
-                PdfDocument pdfDoc = new PdfDocument(writer);
-                Document document = new Document(pdfDoc, PageSize.A4);
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            PdfWriter writer = new PdfWriter(out);
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document document = new Document(pdfDoc, PageSize.A4);
 
-                PdfFont font = PdfFontFactory.createFont(
-                        "src/main/resources/fonts/DejaVuSans.ttf",
-                        "Identity-H",
-                        PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED
-                );
-                document.setFont(font);
+//                PdfFont font = PdfFontFactory.createFont(
+//                        "src/main/resources/fonts/DejaVuSans.ttf",
+//                        "Identity-H",
+//                        PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED
+//                );
+//                document.setFont(font);
 
 
-                document.setMargins(20, 20, 20, 20);
+            document.setMargins(20, 20, 20, 20);
 
-                String serviceType = order.getServices().getServiceType();
+            String serviceType = order.getServices().getServiceType();
 
-                if (serviceType.equalsIgnoreCase("Dân sự")) {
-                    generateFormDanSu(document, order);
-                } else if (serviceType.equalsIgnoreCase("Hành chính")) {
-                    generateFormHanhChinh(document, order);
-                } else {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Loại dịch vụ không hợp lệ");
-                }
-
-                document.close();
-                return out.toByteArray();
-            } catch (Exception e) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi tạo PDF: " + e.getMessage());
+            if (serviceType.equalsIgnoreCase("Dân sự")) {
+                generateFormDanSu(document, order);
+            } else if (serviceType.equalsIgnoreCase("Hành chính")) {
+                generateFormHanhChinh(document, order);
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Loại dịch vụ không hợp lệ");
             }
+
+            document.close();
+            return out.toByteArray();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi tạo PDF: " + e.getMessage());
+        }
 
 
     }
@@ -295,7 +294,7 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .setItalic()
                 .setFontSize(11));
 
-        document.add(new Paragraph(" ")); // Khoảng trắng
+        document.add(new Paragraph(" ")); // khoảng trắng
 
         // === Thông tin khách hàng ===
         String fullName = acc.getFullName();
@@ -312,7 +311,7 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .add(new Text(fullName).setBold().setUnderline())
                 .add("            Giới tính: ")
                 .add(new Text(gender).setBold().setUnderline())
-        );  // <-- Đóng ngoặc ở đây
+        );
 
         document.add(new Paragraph()
                 .add("Địa chỉ: ")
@@ -335,8 +334,6 @@ public class TestOrderServiceImpl implements TestOrderService {
         // === Lời đề nghị ===
         document.add(new Paragraph("Đề nghị Viện phân tích ADN và xác định mối quan hệ huyết thống cho những người cung cấp mẫu dưới đây:"));
 
-        document.add(new Paragraph("Bệnh viện phân tích ADN và xác định quan hệ huyết thống cho những người sau:"));
-
         // === Bảng danh sách mẫu ===
         Table sampleTable = new Table(new float[]{1, 3, 2, 2, 2, 2, 2, 3}).useAllAvailableWidth();
         sampleTable.addHeaderCell("STT");
@@ -358,76 +355,137 @@ public class TestOrderServiceImpl implements TestOrderService {
             sampleTable.addCell(s.getRelationship());
             sampleTable.addCell(s.getSampleType());
             sampleTable.addCell(s.getDateOfIssue() != null ? s.getDateOfIssue().toString() : "");
-            sampleTable.addCell(""); // Ghi chú nếu cần
+            sampleTable.addCell(""); // ghi chú nếu cần
         }
         document.add(sampleTable);
 
-        document.add(new Paragraph(" ")); // Khoảng trắng
+        document.add(new Paragraph(" ")); // khoảng trắng
 
         // === Cam kết ===
         document.add(new Paragraph("Cam kết:").setBold());
         document.add(new Paragraph("""
-1. Tôi tự nguyện đề nghị xét nghiệm ADN và chấp nhận chi phí xét nghiệm.
-2. Tôi xác nhận thông tin tôi cung cấp là trung thực.
-3. Tôi đã được giải thích rõ mục đích, ý nghĩa, phạm vi và tính chất pháp lý của kết quả xét nghiệm ADN.
-4. Tôi đồng ý ký vào phiếu này và chịu trách nhiệm về mọi thông tin kê khai.
-"""));
+                1. Tôi tự nguyện đề nghị xét nghiệm ADN và chấp nhận chi phí xét nghiệm.
+                2. Tôi xác nhận thông tin tôi cung cấp là trung thực.
+                3. Tôi đã được giải thích rõ mục đích, ý nghĩa, phạm vi và tính chất pháp lý của kết quả xét nghiệm ADN.
+                4. Tôi đồng ý ký vào phiếu này và chịu trách nhiệm về mọi thông tin kê khai.
+                """));
 
-        document.add(new Paragraph("[ ] Tôi đã đọc và đồng ý")
-                .setFontColor(ColorConstants.BLUE));
+        document.add(new Paragraph("[ ] Tôi đã đọc và đồng ý").setFontColor(ColorConstants.BLUE));
 
         // === Hình thức nhận kết quả ===
         document.add(new Paragraph("Hình thức nhận kết quả:").setBold());
         document.add(new Paragraph("[ ] Nhận tại văn phòng   [ ] Nhận qua Email/Zalo"));
 
-        // === Chữ ký và ngày tháng ===
+        // === Ngày tháng và chữ ký phía dưới (theo hình bạn gửi) ===
         LocalDate today = LocalDate.now();
-        document.add(new Paragraph(String.format("TP. HCM, ngày %d tháng %d năm %d", today.getDayOfMonth(), today.getMonthValue(), today.getYear()))
-                .setTextAlignment(TextAlignment.RIGHT));
-        document.add(new Paragraph("Người yêu cầu phân tích")
+        document.add(new Paragraph(" ")); // khoảng trắng
+        document.add(new Paragraph(String.format("TP. HCM, ngày %02d tháng %02d năm %d", today.getDayOfMonth(), today.getMonthValue(), today.getYear()))
                 .setTextAlignment(TextAlignment.RIGHT)
-                .setBold());
-        document.add(new Paragraph(fullName)
+                .setFontSize(10));
+
+        // Bảng chữ ký
+        Table signTable = new Table(new float[]{3, 3, 3})
+                .setWidth(UnitValue.createPercentValue(100))
+                .setMarginTop(10);
+
+        signTable.addCell(new Cell()
+                .add(new Paragraph("NGƯỜI TIẾP NHẬN MẪU\n(ký và ghi rõ họ tên)").setFontSize(9).setTextAlignment(TextAlignment.CENTER))
+                .setBorder(Border.NO_BORDER));
+
+        Cell fingerprintCell = new Cell()
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.CENTER);
+
+        fingerprintCell.add(new Paragraph("NGÓN TRỎ PHẢI\n(Đối với hành chính)").setFontSize(9));
+
+        String fingerprintBase64 = getFingerprintBase64(order.getOrderId());
+
+
+        if (fingerprintBase64 != null) {
+            try {
+                byte[] fingerprintBytes = Base64.getDecoder().decode(fingerprintBase64);
+                ImageData fingerprintData = ImageDataFactory.create(fingerprintBytes);
+                Image fingerprintImage = new Image(fingerprintData);
+                fingerprintImage.setAutoScale(true).setMaxHeight(60).setMaxWidth(60);
+                fingerprintCell.add(fingerprintImage);
+            } catch (Exception e) {
+                fingerprintCell.add(new Paragraph("(Vân tay lỗi)").setFontColor(ColorConstants.RED));
+            }
+        } else {
+            fingerprintCell.add(new Paragraph("(Chưa có)").setFontColor(ColorConstants.GRAY));
+        }
+
+        signTable.addCell(fingerprintCell);
+
+
+        signTable.addCell(new Cell()
+                .add(new Paragraph("NGƯỜI YÊU CẦU PHÂN TÍCH\n(ký và ghi rõ họ tên)").setFontSize(9).setTextAlignment(TextAlignment.CENTER))
+                .setBorder(Border.NO_BORDER));
+
+        document.add(new Paragraph(" ")  // khoảng trắng
+                .setHeight(20));
+
+        document.add(signTable);
+
+        // Đánh số trang 01/02
+        document.add(new Paragraph("Trang 01/02")
                 .setTextAlignment(TextAlignment.RIGHT)
-                .setItalic());
+                .setFontSize(8));
+
+        // === Sang trang 2 ===
+        document.getPdfDocument().addNewPage();
+        document.setMargins(20, 20, 20, 20); // nếu muốn
 
         // === Trang 2: Điều khoản ===
-        document.getPdfDocument().addNewPage();
         document.add(new Paragraph("ĐIỀU KHOẢN")
                 .setBold()
                 .setTextAlignment(TextAlignment.CENTER));
 
         document.add(new Paragraph("""
-1. Viện Công nghệ ADN và Phân tích Di truyền được Bộ Khoa học và Công nghệ cấp phép chính thức đăng ký hoạt động theo giấy chứng nhận số A-1889.
-2. Người yêu cầu xét nghiệm phải là người trực tiếp cung cấp mẫu cho quá trình xét nghiệm, là bố, mẹ hay đứa trẻ; hoặc là người được sự ủy quyền hợp pháp từ bố, mẹ của đứa trẻ. Viện không chịu trách nhiệm về yêu cầu xét nghiệm mà nhân viên, sau đây gọi chung là “khách hàng” cung cấp.
-3. “Mẫu”, mẫu ADN hay “mẫu xét nghiệm” bao gồm: máu lấy từ tĩnh mạch, móng chân, tóc,… được coi là các mẫu chuẩn nếu huyết thống được xác minh là mẫu máu. Tuy nhiên, mẫu móng chân, tóc,… được coi là mẫu phụ. Nếu mẫu phụ không đủ điều kiện thì phải thực hiện lại mẫu máu chuẩn. Viện không chịu trách nhiệm phân tích nếu người cung cấp mẫu tự ý chọn mẫu phụ không đúng quy trình thu mẫu của Viện.
-4. Tất cả các mẫu sinh học nộp xét nghiệm ADN phải được đóng riêng biệt vào các bao phong bị bảo vệ đầy đủ và được ghi đầy đủ thông tin, có chữ ký xác nhận của người lấy mẫu. Viện sẽ sử dụng các thông tin này vào việc đối chiếu và không chịu trách nhiệm nếu có điều chỉnh, sai lệch của các thông tin mà “khách hàng” cung cấp. Các mẫu gửi đến Viện để xét nghiệm ADN không có đầy đủ thông tin thì nghiễm nhiên bị từ chối không được tiếp nhận và/hoặc sẽ xét nghiệm ADN khi Viện có quyền lý do và/hoặc bằng lòng.
-5. “Khách hàng” phải đảm bảo các mẫu cần xét nghiệm ADN cung cấp cho Viện là hợp pháp (không có sự cưỡng chế hay sai phạm khi ghi và ký vào mẫu máu). “Khách hàng” phải chấp hành biện pháp thông báo ký tên tại thời điểm lấy mẫu. Nếu phải chịu ký mẫu thì các mẫu đó được không hợp pháp. Trừ trường hợp lấy mẫu bắt buộc khi có sự chỉ định của tòa án. (Viện/ngoại viện phải phải thu thập và thực hiện trình tự và thủ tục đúng luật pháp, luật định, mới được sự chấp thuận để thực hiện.)
-6. Viện sẽ chỉ tiến hành xét nghiệm ADN khi “Đơn yêu cầu xét nghiệm ADN” đã đầy đủ các thông tin cùng chữ ký của “khách hàng” yêu cầu xét nghiệm và nhân chứng thanh toán đủ 50% chi phí tương ứng với yêu cầu xét nghiệm. Viện có quyền giữ lại các kết quả phân tích cho đến khi khách hàng thanh toán đủ tiền.
-7. Khách hàng phải chịu mọi chi phí phát sinh trong quá trình chuyển phát xét nghiệm và mẫu tới Viện.
-8. Viện không chấp nhận mẫu gửi đến để xét nghiệm ADN không đủ, chất lượng máu kém, mẫu bị nhiễm hoặc cần thêm máu người thân để xét nghiệm thì Viện có quyền yêu cầu thu thêm mẫu hoặc lấy lại mẫu.
-9. Khách hàng cam kết việc tiến hành trong tổ hành lang là đúng sự thật và không được thay đổi. Những trường hợp sai sót do trách nhiệm của bên thứ ba thì không bảo lưu quyền khiếu nại. Viện không chịu trách nhiệm đối mặt bất cứ sai lệch gì kể cả kết quả xét nghiệm theo đúng yêu cầu chỉ vì, nhưng không chấp nhận bất kỳ sự từ chối nào khác do nguyên nhân bị gây ra bởi một bên thứ ba.
-10. Sau khi xét nghiệm không đủ điều kiện, mẫu bị trộn, pha lẫn, nhiễm hoặc không đủ yêu cầu hoàn trả lại mẫu cho khách hàng. Viện có quyền tiêu hủy theo quy trình mẫu của Viện.
-11. Kết quả xét nghiệm có thể được cung cấp bằng bản cứng hoặc được đính kèm theo chữ ký số qua email trong trường hợp khách hàng có yêu cầu rõ ràng. Sẽ là sai nếu mà khách hàng đòi sửa kết quả xét nghiệm, để Viện chịu trách nhiệm.
-12. Khách hàng phải chịu trách nhiệm nếu như các thông tin cá nhân cung cấp sai lệch và chữ ký mẫu không chính xác. Viện không chịu trách nhiệm và được miễn trừ trách nhiệm trong các sai sót do thông tin khách hàng cung cấp.
-13. Viện có quyền từ chối thực hiện nếu phát hiện sai sót trong thông tin, hành vi không đúng quy định, vi phạm pháp luật hoặc sai lệch mẫu gửi đến.
-14. Trong trường hợp Viện không thực hiện được xét nghiệm do lý do khách quan thì Viện có trách nhiệm thông báo trước cho khách hàng trong vòng 3 ngày kể từ ngày nhận mẫu và hoàn lại toàn bộ chi phí.
-15. Khách hàng có quyền khiếu nại trong vòng 3 ngày làm việc kể từ khi nhận kết quả xét nghiệm nếu có sai sót.
-16. Viện không hoàn trả chi phí nếu mẫu xét nghiệm không hợp lệ hoặc khách hàng không yêu cầu kiểm tra mẫu hoặc vi phạm các điều khoản quy định.
-17. Viện có quyền lưu trữ mẫu xét nghiệm tối đa 30 ngày kể từ ngày xét nghiệm xong và hủy theo quy định.
-18. Khi khách hàng đồng ý ký đơn xét nghiệm ADN nghĩa là khách hàng đã hiểu rõ và đồng ý với các điều khoản nêu trên.
-""").setFontSize(9));
+                1. Viện Công nghệ ADN và Phân tích Di truyền được Bộ Khoa học và Công nghệ cấp phép chính thức đăng ký hoạt động theo giấy chứng nhận số A-1889.
+                2. Người yêu cầu xét nghiệm phải là người trực tiếp cung cấp mẫu cho quá trình xét nghiệm, là bố, mẹ hay đứa trẻ; hoặc là người được sự ủy quyền hợp pháp từ bố, mẹ của đứa trẻ. Viện không chịu trách nhiệm về yêu cầu xét nghiệm mà nhân viên, sau đây gọi chung là “khách hàng” cung cấp.
+                3. “Mẫu”, mẫu ADN hay “mẫu xét nghiệm” bao gồm: máu lấy từ tĩnh mạch, móng chân, tóc,… được coi là các mẫu chuẩn nếu huyết thống được xác minh là mẫu máu. Tuy nhiên, mẫu móng chân, tóc,… được coi là mẫu phụ. Nếu mẫu phụ không đủ điều kiện thì phải thực hiện lại mẫu máu chuẩn. Viện không chịu trách nhiệm phân tích nếu người cung cấp mẫu tự ý chọn mẫu phụ không đúng quy trình thu mẫu của Viện.
+                4. Tất cả các mẫu sinh học nộp xét nghiệm ADN phải được đóng riêng biệt vào các bao phong bị bảo vệ đầy đủ và được ghi đầy đủ thông tin, có chữ ký xác nhận của người lấy mẫu. Viện sẽ sử dụng các thông tin này vào việc đối chiếu và không chịu trách nhiệm nếu có điều chỉnh, sai lệch của các thông tin mà “khách hàng” cung cấp. Các mẫu gửi đến Viện để xét nghiệm ADN không có đầy đủ thông tin thì nghiễm nhiên bị từ chối không được tiếp nhận và/hoặc sẽ xét nghiệm ADN khi Viện có quyền lý do và/hoặc bằng lòng.
+                5. “Khách hàng” phải đảm bảo các mẫu cần xét nghiệm ADN cung cấp cho Viện là hợp pháp (không có sự cưỡng chế hay sai phạm khi ghi và ký vào mẫu máu). “Khách hàng” phải chấp hành biện pháp thông báo ký tên tại thời điểm lấy mẫu. Nếu phải chịu ký mẫu thì các mẫu đó được không hợp pháp. Trừ trường hợp lấy mẫu bắt buộc khi có sự chỉ định của tòa án. (Viện/ngoại viện phải phải thu thập và thực hiện trình tự và thủ tục đúng luật pháp, luật định, mới được sự chấp thuận để thực hiện.)
+                6. Viện sẽ chỉ tiến hành xét nghiệm ADN khi “Đơn yêu cầu xét nghiệm ADN” đã đầy đủ các thông tin cùng chữ ký của “khách hàng” yêu cầu xét nghiệm và nhân chứng thanh toán đủ 50% chi phí tương ứng với yêu cầu xét nghiệm. Viện có quyền giữ lại các kết quả phân tích cho đến khi khách hàng thanh toán đủ tiền.
+                7. Khách hàng phải chịu mọi chi phí phát sinh trong quá trình chuyển phát xét nghiệm và mẫu tới Viện.
+                8. Viện không chấp nhận mẫu gửi đến để xét nghiệm ADN không đủ, chất lượng máu kém, mẫu bị nhiễm hoặc cần thêm máu người thân để xét nghiệm thì Viện có quyền yêu cầu thu thêm mẫu hoặc lấy lại mẫu.
+                9. Khách hàng cam kết việc tiến hành trong tổ hành lang là đúng sự thật và không được thay đổi. Những trường hợp sai sót do trách nhiệm của bên thứ ba thì không bảo lưu quyền khiếu nại. Viện không chịu trách nhiệm đối mặt bất cứ sai lệch gì kể cả kết quả xét nghiệm theo đúng yêu cầu chỉ vì, nhưng không chấp nhận bất kỳ sự từ chối nào khác do nguyên nhân bị gây ra bởi một bên thứ ba.
+                10. Sau khi xét nghiệm không đủ điều kiện, mẫu bị trộn, pha lẫn, nhiễm hoặc không đủ yêu cầu hoàn trả lại mẫu cho khách hàng. Viện có quyền tiêu hủy theo quy trình mẫu của Viện.
+                11. Kết quả xét nghiệm có thể được cung cấp bằng bản cứng hoặc được đính kèm theo chữ ký số qua email trong trường hợp khách hàng có yêu cầu rõ ràng. Sẽ là sai nếu mà khách hàng đòi sửa kết quả xét nghiệm, để Viện chịu trách nhiệm.
+                12. Khách hàng phải chịu trách nhiệm nếu như các thông tin cá nhân cung cấp sai lệch và chữ ký mẫu không chính xác. Viện không chịu trách nhiệm và được miễn trừ trách nhiệm trong các sai sót do thông tin khách hàng cung cấp.
+                13. Viện có quyền từ chối thực hiện nếu phát hiện sai sót trong thông tin, hành vi không đúng quy định, vi phạm pháp luật hoặc sai lệch mẫu gửi đến.
+                14. Trong trường hợp Viện không thực hiện được xét nghiệm do lý do khách quan thì Viện có trách nhiệm thông báo trước cho khách hàng trong vòng 3 ngày kể từ ngày nhận mẫu và hoàn lại toàn bộ chi phí.
+                15. Khách hàng có quyền khiếu nại trong vòng 3 ngày làm việc kể từ khi nhận kết quả xét nghiệm nếu có sai sót.
+                16. Viện không hoàn trả chi phí nếu mẫu xét nghiệm không hợp lệ hoặc khách hàng không yêu cầu kiểm tra mẫu hoặc vi phạm các điều khoản quy định.
+                17. Viện có quyền lưu trữ mẫu xét nghiệm tối đa 30 ngày kể từ ngày xét nghiệm xong và hủy theo quy định.
+                18. Khi khách hàng đồng ý ký đơn xét nghiệm ADN nghĩa là khách hàng đã hiểu rõ và đồng ý với các điều khoản nêu trên.
+                """).setFontSize(9));
 
+        document.add(new Paragraph(" ")); // khoảng trắng
+        document.add(new Paragraph("NGƯỜI YÊU CẦU PHÂN TÍCH ĐÃ ĐỌC KỸ VÀ ĐỒNG Ý VỚI CÁC ĐIỀU KHOẢN TRÊN")
+                .setBold()
+                .setTextAlignment(TextAlignment.CENTER)
+                .setFontColor(ColorConstants.BLACK));
+        document.add(new Paragraph("(ký và ghi rõ họ tên)")
+                .setItalic()
+                .setTextAlignment(TextAlignment.CENTER));
+
+        document.add(new Paragraph(" ")  // khoảng trắng để ký
+                .setHeight(20));
+
+        // số trang 02/02
+        document.add(new Paragraph("Trang 02/02")
+                .setTextAlignment(TextAlignment.RIGHT)
+                .setFontSize(8));
     }
-
-
 
 
     private void generateFormHanhChinh(Document document, TestOrder order) {
         Customer customer = order.getCustomer();
         Account acc = customer.getAccount();
 
-        // === Tiêu đề ===
+        // === Trang 1 ===
         document.add(new Paragraph("ĐƠN YÊU CẦU PHÂN TÍCH ADN")
                 .setTextAlignment(TextAlignment.CENTER)
                 .setFontSize(16)
@@ -437,9 +495,9 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .setItalic()
                 .setFontSize(11));
 
-        document.add(new Paragraph(" ")); // Khoảng trắng
+        document.add(new Paragraph(" ")); // khoảng trắng
 
-        // === Thông tin khách hàng ===
+        // Thông tin khách hàng
         String fullName = acc.getFullName();
         String gender = customer.getGender();
         String phone = acc.getPhone();
@@ -453,8 +511,7 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .add("Tôi tên là (viết hoa): ")
                 .add(new Text(fullName).setBold().setUnderline())
                 .add("            Giới tính: ")
-                .add(new Text(gender).setBold().setUnderline())
-        );  // <-- Đóng ngoặc ở đây
+                .add(new Text(gender).setBold().setUnderline()));
 
         document.add(new Paragraph()
                 .add("Địa chỉ: ")
@@ -474,12 +531,10 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .add("     Email/zalo: ")
                 .add(new Text(email).setUnderline()));
 
-        // === Lời đề nghị ===
+        // Lời đề nghị
         document.add(new Paragraph("Đề nghị Viện phân tích ADN và xác định mối quan hệ huyết thống cho những người cung cấp mẫu dưới đây:"));
 
-        document.add(new Paragraph("Bệnh viện phân tích ADN và xác định quan hệ huyết thống cho những người sau:"));
-
-        // === Bảng danh sách mẫu ===
+        // Bảng danh sách mẫu
         Table sampleTable = new Table(new float[]{1, 3, 2, 2, 2, 2, 2, 3}).useAllAvailableWidth();
         sampleTable.addHeaderCell("STT");
         sampleTable.addHeaderCell("Họ tên");
@@ -500,38 +555,71 @@ public class TestOrderServiceImpl implements TestOrderService {
             sampleTable.addCell(s.getRelationship());
             sampleTable.addCell(s.getSampleType());
             sampleTable.addCell(s.getDateOfIssue() != null ? s.getDateOfIssue().toString() : "");
-            sampleTable.addCell(""); // Ghi chú nếu cần
+            sampleTable.addCell("");
         }
         document.add(sampleTable);
 
-        document.add(new Paragraph(" ")); // Khoảng trắng
+        document.add(new Paragraph(" "));
 
-        // === Cam kết ===
+        // Cam kết
         document.add(new Paragraph("Cam kết:").setBold());
         document.add(new Paragraph("""
-1. Tôi tự nguyện đề nghị xét nghiệm ADN và chấp nhận chi phí xét nghiệm.
-2. Tôi xác nhận thông tin tôi cung cấp là trung thực.
-3. Tôi đã được giải thích rõ mục đích, ý nghĩa, phạm vi và tính chất pháp lý của kết quả xét nghiệm ADN.
-4. Tôi đồng ý ký vào phiếu này và chịu trách nhiệm về mọi thông tin kê khai.
-"""));
+                1. Tôi tự nguyện đề nghị xét nghiệm ADN và chấp nhận chi phí xét nghiệm.
+                2. Tôi xác nhận thông tin tôi cung cấp là trung thực.
+                3. Tôi đã được giải thích rõ mục đích, ý nghĩa, phạm vi và tính chất pháp lý của kết quả xét nghiệm ADN.
+                4. Tôi đồng ý ký vào phiếu này và chịu trách nhiệm về mọi thông tin kê khai.
+                """));
 
-        document.add(new Paragraph("[ ] Tôi đã đọc và đồng ý")
-                .setFontColor(ColorConstants.BLUE));
+        document.add(new Paragraph("[ ] Tôi đã đọc và đồng ý").setFontColor(ColorConstants.BLUE));
 
-        // === Hình thức nhận kết quả ===
         document.add(new Paragraph("Hình thức nhận kết quả:").setBold());
         document.add(new Paragraph("[ ] Nhận tại văn phòng   [ ] Nhận qua Email/Zalo"));
 
-        // === Chữ ký và ngày tháng ===
         LocalDate today = LocalDate.now();
-        document.add(new Paragraph(String.format("TP. HCM, ngày %d tháng %d năm %d", today.getDayOfMonth(), today.getMonthValue(), today.getYear()))
-                .setTextAlignment(TextAlignment.RIGHT));
-        document.add(new Paragraph("Người yêu cầu phân tích")
+        document.add(new Paragraph(" ")
+                .setHeight(10));
+        document.add(new Paragraph(String.format("TP. HCM, ngày %02d tháng %02d năm %d", today.getDayOfMonth(), today.getMonthValue(), today.getYear()))
                 .setTextAlignment(TextAlignment.RIGHT)
-                .setBold());
-        document.add(new Paragraph(fullName)
+                .setFontSize(10));
+
+        // Bảng chữ ký
+        Table signTable = new Table(new float[]{3, 3, 3})
+                .setWidth(UnitValue.createPercentValue(100))
+                .setMarginTop(10);
+
+        signTable.addCell(new Cell()
+                .add(new Paragraph("NGƯỜI TIẾP NHẬN MẪU\n(ký và ghi rõ họ tên)").setFontSize(9).setTextAlignment(TextAlignment.CENTER))
+                .setBorder(Border.NO_BORDER));
+
+        Cell fingerprintCell = new Cell()
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.CENTER);
+        fingerprintCell.add(new Paragraph("NGÓN TRỎ PHẢI\n(Đối với hành chính)").setFontSize(9));
+
+        String fingerprintBase64 = getFingerprintBase64(order.getOrderId());
+        if (fingerprintBase64 != null) {
+            try {
+                byte[] fingerprintBytes = Base64.getDecoder().decode(fingerprintBase64);
+                ImageData fingerprintData = ImageDataFactory.create(fingerprintBytes);
+                Image fingerprintImage = new Image(fingerprintData).setAutoScale(true).setMaxHeight(60).setMaxWidth(60);
+                fingerprintCell.add(fingerprintImage);
+            } catch (Exception e) {
+                fingerprintCell.add(new Paragraph("(Vân tay lỗi)").setFontColor(ColorConstants.RED));
+            }
+        } else {
+            fingerprintCell.add(new Paragraph("(Chưa có)").setFontColor(ColorConstants.GRAY));
+        }
+        signTable.addCell(fingerprintCell);
+
+        signTable.addCell(new Cell()
+                .add(new Paragraph("NGƯỜI YÊU CẦU PHÂN TÍCH\n(ký và ghi rõ họ tên)").setFontSize(9).setTextAlignment(TextAlignment.CENTER))
+                .setBorder(Border.NO_BORDER));
+
+        document.add(signTable);
+
+        document.add(new Paragraph("Trang 01/03")
                 .setTextAlignment(TextAlignment.RIGHT)
-                .setItalic());
+                .setFontSize(8));
 
         // === Trang 2: Điều khoản ===
         document.getPdfDocument().addNewPage();
@@ -540,67 +628,66 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .setTextAlignment(TextAlignment.CENTER));
 
         document.add(new Paragraph("""
-1. Viện Công nghệ ADN và Phân tích Di truyền được Bộ Khoa học và Công nghệ cấp phép chính thức đăng ký hoạt động theo giấy chứng nhận số A-1889.
-2. Người yêu cầu xét nghiệm phải là người trực tiếp cung cấp mẫu cho quá trình xét nghiệm, là bố, mẹ hay đứa trẻ; hoặc là người được sự ủy quyền hợp pháp từ bố, mẹ của đứa trẻ. Viện không chịu trách nhiệm về yêu cầu xét nghiệm mà nhân viên, sau đây gọi chung là “khách hàng” cung cấp.
-3. “Mẫu”, mẫu ADN hay “mẫu xét nghiệm” bao gồm: máu lấy từ tĩnh mạch, móng chân, tóc,… được coi là các mẫu chuẩn nếu huyết thống được xác minh là mẫu máu. Tuy nhiên, mẫu móng chân, tóc,… được coi là mẫu phụ. Nếu mẫu phụ không đủ điều kiện thì phải thực hiện lại mẫu máu chuẩn. Viện không chịu trách nhiệm phân tích nếu người cung cấp mẫu tự ý chọn mẫu phụ không đúng quy trình thu mẫu của Viện.
-4. Tất cả các mẫu sinh học nộp xét nghiệm ADN phải được đóng riêng biệt vào các bao phong bị bảo vệ đầy đủ và được ghi đầy đủ thông tin, có chữ ký xác nhận của người lấy mẫu. Viện sẽ sử dụng các thông tin này vào việc đối chiếu và không chịu trách nhiệm nếu có điều chỉnh, sai lệch của các thông tin mà “khách hàng” cung cấp. Các mẫu gửi đến Viện để xét nghiệm ADN không có đầy đủ thông tin thì nghiễm nhiên bị từ chối không được tiếp nhận và/hoặc sẽ xét nghiệm ADN khi Viện có quyền lý do và/hoặc bằng lòng.
-5. “Khách hàng” phải đảm bảo các mẫu cần xét nghiệm ADN cung cấp cho Viện là hợp pháp (không có sự cưỡng chế hay sai phạm khi ghi và ký vào mẫu máu). “Khách hàng” phải chấp hành biện pháp thông báo ký tên tại thời điểm lấy mẫu. Nếu phải chịu ký mẫu thì các mẫu đó được không hợp pháp. Trừ trường hợp lấy mẫu bắt buộc khi có sự chỉ định của tòa án. (Viện/ngoại viện phải phải thu thập và thực hiện trình tự và thủ tục đúng luật pháp, luật định, mới được sự chấp thuận để thực hiện.)
-6. Viện sẽ chỉ tiến hành xét nghiệm ADN khi “Đơn yêu cầu xét nghiệm ADN” đã đầy đủ các thông tin cùng chữ ký của “khách hàng” yêu cầu xét nghiệm và nhân chứng thanh toán đủ 50% chi phí tương ứng với yêu cầu xét nghiệm. Viện có quyền giữ lại các kết quả phân tích cho đến khi khách hàng thanh toán đủ tiền.
-7. Khách hàng phải chịu mọi chi phí phát sinh trong quá trình chuyển phát xét nghiệm và mẫu tới Viện.
-8. Viện không chấp nhận mẫu gửi đến để xét nghiệm ADN không đủ, chất lượng máu kém, mẫu bị nhiễm hoặc cần thêm máu người thân để xét nghiệm thì Viện có quyền yêu cầu thu thêm mẫu hoặc lấy lại mẫu.
-9. Khách hàng cam kết việc tiến hành trong tổ hành lang là đúng sự thật và không được thay đổi. Những trường hợp sai sót do trách nhiệm của bên thứ ba thì không bảo lưu quyền khiếu nại. Viện không chịu trách nhiệm đối mặt bất cứ sai lệch gì kể cả kết quả xét nghiệm theo đúng yêu cầu chỉ vì, nhưng không chấp nhận bất kỳ sự từ chối nào khác do nguyên nhân bị gây ra bởi một bên thứ ba.
-10. Sau khi xét nghiệm không đủ điều kiện, mẫu bị trộn, pha lẫn, nhiễm hoặc không đủ yêu cầu hoàn trả lại mẫu cho khách hàng. Viện có quyền tiêu hủy theo quy trình mẫu của Viện.
-11. Kết quả xét nghiệm có thể được cung cấp bằng bản cứng hoặc được đính kèm theo chữ ký số qua email trong trường hợp khách hàng có yêu cầu rõ ràng. Sẽ là sai nếu mà khách hàng đòi sửa kết quả xét nghiệm, để Viện chịu trách nhiệm.
-12. Khách hàng phải chịu trách nhiệm nếu như các thông tin cá nhân cung cấp sai lệch và chữ ký mẫu không chính xác. Viện không chịu trách nhiệm và được miễn trừ trách nhiệm trong các sai sót do thông tin khách hàng cung cấp.
-13. Viện có quyền từ chối thực hiện nếu phát hiện sai sót trong thông tin, hành vi không đúng quy định, vi phạm pháp luật hoặc sai lệch mẫu gửi đến.
-14. Trong trường hợp Viện không thực hiện được xét nghiệm do lý do khách quan thì Viện có trách nhiệm thông báo trước cho khách hàng trong vòng 3 ngày kể từ ngày nhận mẫu và hoàn lại toàn bộ chi phí.
-15. Khách hàng có quyền khiếu nại trong vòng 3 ngày làm việc kể từ khi nhận kết quả xét nghiệm nếu có sai sót.
-16. Viện không hoàn trả chi phí nếu mẫu xét nghiệm không hợp lệ hoặc khách hàng không yêu cầu kiểm tra mẫu hoặc vi phạm các điều khoản quy định.
-17. Viện có quyền lưu trữ mẫu xét nghiệm tối đa 30 ngày kể từ ngày xét nghiệm xong và hủy theo quy định.
-18. Khi khách hàng đồng ý ký đơn xét nghiệm ADN nghĩa là khách hàng đã hiểu rõ và đồng ý với các điều khoản nêu trên.
-""").setFontSize(9));
+                1. Viện Công nghệ ADN và Phân tích Di truyền được Bộ Khoa học và Công nghệ cấp phép chính thức đăng ký hoạt động theo giấy chứng nhận số A-1889.
+                2. Người yêu cầu xét nghiệm phải là người trực tiếp cung cấp mẫu cho quá trình xét nghiệm, là bố, mẹ hay đứa trẻ; hoặc là người được sự ủy quyền hợp pháp từ bố, mẹ của đứa trẻ. Viện không chịu trách nhiệm về yêu cầu xét nghiệm mà nhân viên, sau đây gọi chung là “khách hàng” cung cấp.
+                3. “Mẫu”, mẫu ADN hay “mẫu xét nghiệm” bao gồm: máu lấy từ tĩnh mạch, móng chân, tóc,… được coi là các mẫu chuẩn nếu huyết thống được xác minh là mẫu máu. Tuy nhiên, mẫu móng chân, tóc,… được coi là mẫu phụ. Nếu mẫu phụ không đủ điều kiện thì phải thực hiện lại mẫu máu chuẩn. Viện không chịu trách nhiệm phân tích nếu người cung cấp mẫu tự ý chọn mẫu phụ không đúng quy trình thu mẫu của Viện.
+                4. Tất cả các mẫu sinh học nộp xét nghiệm ADN phải được đóng riêng biệt vào các bao phong bị bảo vệ đầy đủ và được ghi đầy đủ thông tin, có chữ ký xác nhận của người lấy mẫu. Viện sẽ sử dụng các thông tin này vào việc đối chiếu và không chịu trách nhiệm nếu có điều chỉnh, sai lệch của các thông tin mà “khách hàng” cung cấp. Các mẫu gửi đến Viện để xét nghiệm ADN không có đầy đủ thông tin thì nghiễm nhiên bị từ chối không được tiếp nhận và/hoặc sẽ xét nghiệm ADN khi Viện có quyền lý do và/hoặc bằng lòng.
+                5. “Khách hàng” phải đảm bảo các mẫu cần xét nghiệm ADN cung cấp cho Viện là hợp pháp (không có sự cưỡng chế hay sai phạm khi ghi và ký vào mẫu máu). “Khách hàng” phải chấp hành biện pháp thông báo ký tên tại thời điểm lấy mẫu. Nếu phải chịu ký mẫu thì các mẫu đó được không hợp pháp. Trừ trường hợp lấy mẫu bắt buộc khi có sự chỉ định của tòa án. (Viện/ngoại viện phải phải thu thập và thực hiện trình tự và thủ tục đúng luật pháp, luật định, mới được sự chấp thuận để thực hiện.)
+                6. Viện sẽ chỉ tiến hành xét nghiệm ADN khi “Đơn yêu cầu xét nghiệm ADN” đã đầy đủ các thông tin cùng chữ ký của “khách hàng” yêu cầu xét nghiệm và nhân chứng thanh toán đủ 50% chi phí tương ứng với yêu cầu xét nghiệm. Viện có quyền giữ lại các kết quả phân tích cho đến khi khách hàng thanh toán đủ tiền.
+                7. Khách hàng phải chịu mọi chi phí phát sinh trong quá trình chuyển phát xét nghiệm và mẫu tới Viện.
+                8. Viện không chấp nhận mẫu gửi đến để xét nghiệm ADN không đủ, chất lượng máu kém, mẫu bị nhiễm hoặc cần thêm máu người thân để xét nghiệm thì Viện có quyền yêu cầu thu thêm mẫu hoặc lấy lại mẫu.
+                9. Khách hàng cam kết việc tiến hành trong tổ hành lang là đúng sự thật và không được thay đổi. Những trường hợp sai sót do trách nhiệm của bên thứ ba thì không bảo lưu quyền khiếu nại. Viện không chịu trách nhiệm đối mặt bất cứ sai lệch gì kể cả kết quả xét nghiệm theo đúng yêu cầu chỉ vì, nhưng không chấp nhận bất kỳ sự từ chối nào khác do nguyên nhân bị gây ra bởi một bên thứ ba.
+                10. Sau khi xét nghiệm không đủ điều kiện, mẫu bị trộn, pha lẫn, nhiễm hoặc không đủ yêu cầu hoàn trả lại mẫu cho khách hàng. Viện có quyền tiêu hủy theo quy trình mẫu của Viện.
+                11. Kết quả xét nghiệm có thể được cung cấp bằng bản cứng hoặc được đính kèm theo chữ ký số qua email trong trường hợp khách hàng có yêu cầu rõ ràng. Sẽ là sai nếu mà khách hàng đòi sửa kết quả xét nghiệm, để Viện chịu trách nhiệm.
+                12. Khách hàng phải chịu trách nhiệm nếu như các thông tin cá nhân cung cấp sai lệch và chữ ký mẫu không chính xác. Viện không chịu trách nhiệm và được miễn trừ trách nhiệm trong các sai sót do thông tin khách hàng cung cấp.
+                13. Viện có quyền từ chối thực hiện nếu phát hiện sai sót trong thông tin, hành vi không đúng quy định, vi phạm pháp luật hoặc sai lệch mẫu gửi đến.
+                14. Trong trường hợp Viện không thực hiện được xét nghiệm do lý do khách quan thì Viện có trách nhiệm thông báo trước cho khách hàng trong vòng 3 ngày kể từ ngày nhận mẫu và hoàn lại toàn bộ chi phí.
+                15. Khách hàng có quyền khiếu nại trong vòng 3 ngày làm việc kể từ khi nhận kết quả xét nghiệm nếu có sai sót.
+                16. Viện không hoàn trả chi phí nếu mẫu xét nghiệm không hợp lệ hoặc khách hàng không yêu cầu kiểm tra mẫu hoặc vi phạm các điều khoản quy định.
+                17. Viện có quyền lưu trữ mẫu xét nghiệm tối đa 30 ngày kể từ ngày xét nghiệm xong và hủy theo quy định.
+                18. Khi khách hàng đồng ý ký đơn xét nghiệm ADN nghĩa là khách hàng đã hiểu rõ và đồng ý với các điều khoản nêu trên.
+                """).setFontSize(9));
 
+        document.add(new Paragraph(" ")
+                .setHeight(10));
+        document.add(new Paragraph("NGƯỜI YÊU CẦU PHÂN TÍCH ĐÃ ĐỌC KỸ VÀ ĐỒNG Ý VỚI CÁC ĐIỀU KHOẢN TRÊN")
+                .setBold()
+                .setTextAlignment(TextAlignment.CENTER));
+        document.add(new Paragraph("(ký và ghi rõ họ tên)").setItalic().setTextAlignment(TextAlignment.CENTER));
+
+        document.add(new Paragraph(" ")
+                .setHeight(20));
+        document.add(new Paragraph("Trang 02/03")
+                .setTextAlignment(TextAlignment.RIGHT)
+                .setFontSize(8));
+
+        // === Trang 3: Biên bản lấy mẫu ===
         document.getPdfDocument().addNewPage();
-
-        // === Quốc hiệu + tiêu đề ===
         document.add(new Paragraph("CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM")
                 .setTextAlignment(TextAlignment.CENTER)
                 .setBold());
-
         document.add(new Paragraph("Độc lập - Tự do - Hạnh phúc")
                 .setTextAlignment(TextAlignment.CENTER)
                 .setItalic()
                 .setMarginBottom(10));
-
         document.add(new Paragraph("BIÊN BẢN LẤY MẪU XÉT NGHIỆM")
                 .setBold()
                 .setFontSize(14)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMarginBottom(15));
 
-        // === Ngày tháng địa điểm ===
-        String diaChi = "132 Hoàng Văn Thụ, phường Phương Sài, Nha Trang"; // tuỳ chỉnh
-        document.add(new Paragraph(String.format("Hôm nay, ngày %02d tháng %02d năm %d, tại %s,",
-                today.getDayOfMonth(), today.getMonthValue(), today.getYear(), diaChi)));
-
-        // === Người thu mẫu & người yêu cầu ===
-        String nguoiThuMau = "TRẦN TRUNG TÂM"; // hardcode hoặc lấy từ staff
-        String nguoiYeuCau = "TRẦN TRUNG TÂM";
-        String diaChiNguoiYeuCau = customer.getAddress();
-        String daiDien = samples.size() > 0 ? samples.get(0).getName() : "";
+        String diaChi = customer.getAddress();
+        document.add(new Paragraph(String.format("Hôm nay, ngày %02d tháng %02d năm %d, tại %s,", today.getDayOfMonth(), today.getMonthValue(), today.getYear(), diaChi)));
 
         document.add(new Paragraph("Chúng tôi gồm có:"));
-        document.add(new Paragraph("1. Nhân viên thu mẫu: " + nguoiThuMau));
-        document.add(new Paragraph("2. Người yêu cầu xét nghiệm: " + nguoiYeuCau + "   Địa chỉ hiện tại: " + diaChiNguoiYeuCau));
-        document.add(new Paragraph("Chúng tôi tiến hành lấy mẫu của những người đề nghị xét nghiệm ADN. Các mẫu của từng người như dưới đây:"));
-
-
-        List<TestSample> samples1 = order.getTestSamples(); // hoặc testSampleRepository.findByOrderId(...);
+        document.add(new Paragraph("1. Nhân viên thu mẫu: ............"));
+        document.add(new Paragraph("2. Người yêu cầu xét nghiệm: ............ Địa chỉ: " + diaChi));
+        document.add(new Paragraph("Tiến hành lấy mẫu các đối tượng:"));
 
         int quantity = order.getSampleQuantity();
 
         for (int i = 0; i < quantity; i++) {
-            TestSample sample = (i < samples.size()) ? samples1.get(i) : new TestSample();  // dùng mẫu trống nếu không đủ
+            TestSample sample = (i < samples.size()) ? samples.get(i) : new TestSample();
 
             document.getPdfDocument().addNewPage();
             Table mainTable = new Table(UnitValue.createPercentArray(new float[]{70, 30})).useAllAvailableWidth();
@@ -608,7 +695,6 @@ public class TestOrderServiceImpl implements TestOrderService {
             Table infoTable = new Table(new float[]{3, 7}).useAllAvailableWidth();
             infoTable.setFontSize(10);
 
-            // === Helper ===
             BiConsumer<String, String> addRow = (label, value) -> {
                 infoTable.addCell(new Cell().add(new Paragraph(label).setBold()));
                 infoTable.addCell(new Cell().add(new Paragraph(value != null ? value : "")));
@@ -631,7 +717,6 @@ public class TestOrderServiceImpl implements TestOrderService {
 
             mainTable.addCell(new Cell().add(infoTable).setBorder(Border.NO_BORDER));
 
-            // === Vân tay ===
             Table thumbTable = new Table(1).useAllAvailableWidth();
             thumbTable.setFontSize(10);
 
@@ -639,12 +724,23 @@ public class TestOrderServiceImpl implements TestOrderService {
                     .setBold()
                     .setTextAlignment(TextAlignment.CENTER)));
 
-            Cell thumbCell = new Cell()
-//                    .add("\n\n\n\n\n")
-                    .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-                    .setHeight(100f);
-            thumbTable.addCell(thumbCell);
+            Cell thumbCell = new Cell().setBackgroundColor(ColorConstants.LIGHT_GRAY).setHeight(100f);
 
+            String fingerprint = sample.getFingerprint();
+            if (fingerprint != null && !fingerprint.isBlank()) {
+                try {
+                    byte[] fpBytes = Base64.getDecoder().decode(fingerprint);
+                    ImageData fpData = ImageDataFactory.create(fpBytes);
+                    Image fpImage = new Image(fpData).setAutoScale(true).setMaxHeight(60).setMaxWidth(60);
+                    thumbCell.add(fpImage);
+                } catch (Exception e) {
+                    thumbCell.add(new Paragraph("(Vân tay lỗi)").setFontColor(ColorConstants.RED));
+                }
+            } else {
+                thumbCell.add(new Paragraph("(Chưa có vân tay)").setFontColor(ColorConstants.GRAY));
+            }
+
+            thumbTable.addCell(thumbCell);
             thumbTable.addCell(new Cell().add(new Paragraph("Vân tay ngón trỏ phải")
                     .setTextAlignment(TextAlignment.CENTER)));
 
@@ -653,26 +749,56 @@ public class TestOrderServiceImpl implements TestOrderService {
             document.add(mainTable);
         }
 
-        // === Chữ ký 3 bên ===
-        Table signatureTable = new Table(new float[]{33, 33, 33}).useAllAvailableWidth().setFontSize(10);
-        signatureTable.addCell(new Cell().add(new Paragraph("NGƯỜI THU MẪU\n(ký, ghi rõ họ tên)").setTextAlignment(TextAlignment.CENTER)).setBorder(Border.NO_BORDER));
-        signatureTable.addCell(new Cell().add(new Paragraph("NGƯỜI ĐƯỢC LẤY MẪU\n(ký, ghi rõ họ tên)").setTextAlignment(TextAlignment.CENTER)).setBorder(Border.NO_BORDER));
-        signatureTable.addCell(new Cell().add(new Paragraph("NGƯỜI YÊU CẦU XÉT NGHIỆM\n(ký, ghi rõ họ tên)").setTextAlignment(TextAlignment.CENTER)).setBorder(Border.NO_BORDER));
+        document.add(new Paragraph(" "));
 
-        signatureTable.addCell(new Cell().add(new Paragraph("\n\n\n\n")).setBorder(Border.NO_BORDER));
-        signatureTable.addCell(new Cell().add(new Paragraph("\n\n\n\n")).setBorder(Border.NO_BORDER));
-        signatureTable.addCell(new Cell().add(new Paragraph("\n\n\n\n")).setBorder(Border.NO_BORDER));
+        Table finalSignTable = new Table(new float[]{3, 3, 3})
+                .setWidth(UnitValue.createPercentValue(100))
+                .setMarginTop(10);
 
-        signatureTable.addCell(new Cell().add(new Paragraph(nguoiThuMau).setTextAlignment(TextAlignment.CENTER)).setBorder(Border.NO_BORDER));
-        signatureTable.addCell(new Cell().add(new Paragraph(daiDien).setTextAlignment(TextAlignment.CENTER)).setBorder(Border.NO_BORDER));
-        signatureTable.addCell(new Cell().add(new Paragraph(nguoiYeuCau).setTextAlignment(TextAlignment.CENTER)).setBorder(Border.NO_BORDER));
+        Cell thuMauCell = new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.CENTER);
+        thuMauCell.add(new Paragraph("NGƯỜI THU MẪU\n(ký, ghi rõ họ tên và lăn tay)").setFontSize(9));
 
-        document.add(signatureTable);
+        String thuMauFingerprintBase64 = getFingerprintBase64(order.getOrderId());
+        if (thuMauFingerprintBase64 != null) {
+            try {
+                byte[] fpBytes = Base64.getDecoder().decode(thuMauFingerprintBase64);
+                ImageData fpData = ImageDataFactory.create(fpBytes);
+                Image fpImage = new Image(fpData).setAutoScale(true).setMaxHeight(60).setMaxWidth(60);
+                thuMauCell.add(fpImage);
+            } catch (Exception e) {
+                thuMauCell.add(new Paragraph("(Vân tay lỗi)").setFontColor(ColorConstants.RED));
+            }
+        } else {
+            thuMauCell.add(new Paragraph("(Chưa có vân tay)").setFontColor(ColorConstants.GRAY));
+        }
+        finalSignTable.addCell(thuMauCell);
 
+        Cell duocLayMauCell = new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.CENTER);
+        duocLayMauCell.add(new Paragraph("NGƯỜI ĐƯỢC LẤY MẪU\n(ký và ghi rõ họ tên)").setFontSize(9));
+        finalSignTable.addCell(duocLayMauCell);
 
+        Cell yeuCauCell = new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.CENTER);
+        yeuCauCell.add(new Paragraph("NGƯỜI YÊU CẦU XÉT NGHIỆM\n(ký và ghi rõ họ tên)").setFontSize(9));
+        finalSignTable.addCell(yeuCauCell);
 
+        document.add(finalSignTable);
+
+        document.add(new Paragraph("Nhân viên thu mẫu cam kết: Tôi xác nhận việc tư vấn, thu mẫu và thông tin, chỉ lấy của người thân gia xét nghiệm là chính xác.\nTôi cam đoan không có sự gian lận nào đối với mẫu xét nghiệm.")
+                .setFontSize(9).setItalic());
+
+        document.add(new Paragraph("Trang 03/03")
+                .setTextAlignment(TextAlignment.RIGHT)
+                .setFontSize(8));
     }
 
-
-
+    private String getFingerprintBase64(Long orderId) {
+        List<TestSample> samples = testSampleRepository.findByOrder_OrderId(orderId);
+        if (samples != null && !samples.isEmpty()) {
+            TestSample firstSample = samples.get(0);
+            if (firstSample.getFingerprint() != null && !firstSample.getFingerprint().isBlank()) {
+                return firstSample.getFingerprint();
+            }
+        }
+        return null;
+    }
 }
