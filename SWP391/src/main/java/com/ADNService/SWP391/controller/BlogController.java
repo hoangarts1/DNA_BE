@@ -5,43 +5,41 @@ import com.ADNService.SWP391.service.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/blogs")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "*") // Để React gọi API
 public class BlogController {
 
-    @Autowired
-    private BlogService blogService;
+    private final BlogService blogService;
 
     @GetMapping
-    public List<BlogDTO> getAllBlogs() {
-        return blogService.getAllBlogs();
+    public List<BlogDTO> getAll() {
+        return blogService.getAll();
     }
 
     @GetMapping("/{id}")
-    public BlogDTO getBlogById(@PathVariable Long id) {
-        return blogService.getBlogById(id);
+    public BlogDTO getById(@PathVariable Long id) {
+        return blogService.getById(id);
     }
 
     @PostMapping
-    public BlogDTO createBlog(@RequestBody BlogDTO dto) {
-        return blogService.createBlog(dto);
+    public BlogDTO create(@RequestBody BlogDTO dto) {
+        return blogService.create(dto);
     }
 
     @PutMapping("/{id}")
-    public BlogDTO updateBlog(@PathVariable Long id, @RequestBody BlogDTO dto) {
-        return blogService.updateBlog(id, dto);
+    public BlogDTO update(@PathVariable Long id, @RequestBody BlogDTO dto) {
+        return blogService.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteBlog(@PathVariable Long id) {
-        blogService.deleteBlog(id);
-    }
-
-    @GetMapping("/type/{blogType}")
-    public List<BlogDTO> getBlogsByType(@PathVariable String blogType) {
-        return blogService.getBlogsByType(blogType);
+    public void delete(@PathVariable Long id) {
+        blogService.delete(id);
     }
 }
