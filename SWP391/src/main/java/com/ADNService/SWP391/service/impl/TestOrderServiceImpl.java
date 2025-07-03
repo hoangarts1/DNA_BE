@@ -643,14 +643,27 @@ public class TestOrderServiceImpl implements TestOrderService {
             document.getPdfDocument().addNewPage();
             Table mainTable = new Table(UnitValue.createPercentArray(new float[]{70, 30})).useAllAvailableWidth();
 
-            Table infoTable = new Table(new float[]{3, 7}).useAllAvailableWidth();
-            infoTable.setFontSize(10);
-            infoTable.setHeight(260f); // bạn có thể thử các giá trị 240-280f tuỳ dữ liệu thực tế
-
+            Table infoTable = new Table(UnitValue.createPercentArray(new float[]{5, 5}))
+                    .useAllAvailableWidth()
+                    .setFontSize(10);
 
             BiConsumer<String, String> addRow = (label, value) -> {
-                infoTable.addCell(new Cell().add(new Paragraph(label).setBold()));
-                infoTable.addCell(new Cell().add(new Paragraph(value != null ? value : "")));
+                Cell labelCell = new Cell()
+                        .add(new Paragraph(label).setBold())
+                        .setTextAlignment(TextAlignment.LEFT)
+                        .setPadding(5)
+//                        .setBorder(Border.NO_BORDER)
+                        ; // tùy chọn, nếu bạn muốn bảng không có viền
+
+                Cell valueCell = new Cell()
+                        .add(new Paragraph(value != null ? value : ""))
+                        .setTextAlignment(TextAlignment.LEFT)
+                        .setPadding(5)
+//                        .setBorder(Border.NO_BORDER)
+                        ;
+
+                infoTable.addCell(labelCell);
+                infoTable.addCell(valueCell);
             };
 
             addRow.accept("Họ và tên:", sample.getName());
@@ -673,7 +686,6 @@ public class TestOrderServiceImpl implements TestOrderService {
 
             Table thumbTable = new Table(1).useAllAvailableWidth();
             thumbTable.setFontSize(10);
-            thumbTable.setHeight(260f);
 
 
             thumbTable.addCell(new Cell().add(new Paragraph("Người cho mẫu thứ " + (i + 1))
