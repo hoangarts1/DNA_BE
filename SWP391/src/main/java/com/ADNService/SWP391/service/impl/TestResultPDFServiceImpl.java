@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +105,7 @@ public class TestResultPDFServiceImpl implements TestResultPDFService {
 
 
         // === PHẦN MỞ ĐẦU ===
-        document.add(new Paragraph("GENTIS - NIỀM TIN TRỌN VẸN").setBold().setFontSize(12));
+        document.add(new Paragraph("MEDLAB - NIỀM TIN TRỌN VẸN").setBold().setTextAlignment(TextAlignment.CENTER).setFontSize(12));
         document.add(new Paragraph("PHIẾU KẾT QUẢ PHÂN TÍCH ADN")
                 .setBold().setFontSize(16)
                 .setTextAlignment(TextAlignment.CENTER));
@@ -119,13 +120,13 @@ public class TestResultPDFServiceImpl implements TestResultPDFService {
 
 
         // === THÔNG TIN MẪU ===
-        document.add(new Paragraph("\nCông ty Gentis tiến hành phân tích các mẫu ADN sau:"));
+        document.add(new Paragraph("\nCông ty MEDLAB tiến hành phân tích các mẫu ADN sau:"));
 
         float[] infoWidths = {30F, 150F, 50F, 100F, 80F};
         Table infoTable = new Table(infoWidths);
         infoTable.addHeaderCell("TT");
         infoTable.addHeaderCell("Tên mẫu");
-        infoTable.addHeaderCell("Tuổi");
+        infoTable.addHeaderCell("Ngày Sinh");
         infoTable.addHeaderCell("Quan hệ");
         infoTable.addHeaderCell("Ký hiệu mẫu");
 
@@ -134,14 +135,18 @@ public class TestResultPDFServiceImpl implements TestResultPDFService {
             infoTable.addCell(String.valueOf(stt++));
             infoTable.addCell(sample.getName());
             infoTable.addCell(sample.getDateOfBirth() != null ?
-                    String.valueOf(calculateAge(sample.getDateOfBirth())) : "");
-
+                    sample.getDateOfBirth().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate()
+                            .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                    : ""
+            );
             infoTable.addCell(sample.getRelationship());
-            infoTable.addCell(sample.getKitCode());
+            infoTable.addCell(String.valueOf(sample.getId()));
         }
         document.add(infoTable);
 
-        document.add(new Paragraph("\nSau khi phân tích các mẫu ADN... chúng tôi có kết quả sau:"));
+        document.add(new Paragraph("\nSau khi phân tích các mẫu ADN chúng tôi có kết quả sau:"));
 
         // === BẢNG LOCUS ===
         List<Long> sampleIds = report.getTestSamples().stream()
@@ -159,8 +164,8 @@ public class TestResultPDFServiceImpl implements TestResultPDFService {
 
         for (Long id : sampleIds) {
             String name = sampleIdToName.getOrDefault(id, "Unknown");
-            locusTable.addHeaderCell("A1 (" + name + ")");
-            locusTable.addHeaderCell("A2 (" + name + ")");
+            locusTable.addHeaderCell("Allele 1 (" + name + ")");
+            locusTable.addHeaderCell("Allele 2 (" + name + ")");
         }
 
         Map<String, List<TestResultSampleDTO>> grouped = report.getTestResultSamples().stream()
@@ -189,7 +194,7 @@ public class TestResultPDFServiceImpl implements TestResultPDFService {
         document.add(locusTable);
 
         // === KẾT LUẬN ===
-        document.add(new Paragraph("\nHội đồng khoa học công ty Gentis kết luận:").setBold());
+        document.add(new Paragraph("\nHội đồng khoa học công ty MEDLAB kết luận:").setBold());
 
         for (TestResultDTO rs : report.getTestResult()) {
             String name1 = sampleIdToName.getOrDefault(rs.getSampleId1(), "Mẫu " + rs.getSampleId1());
@@ -226,7 +231,7 @@ public class TestResultPDFServiceImpl implements TestResultPDFService {
         document.add(new Paragraph("\n" + note).setFontSize(9));
 
 
-        document.add(new Paragraph("\n\nHà Nội, ngày .... tháng .... năm ....")
+        document.add(new Paragraph("\n\n............., ngày .... tháng .... năm ....")
                 .setTextAlignment(TextAlignment.RIGHT));
 
 
@@ -234,17 +239,17 @@ public class TestResultPDFServiceImpl implements TestResultPDFService {
 
 // Cột 1
         Cell cell1 = new Cell()
-                .add(new Paragraph("TT XÉT NGHIỆM\n\n(Ký tên)").setTextAlignment(TextAlignment.CENTER).setBold())
+                .add(new Paragraph("TT XÉT NGHIỆM\n\n\n(Ký tên)").setTextAlignment(TextAlignment.CENTER).setBold())
                 .setBorder(Border.NO_BORDER);
 
 // Cột 2
         Cell cell2 = new Cell()
-                .add(new Paragraph("HỘI ĐỒNG KHOA HỌC\n\n(Ký tên)").setTextAlignment(TextAlignment.CENTER).setBold())
+                .add(new Paragraph("HỘI ĐỒNG KHOA HỌC\n\n\n(Ký tên)").setTextAlignment(TextAlignment.CENTER).setBold())
                 .setBorder(Border.NO_BORDER);
 
 // Cột 3
         Cell cell3 = new Cell()
-                .add(new Paragraph("CÔNG AN ĐIỀN CÔNG TY\n\n(Ký tên, đóng dấu)").setTextAlignment(TextAlignment.CENTER).setBold())
+                .add(new Paragraph("ĐẠI DIỆN CÔNG TY\n\n\n(Ký tên, đóng dấu)").setTextAlignment(TextAlignment.CENTER).setBold())
                 .setBorder(Border.NO_BORDER);
 
 // Thêm các cell vào bảng
