@@ -11,4 +11,5 @@ public interface AccountService {
     Account updateAccountInfo(Long id, AccountDTO dto);
     void deactivateAccount(Long id);
     Account findByUsername(String username);
+    void activateAccount(Long id); // Thêm p
 }

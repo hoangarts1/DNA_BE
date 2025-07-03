@@ -62,4 +62,10 @@ public class AccountController {
 
         return ResponseEntity.ok(dto);
     }
+
+    @PostMapping("/{id}/activate")
+    public ResponseEntity<Void> activateAccount(@PathVariable Long id) {
+        accountService.activateAccount(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -18,7 +18,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -43,14 +42,13 @@ public class AuthServiceImpl implements AuthService {
     public Account register(AccountDTO userDTO) {
         if (userRepository.existsByUsername(userDTO.getUsername())) {
             throw new CustomException("Username already exists.");
-        }else if (userRepository.existsByEmail(userDTO.getEmail())) {
+        } else if (userRepository.existsByEmail(userDTO.getEmail())) {
             throw new CustomException("Email already exists.");
-        }else if (userRepository.existsByPhone(userDTO.getPhone())) {
+        } else if (userRepository.existsByPhone(userDTO.getPhone())) {
             throw new CustomException("Phone already exists.");
         }
 
         Account user = new Account();
-
         user.setUsername(userDTO.getUsername());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setEmail(userDTO.getEmail());
@@ -62,11 +60,15 @@ public class AuthServiceImpl implements AuthService {
         return userRepository.save(user);
     }
 
-
     @Override
     public LoginResponse login(String username, String password) {
         Account user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException("Invalid username or password"));
+
+        // Kiểm tra trạng thái active
+        if (!user.isActive()) {
+            throw new CustomException("Tài khoản đã bị vô hiệu hóa");
+        }
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new CustomException("Invalid username or password");
@@ -78,7 +80,6 @@ public class AuthServiceImpl implements AuthService {
         if (user.getRole() == Role.STAFF) {
             Staff staff = staffRepository.findByAccountId(user.getId())
                     .orElseThrow(() -> new CustomException("Staff info not found for this account."));
-
             token = jwtUtil.generateTokenWithStaffType(username, user.getRole().name(), staff.getRole().name());
         } else {
             token = jwtUtil.generateToken(username, user.getRole().name());
@@ -86,7 +87,6 @@ public class AuthServiceImpl implements AuthService {
 
         return new LoginResponse(token, user);
     }
-
 
     @Override
     public void forgotPassword(String email) {
@@ -103,18 +103,6 @@ public class AuthServiceImpl implements AuthService {
         message.setText("Click the following link to reset your password: " + resetLink);
 
         mailSender.send(message);
-
-
-//        Optional<Account> optionalUser = userRepository.findByEmail(email);
-//        if (!optionalUser.isPresent()) {
-//            throw new CustomException("Email not found");
-//        }
-//
-//        Account user = optionalUser.get();
-//
-//        String token = jwtUtil.generateToken(user.getUsername());
-//
-//        System.out.println("Reset link: http://localhost:8080/auth/reset-password?token=" + token);
     }
 
     @Override
@@ -123,6 +111,10 @@ public class AuthServiceImpl implements AuthService {
             String username = jwtUtil.extractUsername(token);
             Account user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new CustomException("Tài khoản không tồn tại."));
+            // Kiểm tra trạng thái active trước khi đặt lại mật khẩu
+            if (!user.isActive()) {
+                throw new CustomException("Tài khoản đã bị vô hiệu hóa");
+            }
             user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
         } catch (ExpiredJwtException e) {
@@ -165,11 +157,4 @@ public class AuthServiceImpl implements AuthService {
 
         return savedAccount;
     }
-
-
-
-
 }
-
-
-
