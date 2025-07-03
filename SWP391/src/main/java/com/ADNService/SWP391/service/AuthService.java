@@ -6,7 +6,7 @@ import com.ADNService.SWP391.entity.Account;
 
 public interface AuthService {
     Account register(AccountDTO userDTO);
-//    Account login(String username, String password);
+    //    Account login(String username, String password);
     LoginResponse login(String username, String password);
 
     void forgotPassword(String email);

@@ -64,7 +64,7 @@ public class TestSample {
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String medicalHistory;
 
-    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
+    @Column(nullable = false, columnDefinition = "NVARCHAR(MAX)")
     private String fingerprint;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")

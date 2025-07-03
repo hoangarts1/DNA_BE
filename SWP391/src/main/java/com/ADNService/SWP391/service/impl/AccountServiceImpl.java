@@ -52,4 +52,12 @@ public class AccountServiceImpl implements AccountService {
         return accountRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found with username: " + username));
     }
+
+    @Override
+    public void activateAccount(Long id) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found with id: " + id));
+        account.setActive(true);
+        accountRepository.save(account);
+    }
 }
