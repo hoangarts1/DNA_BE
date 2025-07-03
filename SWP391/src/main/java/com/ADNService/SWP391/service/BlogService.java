@@ -4,10 +4,12 @@ import com.ADNService.SWP391.dto.BlogDTO;
 
 import java.util.List;
 
+import java.util.List;
+
 public interface BlogService {
-    List<BlogDTO> getAllBlogs();
-    BlogDTO getBlogById(Long id);
-    BlogDTO createBlog(BlogDTO blogDTO);
-    BlogDTO updateBlog(Long id, BlogDTO blogDTO);
-    void deleteBlog(Long id);
+    BlogDTO create(BlogDTO dto);
+    BlogDTO update(Long id, BlogDTO dto);
+    void delete(Long id);
+    BlogDTO getById(Long id);
+    List<BlogDTO> getAll();
 }

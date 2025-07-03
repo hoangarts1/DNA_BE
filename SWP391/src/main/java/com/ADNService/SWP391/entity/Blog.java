@@ -1,64 +1,39 @@
 package com.ADNService.SWP391.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Blog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long blogId;
+    private Long id;
 
-    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
-    private String blogName;
+    @Column(columnDefinition = "NVARCHAR(255)")
+    private String title;
 
-    private String urlBlog;
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String contentHtml;
 
-    @Temporal(TemporalType.DATE)
-    private Date blogDate;
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String titleImageBase64;
 
-    public Blog() {
-    }
+    private String blogType;
 
-    public Blog(String blogName, String urlBlog, Date blogDate) {
-        this.blogName = blogName;
-        this.urlBlog = urlBlog;
-        this.blogDate = blogDate;
-    }
+    private LocalDate blogDate;
 
-    public Date getBlogDate() {
-        return blogDate;
-    }
+    private LocalDateTime createdAt;
 
-    public void setBlogDate(Date blogDate) {
-        this.blogDate = blogDate;
-    }
-
-    public Long getBlogId() {
-        return blogId;
-    }
-
-    public void setBlogId(Long blogId) {
-        this.blogId = blogId;
-    }
-
-    public String getBlogName() {
-        return blogName;
-    }
-
-    public void setBlogName(String blogName) {
-        this.blogName = blogName;
-    }
-
-    public String getUrlBlog() {
-        return urlBlog;
-    }
-
-    public void setUrlBlog(String urlBlog) {
-        this.urlBlog = urlBlog;
-    }
+    private LocalDateTime updatedAt;
 }

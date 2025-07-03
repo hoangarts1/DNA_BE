@@ -22,13 +22,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-//@EnableWebSecurity
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 
 //    @Autowired
 //    private JwtUtil jwtUtil;
@@ -89,6 +90,5 @@ public class SecurityConfig {
 //        source.registerCorsConfiguration("/**", config);
 //        return source;
 //    }
-
 
 }

@@ -4,69 +4,75 @@ import com.ADNService.SWP391.dto.BlogDTO;
 import com.ADNService.SWP391.entity.Blog;
 import com.ADNService.SWP391.repository.BlogRepository;
 import com.ADNService.SWP391.service.BlogService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;;
+
+import java.time.LocalDateTime;
+
+
 @Service
+@RequiredArgsConstructor
 public class BlogServiceImpl implements BlogService {
 
-    @Autowired
-    private BlogRepository blogRepository;
+    private final BlogRepository blogRepository;
 
-    @Override
-    public List<BlogDTO> getAllBlogs() {
-        return blogRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+    private BlogDTO toDTO(Blog blog) {
+        return BlogDTO.builder()
+                .id(blog.getId())
+                .title(blog.getTitle())
+                .contentHtml(blog.getContentHtml())
+                .titleImageBase64(blog.getTitleImageBase64())
+                .blogType(blog.getBlogType())
+                .blogDate(blog.getBlogDate().toString())
+                .build();
     }
 
     @Override
-    public BlogDTO getBlogById(Long id) {
-        return blogRepository.findById(id).map(this::convertToDTO).orElse(null);
+    public BlogDTO create(BlogDTO dto) {
+        Blog blog = Blog.builder()
+                .title(dto.getTitle())
+                .contentHtml(dto.getContentHtml())
+                .titleImageBase64(dto.getTitleImageBase64())
+                .blogType(dto.getBlogType())
+                .blogDate(LocalDate.parse(dto.getBlogDate()))
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+        return toDTO(blogRepository.save(blog));
     }
 
     @Override
-    public BlogDTO createBlog(BlogDTO dto) {
-        Blog blog = new Blog();
-        blog.setBlogName(dto.getBlogName());
-        blog.setUrlBlog(dto.getUrlBlog());
-        blog.setBlogDate(dto.getBlogDate());
-
-        return convertToDTO(blogRepository.save(blog));
+    public BlogDTO update(Long id, BlogDTO dto) {
+        Blog blog = blogRepository.findById(id).orElseThrow();
+        blog.setTitle(dto.getTitle());
+        blog.setContentHtml(dto.getContentHtml());
+        blog.setTitleImageBase64(dto.getTitleImageBase64());
+        blog.setUpdatedAt(LocalDateTime.now());
+        blog.setBlogType(dto.getBlogType());
+        blog.setBlogDate(LocalDate.parse(dto.getBlogDate()));
+        return toDTO(blogRepository.save(blog));
     }
 
     @Override
-    public BlogDTO updateBlog(Long id, BlogDTO dto) {
-        Optional<Blog> optionalBlog = blogRepository.findById(id);
-        if (optionalBlog.isEmpty()) {
-            throw new RuntimeException("Blog with ID " + id + " does not exist.");
-        }
-
-        Blog blog = optionalBlog.get();
-        blog.setBlogName(dto.getBlogName());
-        blog.setUrlBlog(dto.getUrlBlog());
-        blog.setBlogDate(dto.getBlogDate());
-
-        return convertToDTO(blogRepository.save(blog));
-    }
-
-    @Override
-    public void deleteBlog(Long id) {
-        Optional<Blog> optionalBlog = blogRepository.findById(id);
-        if (optionalBlog.isEmpty()) {
-            throw new RuntimeException("Blog with ID " + id + " does not exist.");
-        }
+    public void delete(Long id) {
         blogRepository.deleteById(id);
     }
 
-    private BlogDTO convertToDTO(Blog blog) {
-        BlogDTO dto = new BlogDTO();
-        dto.setBlogId(blog.getBlogId());
-        dto.setBlogName(blog.getBlogName());
-        dto.setUrlBlog(blog.getUrlBlog());
-        dto.setBlogDate(blog.getBlogDate());
-        return dto;
+    @Override
+    public BlogDTO getById(Long id) {
+        return blogRepository.findById(id).map(this::toDTO).orElseThrow();
+    }
+
+    @Override
+    public List<BlogDTO> getAll() {
+        return blogRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 }

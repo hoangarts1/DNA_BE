@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -60,11 +61,26 @@ public class TestResultSampleServiceImpl implements TestResultSampleService {
         List<TestResultSample> samples = dtoList.stream().map(dto -> {
             TestSample testSample = testSampleRepository.findById(dto.getTestSampleId())
                     .orElseThrow(() -> new RuntimeException("TestSample not found with id: " + dto.getTestSampleId()));
-            return new TestResultSample(testSample, dto.getLocusName(), dto.getAllele1(), dto.getAllele2());
+
+            // Kiểm tra xem bản ghi đã tồn tại chưa
+            Optional<TestResultSample> existingSample = testResultSampleRepository
+                    .findByTestSampleIdAndLocusName(dto.getTestSampleId(), dto.getLocusName());
+
+            TestResultSample sample;
+            if (existingSample.isPresent()) {
+                // Cập nhật bản ghi hiện có
+                sample = existingSample.get();
+                sample.setAllele1(dto.getAllele1());
+                sample.setAllele2(dto.getAllele2());
+            } else {
+                // Tạo mới bản ghi
+                sample = new TestResultSample(testSample, dto.getLocusName(), dto.getAllele1(), dto.getAllele2());
+            }
+
+            return sample;
         }).collect(Collectors.toList());
 
         List<TestResultSample> savedSamples = testResultSampleRepository.saveAll(samples);
-
         return savedSamples.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
