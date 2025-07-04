@@ -19,7 +19,7 @@ public class TestSampleDTO {
     private String placeOfIssue;
     private String nationality;
     private String address;
-    private String sampleType;
+    private Long sampleTypeId;
     private Integer numberOfSample;
     private String relationship;
     private String medicalHistory;
@@ -35,7 +35,7 @@ public class TestSampleDTO {
     public TestSampleDTO() {
     }
 
-    public TestSampleDTO(Long id, Long orderId, Long customerId, String name, String gender, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, String sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint, String kitCode) {
+    public TestSampleDTO(Long id, Long orderId, Long customerId, String name, String gender, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, Long sampleTypeId, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint, String kitCode) {
         this.id = id;
         this.orderId = orderId;
         this.customerId = customerId;
@@ -49,13 +49,14 @@ public class TestSampleDTO {
         this.placeOfIssue = placeOfIssue;
         this.nationality = nationality;
         this.address = address;
-        this.sampleType = sampleType;
+        this.sampleTypeId = sampleTypeId;
         this.numberOfSample = numberOfSample;
         this.relationship = relationship;
         this.medicalHistory = medicalHistory;
         this.fingerprint = fingerprint;
         this.kitCode = kitCode;
     }
+
     public String getKitCode() {
         return kitCode;
     }
@@ -168,12 +169,12 @@ public class TestSampleDTO {
         this.address = address;
     }
 
-    public String getSampleType() {
-        return sampleType;
+    public Long getSampleTypeId() {
+        return sampleTypeId;
     }
 
-    public void setSampleType(String sampleType) {
-        this.sampleType = sampleType;
+    public void setSampleTypeId(Long sampleTypeId) {
+        this.sampleTypeId = sampleTypeId;
     }
 
     public Integer getNumberOfSample() {

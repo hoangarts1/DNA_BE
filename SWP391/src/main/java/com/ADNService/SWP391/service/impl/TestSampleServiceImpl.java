@@ -24,16 +24,18 @@ public class TestSampleServiceImpl implements TestSampleService {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private StaffRepository staffRepository;
+    private SampleTypeRepository sampleTypeRepository;
 
     @Override
     public TestSampleDTO createTestSample(TestSampleDTO dto) {
-        if (dto.getOrderId() == null) {
+        if (dto.getOrderId() == null)
             throw new IllegalArgumentException("Order ID is required");
-        }
-        if (dto.getCustomerId() == null) {
+
+        if (dto.getCustomerId() == null)
             throw new IllegalArgumentException("Customer ID is required");
-        }
+
+        if (dto.getSampleTypeId() == null)
+            throw new IllegalArgumentException("Sample Type ID is required");
 
         TestOrder order = testOrderRepository.findById(dto.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Order with ID " + dto.getOrderId() + " does not exist."));
@@ -41,10 +43,13 @@ public class TestSampleServiceImpl implements TestSampleService {
         Customer customer = customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer with ID " + dto.getCustomerId() + " does not exist."));
 
+        SampleType sampleType = sampleTypeRepository.findById(dto.getSampleTypeId())
+                .orElseThrow(() -> new RuntimeException("Sample Type with ID " + dto.getSampleTypeId() + " does not exist."));
 
         TestSample sample = new TestSample();
         sample.setOrder(order);
         sample.setCustomer(customer);
+        sample.setSampleType(sampleType);  // liên kết sampleType
         sample.setName(dto.getName());
         sample.setGender(dto.getGender());
         sample.setDateOfBirth(dto.getDateOfBirth());
@@ -55,15 +60,13 @@ public class TestSampleServiceImpl implements TestSampleService {
         sample.setPlaceOfIssue(dto.getPlaceOfIssue());
         sample.setNationality(dto.getNationality());
         sample.setAddress(dto.getAddress());
-        sample.setSampleType(dto.getSampleType());
         sample.setNumberOfSample(dto.getNumberOfSample());
         sample.setRelationship(dto.getRelationship());
         sample.setMedicalHistory(dto.getMedicalHistory());
         sample.setFingerprint(dto.getFingerprint());
-        sample.setKitCode(dto.getKitCode()); // <-- thêm dòng này
+        sample.setKitCode(dto.getKitCode());
 
-        TestSample savedSample = testSampleRepository.save(sample);
-        return convertToDTO(savedSample);
+        return convertToDTO(testSampleRepository.save(sample));
     }
 
     @Override
@@ -82,18 +85,15 @@ public class TestSampleServiceImpl implements TestSampleService {
 
     @Override
     public List<TestSampleDTO> getTestSamplesByOrderId(Long orderId) {
-        List<TestSample> samples = testSampleRepository.getTestSamplesByOrder_OrderId(orderId);
-        return samples.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return testSampleRepository.getTestSamplesByOrder_OrderId(orderId).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public TestSampleDTO updateTestSample(Long id, TestSampleDTO dto) {
-        Optional<TestSample> optionalTestSample = testSampleRepository.findById(id);
-        if (optionalTestSample.isEmpty()) {
-            throw new RuntimeException("Test Sample with ID " + id + " does not exist.");
-        }
-
-        TestSample sample = optionalTestSample.get();
+        TestSample sample = testSampleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Test Sample with ID " + id + " does not exist."));
 
         if (dto.getCustomerId() != null) {
             Customer customer = customerRepository.findById(dto.getCustomerId())
@@ -101,6 +101,11 @@ public class TestSampleServiceImpl implements TestSampleService {
             sample.setCustomer(customer);
         }
 
+        if (dto.getSampleTypeId() != null) {
+            SampleType sampleType = sampleTypeRepository.findById(dto.getSampleTypeId())
+                    .orElseThrow(() -> new RuntimeException("Sample Type with ID " + dto.getSampleTypeId() + " does not exist."));
+            sample.setSampleType(sampleType);
+        }
 
         sample.setName(dto.getName());
         sample.setGender(dto.getGender());
@@ -112,21 +117,18 @@ public class TestSampleServiceImpl implements TestSampleService {
         sample.setPlaceOfIssue(dto.getPlaceOfIssue());
         sample.setNationality(dto.getNationality());
         sample.setAddress(dto.getAddress());
-        sample.setSampleType(dto.getSampleType());
         sample.setNumberOfSample(dto.getNumberOfSample());
         sample.setRelationship(dto.getRelationship());
         sample.setMedicalHistory(dto.getMedicalHistory());
         sample.setFingerprint(dto.getFingerprint());
-        sample.setKitCode(dto.getKitCode()); // <-- thêm dòng này
+        sample.setKitCode(dto.getKitCode());
 
-        TestSample updatedSample = testSampleRepository.save(sample);
-        return convertToDTO(updatedSample);
+        return convertToDTO(testSampleRepository.save(sample));
     }
 
     @Override
     public void deleteTestSample(Long id) {
-        Optional<TestSample> sample = testSampleRepository.findById(id);
-        if (sample.isEmpty()) {
+        if (!testSampleRepository.existsById(id)) {
             throw new RuntimeException("Test Sample with ID " + id + " does not exist.");
         }
         testSampleRepository.deleteById(id);
@@ -137,6 +139,7 @@ public class TestSampleServiceImpl implements TestSampleService {
         dto.setId(sample.getId());
         dto.setOrderId(sample.getOrder() != null ? sample.getOrder().getOrderId() : null);
         dto.setCustomerId(sample.getCustomer() != null ? sample.getCustomer().getId() : null);
+        dto.setSampleTypeId(sample.getSampleType() != null ? sample.getSampleType().getId() : null);
         dto.setName(sample.getName());
         dto.setGender(sample.getGender());
         dto.setDateOfBirth(sample.getDateOfBirth());
@@ -147,14 +150,11 @@ public class TestSampleServiceImpl implements TestSampleService {
         dto.setPlaceOfIssue(sample.getPlaceOfIssue());
         dto.setNationality(sample.getNationality());
         dto.setAddress(sample.getAddress());
-        dto.setSampleType(sample.getSampleType());
         dto.setNumberOfSample(sample.getNumberOfSample());
         dto.setRelationship(sample.getRelationship());
         dto.setMedicalHistory(sample.getMedicalHistory());
         dto.setFingerprint(sample.getFingerprint());
-        dto.setKitCode(sample.getKitCode()); // <-- thêm dòng này
-
+        dto.setKitCode(sample.getKitCode());
         return dto;
     }
-
 }

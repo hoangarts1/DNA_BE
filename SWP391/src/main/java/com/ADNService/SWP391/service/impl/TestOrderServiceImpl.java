@@ -354,7 +354,7 @@ public class TestOrderServiceImpl implements TestOrderService {
             sampleTable.addCell(s.getDateOfBirth() != null ? s.getDateOfBirth().toString() : "");
             sampleTable.addCell(s.getGender());
             sampleTable.addCell(s.getRelationship());
-            sampleTable.addCell(s.getSampleType());
+            sampleTable.addCell(s.getSampleType() != null ? s.getSampleType().getSampleType() : "");
             sampleTable.addCell("");
         }
         document.add(sampleTable.setMarginTop(10));
@@ -521,7 +521,7 @@ public class TestOrderServiceImpl implements TestOrderService {
             sampleTable.addCell(s.getDateOfBirth() != null ? s.getDateOfBirth().toString() : "");
             sampleTable.addCell(s.getGender());
             sampleTable.addCell(s.getRelationship());
-            sampleTable.addCell(s.getSampleType());
+            sampleTable.addCell(s.getSampleType() != null ? s.getSampleType().getSampleType() : "");
             sampleTable.addCell("");
         }
         document.add(sampleTable.setMarginTop(10));
@@ -675,7 +675,7 @@ public class TestOrderServiceImpl implements TestOrderService {
                     .setBorder(new SolidBorder(0.5f)));
 
             infoTable.addCell(new Cell().add(new Paragraph("Loại mẫu:").setBold()).setPadding(5).setBorder(new SolidBorder(0.5f)));
-            infoTable.addCell(new Cell().add(new Paragraph(sample.getSampleType() != null ? sample.getSampleType() : "")).setPadding(5).setBorder(new SolidBorder(0.5f)));
+            infoTable.addCell(new Cell().add(new Paragraph(sample.getSampleType() != null ? sample.getSampleType().getSampleType() : "")).setPadding(5).setBorder(new SolidBorder(0.5f)));
             infoTable.addCell(new Cell().add(new Paragraph("Số lượng mẫu:").setBold()).setPadding(5).setBorder(new SolidBorder(0.5f)));
             infoTable.addCell(new Cell().add(new Paragraph(sample.getNumberOfSample() != null ? String.valueOf(sample.getNumberOfSample()) : "")).setPadding(5).setBorder(new SolidBorder(0.5f)));
 

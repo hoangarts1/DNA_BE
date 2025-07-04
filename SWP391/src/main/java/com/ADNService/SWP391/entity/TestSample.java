@@ -53,8 +53,10 @@ public class TestSample {
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String address;
 
-    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
-    private String sampleType;
+    @ManyToOne
+    @JoinColumn(name = "sample_type_id", nullable = false)
+    private SampleType sampleType;
+
 
     private Integer numberOfSample;
 
@@ -82,8 +84,9 @@ public class TestSample {
     public TestSample() {
     }
 
-    public TestSample(Long id, TestOrder order, Customer customer, String name, String gender, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, String sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint) {
+    public TestSample(Long id, List<TestResultSample> testResultSamples, TestOrder order, Customer customer, String name, String gender, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, SampleType sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint, String kitCode) {
         this.id = id;
+        this.testResultSamples = testResultSamples;
         this.order = order;
         this.customer = customer;
         this.name = name;
@@ -101,6 +104,7 @@ public class TestSample {
         this.relationship = relationship;
         this.medicalHistory = medicalHistory;
         this.fingerprint = fingerprint;
+        this.kitCode = kitCode;
     }
 
     public String getGender() {
@@ -208,11 +212,19 @@ public class TestSample {
         this.address = address;
     }
 
-    public String getSampleType() {
+    public List<TestResultSample> getTestResultSamples() {
+        return testResultSamples;
+    }
+
+    public void setTestResultSamples(List<TestResultSample> testResultSamples) {
+        this.testResultSamples = testResultSamples;
+    }
+
+    public SampleType getSampleType() {
         return sampleType;
     }
 
-    public void setSampleType(String sampleType) {
+    public void setSampleType(SampleType sampleType) {
         this.sampleType = sampleType;
     }
 
