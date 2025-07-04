@@ -2,6 +2,9 @@ package com.ADNService.SWP391.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "service")
 public class Services {
@@ -26,21 +29,18 @@ public class Services {
     @Column(name = "service_price", nullable = false)
     private double servicePrice;
 
-    // Constructors
     public Services() {
     }
 
-    public Services(Long serviceID, String serviceName, String servicePurpose, int timeTest,
-                    String describe, double servicePrice) {
+    public Services(Long serviceID, String serviceName, String serviceType, String describe, int timeTest, double servicePrice) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
-        this.serviceType = servicePurpose;
-        this.timeTest = timeTest;
+        this.serviceType = serviceType;
         this.describe = describe;
+        this.timeTest = timeTest;
         this.servicePrice = servicePrice;
     }
 
-    // Getters and Setters
     public Long getServiceID() {
         return serviceID;
     }
@@ -61,8 +61,8 @@ public class Services {
         return serviceType;
     }
 
-    public void setServiceType(String servicePurpose) {
-        this.serviceType = servicePurpose;
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
     }
 
     public String getDescribe() {
@@ -88,5 +88,4 @@ public class Services {
     public void setServicePrice(double servicePrice) {
         this.servicePrice = servicePrice;
     }
-
 }
