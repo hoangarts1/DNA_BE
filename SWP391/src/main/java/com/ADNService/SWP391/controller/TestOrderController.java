@@ -45,7 +45,6 @@ public class TestOrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(testOrderService.createOrder(dto));
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
         testOrderService.deleteOrder(id);
@@ -74,9 +73,9 @@ public class TestOrderController {
                 .findFirst().map(auth -> auth.getAuthority().replace("ROLE_", "")).orElse("");
 
         if ("CUSTOMER".equals(role)) {
-            if (!"SEND_SAMPLE".equals(dto.getOrderStatus())) {
+            if (!List.of("SEND_SAMPLE", "CANCEL").contains(dto.getOrderStatus())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("CUSTOMER chỉ được cập nhật trạng thái SEND_SAMPLE");
+                        .body("CUSTOMER chỉ được cập nhật trạng thái SEND_SAMPLE hoặc CANCEL");
             }
             order.setOrderStatus(dto.getOrderStatus());
             testOrderRepository.save(order);
@@ -85,7 +84,7 @@ public class TestOrderController {
 
         // 🎯 Phân quyền STAFF
         if ("NORMAL_STAFF".equals(role)) {
-            if (!List.of("PENDING", "SEND_KIT", "COLLECT_SAMPLE", "COMPLETED").contains(dto.getOrderStatus())) {
+            if (!List.of("PENDING", "SEND_KIT", "COLLECT_SAMPLE", "COMPLETED", "CANCEL").contains(dto.getOrderStatus())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body("NORMAL_STAFF không được cập nhật trạng thái " + dto.getOrderStatus());
             }
@@ -98,12 +97,17 @@ public class TestOrderController {
 
         order.setOrderStatus(dto.getOrderStatus());
         Staff staff = staffRepository.findById(dto.getStaffId()).orElse(null);
-        if (staff == null) return ResponseEntity.badRequest().body("Không tìm thấy staff");
+        if (staff == null && !dto.getOrderStatus().equals("CANCEL")) {
+            return ResponseEntity.badRequest().body("Không tìm thấy staff");
+        }
 
         if (List.of("PENDING", "SEND_KIT", "COLLECT_SAMPLE", "COMPLETED").contains(dto.getOrderStatus())) {
             order.setRegistrationStaff(staff);
         } else if ("TESTED".equals(dto.getOrderStatus())) {
             order.setTestingStaff(staff);
+        } else if ("CANCEL".equals(dto.getOrderStatus())) {
+            order.setRegistrationStaff(null);
+            order.setTestingStaff(null);
         }
 
         testOrderRepository.save(order);
@@ -120,5 +124,4 @@ public class TestOrderController {
 
         return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
     }
-
 }
