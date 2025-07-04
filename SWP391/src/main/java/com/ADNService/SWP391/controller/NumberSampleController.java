@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import com.ADNService.SWP391.entity.Services;
+import com.ADNService.SWP391.repository.ServiceRepository;
+
 
 @RestController
 @RequestMapping("/api/number-sample")
@@ -20,6 +23,10 @@ public class NumberSampleController {
 
     @Autowired
     private NumberSampleService numberSampleService;
+
+    @Autowired
+    private ServiceRepository serviceRepository;
+
 
 
     private NumberSampleDTO toDTO(NumberSample entity) {
@@ -71,13 +78,21 @@ public class NumberSampleController {
     public void delete(@PathVariable Long id) {
         numberSampleRepository.deleteById(id);
     }
+
     @GetMapping("/calculate")
     public ResponseEntity<Double> calculateTotalPrice(
             @RequestParam String serviceType,
-            @RequestParam int sampleQuantity,
-            @RequestParam double basePrice) {
+            @RequestParam int sampleQuantity) {
+
+        // Lấy giá dịch vụ theo serviceType
+        double basePrice = serviceRepository.findByServiceType(serviceType)
+                .map(Services::getServicePrice)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy dịch vụ với loại: " + serviceType));
+
+        // Tính tổng giá
         double total = numberSampleService.calculateTotalPrice(serviceType, sampleQuantity, basePrice);
         return ResponseEntity.ok(total);
     }
+
 
 }

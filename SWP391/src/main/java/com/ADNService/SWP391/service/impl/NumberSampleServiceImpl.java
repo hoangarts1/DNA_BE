@@ -70,18 +70,25 @@ public class NumberSampleServiceImpl implements NumberSampleService {
         numberSampleRepository.deleteById(id);
     }
 
+    @Override
     public double calculateTotalPrice(String serviceType, int sampleQuantity, double basePrice) {
-        NumberSample config = numberSampleRepository.findByServiceType(serviceType.toUpperCase())
-                .orElseThrow(() -> new RuntimeException("NumberSample config not found for serviceType: " + serviceType));
+        // Normalize serviceType để tránh lỗi phân biệt hoa/thường
+        String normalizedType = serviceType.trim().toUpperCase();
+
+        NumberSample config = numberSampleRepository.findByServiceType(normalizedType)
+                .orElseThrow(() -> new RuntimeException(
+                        "Không tìm thấy cấu hình NumberSample cho serviceType: " + serviceType
+                ));
 
         int baseQuantity = config.getBaseQuantity();
         double extraPricePerSample = config.getExtraPricePerSample();
 
-        if (sampleQuantity > baseQuantity) {
-            int extraSamples = sampleQuantity - baseQuantity;
-            return basePrice + (extraSamples * extraPricePerSample);
-        } else {
+        if (sampleQuantity <= baseQuantity) {
             return basePrice;
         }
+
+        int extraSamples = sampleQuantity - baseQuantity;
+        return basePrice + (extraSamples * extraPricePerSample);
     }
+
 }

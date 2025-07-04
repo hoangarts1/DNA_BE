@@ -54,7 +54,7 @@ public class TestSample {
     private String address;
 
     @ManyToOne
-    @JoinColumn(name = "sample_type_id", nullable = false)
+    @JoinColumn(name = "sample_type_id")
     private SampleType sampleType;
 
 

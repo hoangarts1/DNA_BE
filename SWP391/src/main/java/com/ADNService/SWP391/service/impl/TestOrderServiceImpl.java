@@ -1,6 +1,6 @@
 package com.ADNService.SWP391.service.impl;
 
-
+import java.time.format.DateTimeFormatter;
 import java.text.SimpleDateFormat;
 import com.ADNService.SWP391.dto.AccountDTO;
 import com.ADNService.SWP391.dto.CustomerDTO;
@@ -30,10 +30,15 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 @Service
 public class TestOrderServiceImpl implements TestOrderService {
@@ -280,6 +285,7 @@ public class TestOrderServiceImpl implements TestOrderService {
     private void generateFormDanSu(Document document, TestOrder order) {
         Customer customer = order.getCustomer();
         Account acc = customer.getAccount();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         // === TIÊU ĐỀ ===
         document.add(new Paragraph("ĐƠN YÊU CẦU PHÂN TÍCH ADN")
@@ -302,7 +308,12 @@ public class TestOrderServiceImpl implements TestOrderService {
         String address = customer.getAddress();
         String cccd = customer.getCccd();
         String placeOfIssue = customer.getPlaceOfIssue();
-        String dateOfIssue = customer.getDateOfIssue() != null ? customer.getDateOfIssue().toString() : "";
+        Date dateOfIssueRaw = customer.getDateOfIssue();
+        String dateOfIssue = "";
+        if (dateOfIssueRaw != null) {
+            LocalDate localDateOfIssue = dateOfIssueRaw.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            dateOfIssue = localDateOfIssue.format(formatter);
+        }
 
         document.add(new Paragraph()
                 .add("Tôi tên là: ")
@@ -348,7 +359,15 @@ public class TestOrderServiceImpl implements TestOrderService {
         for (TestSample s : samples) {
             sampleTable.addCell(String.valueOf(stt++));
             sampleTable.addCell(s.getName());
-            sampleTable.addCell(s.getDateOfBirth() != null ? s.getDateOfBirth().toString() : "");
+
+            String formattedDob = "";
+            Date dob = s.getDateOfBirth();
+            if (dob != null) {
+                LocalDate localDob = dob.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                formattedDob = localDob.format(formatter);
+            }
+
+            sampleTable.addCell(formattedDob);
             sampleTable.addCell(s.getGender());
             sampleTable.addCell(s.getRelationship());
             sampleTable.addCell(s.getSampleType() != null ? s.getSampleType().getSampleType() : "");
@@ -447,6 +466,7 @@ public class TestOrderServiceImpl implements TestOrderService {
     private void generateFormHanhChinh(Document document, TestOrder order) {
         Customer customer = order.getCustomer();
         Account acc = customer.getAccount();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         // === TIÊU ĐỀ ===
         document.add(new Paragraph("ĐƠN YÊU CẦU PHÂN TÍCH ADN")
@@ -469,7 +489,12 @@ public class TestOrderServiceImpl implements TestOrderService {
         String address = customer.getAddress();
         String cccd = customer.getCccd();
         String placeOfIssue = customer.getPlaceOfIssue();
-        String dateOfIssue = customer.getDateOfIssue() != null ? customer.getDateOfIssue().toString() : "";
+        Date dateOfIssueRaw = customer.getDateOfIssue();
+        String dateOfIssue = "";
+        if (dateOfIssueRaw != null) {
+            LocalDate localDateOfIssue = dateOfIssueRaw.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            dateOfIssue = localDateOfIssue.format(formatter);
+        }
 
         document.add(new Paragraph()
                 .add("Tôi tên là: ")
@@ -515,7 +540,15 @@ public class TestOrderServiceImpl implements TestOrderService {
         for (TestSample s : samples) {
             sampleTable.addCell(String.valueOf(stt++));
             sampleTable.addCell(s.getName());
-            sampleTable.addCell(s.getDateOfBirth() != null ? s.getDateOfBirth().toString() : "");
+
+            String formattedDob = "";
+            Date dob = s.getDateOfBirth();
+            if (dob != null) {
+                LocalDate localDob = dob.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                formattedDob = localDob.format(formatter);
+            }
+
+            sampleTable.addCell(formattedDob);
             sampleTable.addCell(s.getGender());
             sampleTable.addCell(s.getRelationship());
             sampleTable.addCell(s.getSampleType() != null ? s.getSampleType().getSampleType() : "");
