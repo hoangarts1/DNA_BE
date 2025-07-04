@@ -22,10 +22,9 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
+import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.*;
-import com.itextpdf.layout.properties.AreaBreakType;
-import com.itextpdf.layout.properties.TextAlignment;
-import com.itextpdf.layout.properties.UnitValue;
+import com.itextpdf.layout.properties.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -637,63 +636,88 @@ public class TestOrderServiceImpl implements TestOrderService {
 
         int quantity = order.getSampleQuantity();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
         for (int i = 0; i < quantity; i++) {
             TestSample sample = (i < samples.size()) ? samples.get(i) : new TestSample();
-
             document.getPdfDocument().addNewPage();
-            Table mainTable = new Table(UnitValue.createPercentArray(new float[]{70, 30})).useAllAvailableWidth();
 
-            Table infoTable = new Table(UnitValue.createPercentArray(new float[]{5, 5}))
+            Table mainTable = new Table(UnitValue.createPercentArray(new float[]{75, 25}))
                     .useAllAvailableWidth()
-                    .setFontSize(10);
+                    .setMarginTop(10);
 
-            BiConsumer<String, String> addRow = (label, value) -> {
-                Cell labelCell = new Cell()
-                        .add(new Paragraph(label).setBold())
-                        .setTextAlignment(TextAlignment.LEFT)
-                        .setPadding(5)
-//                        .setBorder(Border.NO_BORDER)
-                        ; // tùy chọn, nếu bạn muốn bảng không có viền
+            // === CỘT TRÁI: THÔNG TIN ===
+            Table infoTable = new Table(UnitValue.createPercentArray(new float[]{25, 25, 25, 25}))
+                    .useAllAvailableWidth()
+                    .setFontSize(10)
+                    .setMarginTop(10);
 
-                Cell valueCell = new Cell()
-                        .add(new Paragraph(value != null ? value : ""))
-                        .setTextAlignment(TextAlignment.LEFT)
-                        .setPadding(5)
-//                        .setBorder(Border.NO_BORDER)
-                        ;
+            infoTable.addCell(new Cell().add(new Paragraph("Họ và tên:").setBold()).setPadding(5).setBorder(new SolidBorder(0.5f)));
+            infoTable.addCell(new Cell().add(new Paragraph(sample.getName() != null ? sample.getName() : "")).setPadding(5).setBorder(new SolidBorder(0.5f)));
+            infoTable.addCell(new Cell().add(new Paragraph("Ngày sinh:").setBold()).setPadding(5).setBorder(new SolidBorder(0.5f)));
+            infoTable.addCell(new Cell().add(new Paragraph(sample.getDateOfBirth() != null ? dateFormat.format(sample.getDateOfBirth()) : "")).setPadding(5).setBorder(new SolidBorder(0.5f)));
 
-                infoTable.addCell(labelCell);
-                infoTable.addCell(valueCell);
-            };
+            infoTable.addCell(new Cell().add(new Paragraph("Loại giấy tờ:").setBold()).setPadding(5).setBorder(new SolidBorder(0.5f)));
+            infoTable.addCell(new Cell().add(new Paragraph(sample.getDocumentType() != null ? sample.getDocumentType() : "")).setPadding(5).setBorder(new SolidBorder(0.5f)));
+            infoTable.addCell(new Cell().add(new Paragraph("Số giấy tờ:").setBold()).setPadding(5).setBorder(new SolidBorder(0.5f)));
+            infoTable.addCell(new Cell().add(new Paragraph(sample.getDocumentNumber() != null ? sample.getDocumentNumber() : "")).setPadding(5).setBorder(new SolidBorder(0.5f)));
 
-            addRow.accept("Họ và tên:", sample.getName());
-            addRow.accept("Ngày sinh:", sample.getDateOfBirth() != null ? dateFormat.format(sample.getDateOfBirth()) : "");
-            addRow.accept("Loại giấy tờ:", sample.getDocumentType());
-            addRow.accept("Số/Quyển số:", sample.getDocumentNumber());
-            addRow.accept("Ngày cấp:", sample.getDateOfIssue() != null ? dateFormat.format(sample.getDateOfIssue()) : "");
-            addRow.accept("Ngày hết hạn:", sample.getExpirationDate() != null ? dateFormat.format(sample.getExpirationDate()) : "");
-            addRow.accept("Nơi cấp:", sample.getPlaceOfIssue());
-            addRow.accept("Quốc tịch:", sample.getNationality() != null ? sample.getNationality() : "");
-            addRow.accept("Địa chỉ:", sample.getAddress());
-            addRow.accept("Loại mẫu:", sample.getSampleType());
-            addRow.accept("Số lượng mẫu:", sample.getNumberOfSample() != null ? String.valueOf(sample.getNumberOfSample()) : "");
-            addRow.accept("Mối quan hệ:", sample.getRelationship());
-            addRow.accept("Người cho mẫu hoặc giám hộ (ký tên):", "");
-            addRow.accept("Tiểu sử bệnh về máu, truyền máu hoặc ghép tạng trong 6 tháng:", sample.getMedicalHistory() != null ? sample.getMedicalHistory() : "Không");
+            infoTable.addCell(new Cell(1, 4)
+                    .add(new Paragraph()
+                            .add("Ngày cấp: ").add(new Text(sample.getDateOfIssue() != null ? dateFormat.format(sample.getDateOfIssue()) : "").setBold())
+                            .add("    Ngày hết hạn: ").add(new Text(sample.getExpirationDate() != null ? dateFormat.format(sample.getExpirationDate()) : "").setBold())
+                            .add("    Nơi cấp: ").add(new Text(sample.getPlaceOfIssue() != null ? sample.getPlaceOfIssue() : "").setBold()))
+                    .setPadding(5)
+                    .setBorder(new SolidBorder(0.5f)));
 
+            infoTable.addCell(new Cell(1, 4)
+                    .add(new Paragraph("Địa chỉ: ").add(new Text(sample.getAddress() != null ? sample.getAddress() : "").setBold()))
+                    .setPadding(5)
+                    .setBorder(new SolidBorder(0.5f)));
 
-            mainTable.addCell(new Cell().add(infoTable).setBorder(Border.NO_BORDER));
+            infoTable.addCell(new Cell().add(new Paragraph("Loại mẫu:").setBold()).setPadding(5).setBorder(new SolidBorder(0.5f)));
+            infoTable.addCell(new Cell().add(new Paragraph(sample.getSampleType() != null ? sample.getSampleType() : "")).setPadding(5).setBorder(new SolidBorder(0.5f)));
+            infoTable.addCell(new Cell().add(new Paragraph("Số lượng mẫu:").setBold()).setPadding(5).setBorder(new SolidBorder(0.5f)));
+            infoTable.addCell(new Cell().add(new Paragraph(sample.getNumberOfSample() != null ? String.valueOf(sample.getNumberOfSample()) : "")).setPadding(5).setBorder(new SolidBorder(0.5f)));
 
+            infoTable.addCell(new Cell(1, 4)
+                    .add(new Paragraph("Mối quan hệ: ").add(new Text(sample.getRelationship() != null ? sample.getRelationship() : "").setBold()))
+                    .setPadding(5)
+                    .setBorder(new SolidBorder(0.5f)));
+
+            infoTable.addCell(new Cell(1, 4)
+                    .add(new Paragraph("Người cho mẫu hoặc giám hộ ký tên:"))
+                    .setPadding(5)
+                    .setBorder(new SolidBorder(0.5f)));
+
+            infoTable.addCell(new Cell(1, 4)
+                    .add(new Paragraph()
+                            .add("Tiểu sử bệnh về máu, truyền máu hoặc ghép tạng trong 6 tháng: ")
+                            .add(new Text(sample.getMedicalHistory() != null ? sample.getMedicalHistory() : "Không").setBold()))
+                    .setPadding(5)
+                    .setBorder(new SolidBorder(0.5f)));
+
+            mainTable.addCell(new Cell()
+                    .add(infoTable)
+                    .setBorder(Border.NO_BORDER)
+                    .setMinHeight(250f));
+
+// === CỘT PHẢI: VÂN TAY ===
             Table thumbTable = new Table(1).useAllAvailableWidth();
-            thumbTable.setFontSize(10);
+            thumbTable.setFontSize(9);
 
+// Dòng 1: tiêu đề người cho mẫu
+            thumbTable.addCell(new Cell()
+                    .add(new Paragraph("Người cho mẫu thứ " + (i + 1))
+                            .setBold()
+                            .setTextAlignment(TextAlignment.CENTER))
+                    .setPadding(5)
+                    .setBorder(new SolidBorder(0.5f))); // ✅ Bo viền
 
-            thumbTable.addCell(new Cell().add(new Paragraph("Người cho mẫu thứ " + (i + 1))
-                    .setBold()
-                    .setTextAlignment(TextAlignment.CENTER)));
-
-            Cell thumbCell = new Cell().setBackgroundColor(ColorConstants.LIGHT_GRAY).setHeight(100f);
-
+// Dòng 2: Ảnh vân tay (ô xám)
+            Cell thumbCell = new Cell()
+                    .setHeight(130f)
+                    .setBackgroundColor(ColorConstants.LIGHT_GRAY)
+                    .setVerticalAlignment(VerticalAlignment.MIDDLE); // ✅ Chuyển căn chỉnh dọc sang Cell
             String fingerprint = sample.getFingerprint();
             if (fingerprint != null && !fingerprint.isBlank()) {
                 try {
@@ -702,23 +726,35 @@ public class TestOrderServiceImpl implements TestOrderService {
                     }
                     byte[] fpBytes = Base64.getDecoder().decode(fingerprint);
                     ImageData fpData = ImageDataFactory.create(fpBytes);
-                    Image fpImage = new Image(fpData).setAutoScale(true).setMaxHeight(60).setMaxWidth(60);
+                    Image fpImage = new Image(fpData)
+                            .setWidth(UnitValue.createPercentValue(100)) // Kéo giãn chiều rộng
+                            .setHeight(130f) // Khớp chiều cao ô
+                            .setHorizontalAlignment(HorizontalAlignment.CENTER); // Căn giữa ngang
                     thumbCell.add(fpImage);
                 } catch (Exception e) {
-                    thumbCell.add(new Paragraph("(Vân tay lỗi)").setFontColor(ColorConstants.RED));
+                    thumbCell.add(new Paragraph("(Vân tay lỗi)").setFontColor(ColorConstants.RED).setTextAlignment(TextAlignment.CENTER));
                 }
             } else {
-                thumbCell.add(new Paragraph("(Chưa có vân tay)").setFontColor(ColorConstants.GRAY));
+                thumbCell.add(new Paragraph("(Chưa có vân tay)").setFontColor(ColorConstants.GRAY).setTextAlignment(TextAlignment.CENTER));
             }
-
             thumbTable.addCell(thumbCell);
-            thumbTable.addCell(new Cell().add(new Paragraph("Vân tay ngón trỏ phải")
-                    .setTextAlignment(TextAlignment.CENTER)));
 
-            mainTable.addCell(new Cell().add(thumbTable).setBorder(Border.NO_BORDER));
+// Dòng 3: ghi chú
+            thumbTable.addCell(new Cell()
+                    .add(new Paragraph("Vân tay ngón trỏ phải").setTextAlignment(TextAlignment.CENTER))
+                    .setPadding(5)
+                    .setBorder(new SolidBorder(0.5f))); // ✅ Bo viền
+
+            mainTable.addCell(new Cell()
+                    .add(thumbTable)
+                    .setBorder(Border.NO_BORDER)
+                    .setVerticalAlignment(VerticalAlignment.MIDDLE)
+                    .setMinHeight(250f));
 
             document.add(mainTable);
         }
+
+
 
         document.add(new Paragraph(" "));
 
