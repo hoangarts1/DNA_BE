@@ -47,6 +47,15 @@ public class ServiceController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}/toggle-active")
+    public ResponseEntity<ServiceDTO> toggleServiceActive(@PathVariable String id) {
+        serviceInterface.toggleServiceActive(id);
+        ServiceDTO updated = serviceInterface.getServiceById(id);
+        return ResponseEntity.ok(updated);
+    }
+
+
+
     @GetMapping("/{id}/calculate-price")
     public ResponseEntity<Double> calculateTotalPrice(@PathVariable String id, @RequestParam int numberOfSamples) {
         double totalPrice = serviceInterface.calculateTotalPrice(id, numberOfSamples);

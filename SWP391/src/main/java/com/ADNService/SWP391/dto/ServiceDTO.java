@@ -9,12 +9,14 @@ public class ServiceDTO {
     private double price;
     private int numberOfSamples = 2;
     private Double pricePerAdditionalSample;
+    private boolean isActive;
 
     public ServiceDTO() {
     }
 
     public ServiceDTO(Long serviceID, String serviceName, String serviceType, double price,
-                      int timeTest, String describe, int numberOfSamples, Double pricePerAdditionalSample) {
+                      int timeTest, String describe, int numberOfSamples,
+                      Double pricePerAdditionalSample, boolean isActive) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
         this.serviceType = serviceType;
@@ -23,6 +25,7 @@ public class ServiceDTO {
         this.describe = describe;
         this.numberOfSamples = numberOfSamples;
         this.pricePerAdditionalSample = pricePerAdditionalSample;
+        this.isActive = isActive;
     }
 
     public Long getServiceID() {
@@ -87,5 +90,13 @@ public class ServiceDTO {
 
     public void setPricePerAdditionalSample(Double pricePerAdditionalSample) {
         this.pricePerAdditionalSample = pricePerAdditionalSample;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }

@@ -26,20 +26,11 @@ public class ServiceImpl implements ServiceInterface {
         service.setNumberOfSamples(dto.getNumberOfSamples() != 0 ? dto.getNumberOfSamples() : 2);
         service.setPricePerAdditionalSample(dto.getPricePerAdditionalSample());
         service.setServicePrice(dto.getPrice());
+        service.setActive(dto.isActive());
 
         Services savedService = serviceRepository.save(service);
 
-        ServiceDTO result = new ServiceDTO();
-        result.setServiceID(savedService.getServiceID());
-        result.setServiceName(savedService.getServiceName());
-        result.setServiceType(savedService.getServiceType());
-        result.setTimeTest(savedService.getTimeTest());
-        result.setDescribe(savedService.getDescribe());
-        result.setPrice(savedService.getServicePrice());
-        result.setNumberOfSamples(savedService.getNumberOfSamples());
-        result.setPricePerAdditionalSample(savedService.getPricePerAdditionalSample());
-
-        return result;
+        return mapToDTO(savedService);
     }
 
     @Override
@@ -47,35 +38,13 @@ public class ServiceImpl implements ServiceInterface {
         Services service = serviceRepository.findById(Long.valueOf(id))
                 .orElseThrow(() -> new CustomException("Service not found with ID: " + id));
 
-        ServiceDTO dto = new ServiceDTO();
-        dto.setServiceID(service.getServiceID());
-        dto.setServiceName(service.getServiceName());
-        dto.setServiceType(service.getServiceType());
-        dto.setTimeTest(service.getTimeTest());
-        dto.setDescribe(service.getDescribe());
-        dto.setPrice(service.getServicePrice());
-        dto.setNumberOfSamples(service.getNumberOfSamples());
-        dto.setPricePerAdditionalSample(service.getPricePerAdditionalSample());
-
-        return dto;
+        return mapToDTO(service);
     }
 
     @Override
     public List<ServiceDTO> getAllServices() {
         List<Services> services = serviceRepository.findAll();
-
-        return services.stream().map(service -> {
-            ServiceDTO dto = new ServiceDTO();
-            dto.setServiceID(service.getServiceID());
-            dto.setServiceName(service.getServiceName());
-            dto.setServiceType(service.getServiceType());
-            dto.setTimeTest(service.getTimeTest());
-            dto.setDescribe(service.getDescribe());
-            dto.setPrice(service.getServicePrice());
-            dto.setNumberOfSamples(service.getNumberOfSamples());
-            dto.setPricePerAdditionalSample(service.getPricePerAdditionalSample());
-            return dto;
-        }).toList();
+        return services.stream().map(this::mapToDTO).toList();
     }
 
     @Override
@@ -90,20 +59,11 @@ public class ServiceImpl implements ServiceInterface {
         service.setNumberOfSamples(dto.getNumberOfSamples() != 0 ? dto.getNumberOfSamples() : 2);
         service.setPricePerAdditionalSample(dto.getPricePerAdditionalSample());
         service.setServicePrice(dto.getPrice());
+        service.setActive(dto.isActive());
 
         Services updated = serviceRepository.save(service);
 
-        ServiceDTO result = new ServiceDTO();
-        result.setServiceID(updated.getServiceID());
-        result.setServiceName(updated.getServiceName());
-        result.setServiceType(updated.getServiceType());
-        result.setTimeTest(updated.getTimeTest());
-        result.setDescribe(updated.getDescribe());
-        result.setPrice(updated.getServicePrice());
-        result.setNumberOfSamples(updated.getNumberOfSamples());
-        result.setPricePerAdditionalSample(updated.getPricePerAdditionalSample());
-
-        return result;
+        return mapToDTO(updated);
     }
 
     @Override
@@ -113,6 +73,29 @@ public class ServiceImpl implements ServiceInterface {
 
         serviceRepository.delete(service);
     }
+
+    private ServiceDTO mapToDTO(Services service) {
+        ServiceDTO dto = new ServiceDTO();
+        dto.setServiceID(service.getServiceID());
+        dto.setServiceName(service.getServiceName());
+        dto.setServiceType(service.getServiceType());
+        dto.setTimeTest(service.getTimeTest());
+        dto.setDescribe(service.getDescribe());
+        dto.setPrice(service.getServicePrice());
+        dto.setNumberOfSamples(service.getNumberOfSamples());
+        dto.setPricePerAdditionalSample(service.getPricePerAdditionalSample());
+        dto.setActive(service.isActive());
+        return dto;
+    }
+
+    @Override
+    public void toggleServiceActive(String id) {
+        Services service = serviceRepository.findById(Long.valueOf(id))
+                .orElseThrow(() -> new CustomException("Service not found with ID: " + id));
+        service.setActive(!service.isActive()); // Đảo ngược trạng thái
+        serviceRepository.save(service);
+    }
+
 
     @Override
     public double calculateTotalPrice(String serviceId, int numberOfSamples) {

@@ -11,4 +11,6 @@ public interface ServiceInterface{
     ServiceDTO updateService(String id, ServiceDTO dto);
     void deleteService(String id);
     double calculateTotalPrice(String serviceId, int numberOfSamples);
+    void toggleServiceActive(String id);
+
 }

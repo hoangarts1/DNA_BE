@@ -32,11 +32,14 @@ public class Services {
     @Column(name = "price_per_additional_sample", nullable = true)
     private Double pricePerAdditionalSample;
 
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive = true;
+
     public Services() {
     }
 
     public Services(Long serviceID, String serviceName, String serviceType, int timeTest,
-                    String describe, double servicePrice, int numberOfSamples, Double pricePerAdditionalSample) {
+                    String describe, double servicePrice, int numberOfSamples, Double pricePerAdditionalSample, boolean isActive) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
         this.serviceType = serviceType;
@@ -45,6 +48,7 @@ public class Services {
         this.servicePrice = servicePrice;
         this.numberOfSamples = numberOfSamples;
         this.pricePerAdditionalSample = pricePerAdditionalSample;
+        this.isActive = isActive;
     }
 
     public Long getServiceID() {
@@ -109,5 +113,13 @@ public class Services {
 
     public void setPricePerAdditionalSample(Double pricePerAdditionalSample) {
         this.pricePerAdditionalSample = pricePerAdditionalSample;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }
