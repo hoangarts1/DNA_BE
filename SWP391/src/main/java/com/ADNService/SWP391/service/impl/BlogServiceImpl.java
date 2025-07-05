@@ -32,8 +32,10 @@ public class BlogServiceImpl implements BlogService {
                 .titleImageBase64(blog.getTitleImageBase64())
                 .blogType(blog.getBlogType())
                 .blogDate(blog.getBlogDate().toString())
+                .isActive(blog.isActive()) // mới thêm
                 .build();
     }
+
 
     @Override
     public BlogDTO create(BlogDTO dto) {
@@ -45,6 +47,7 @@ public class BlogServiceImpl implements BlogService {
                 .blogDate(LocalDate.parse(dto.getBlogDate()))
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
+                .isActive(true)
                 .build();
         return toDTO(blogRepository.save(blog));
     }
@@ -75,4 +78,12 @@ public class BlogServiceImpl implements BlogService {
     public List<BlogDTO> getAll() {
         return blogRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
+    @Override
+    public void toggleActive(Long id) {
+        Blog blog = blogRepository.findById(id).orElseThrow();
+        blog.setActive(!blog.isActive()); // Đảo ngược trạng thái
+        blog.setUpdatedAt(LocalDateTime.now());
+        blogRepository.save(blog);
+    }
+
 }

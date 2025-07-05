@@ -18,6 +18,12 @@ public class BlogController {
 
     private final BlogService blogService;
 
+    @PutMapping("/{id}/toggle-active")
+    public BlogDTO toggleActive(@PathVariable Long id) {
+        blogService.toggleActive(id);
+        return blogService.getById(id);
+    }
+
     @GetMapping
     public List<BlogDTO> getAll() {
         return blogService.getAll();

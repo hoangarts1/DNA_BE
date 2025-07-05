@@ -1,9 +1,9 @@
 package com.ADNService.SWP391.dto;
 
-
 import lombok.*;
 
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -14,4 +14,5 @@ public class BlogDTO {
     private String titleImageBase64;
     private String blogType;
     private String blogDate; // dạng chuỗi yyyy-MM-dd
+    private boolean isActive;
 }
