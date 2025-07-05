@@ -589,12 +589,12 @@ public class TestOrderServiceImpl implements TestOrderService {
         Cell fingerprintCell = new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.CENTER);
         fingerprintCell.add(new Paragraph("NGÓN TRỎ PHẢI\n(Đối với hành chính)").setFontSize(9));
 
-        // Lấy fingerprint từ nhân viên tiếp nhận mẫu (registrationStaff)
-        Staff staff = order.getRegistrationStaff();  // lấy từ TestOrder
+        String fingerprintBase64 = getFingerprintBase64(order.getOrderId());
+        if (fingerprintBase64 != null) {
 
-        if (staff != null && staff.getFingerprint() != null) {
+
             try {
-                byte[] fingerprintBytes = Base64.getDecoder().decode(staff.getFingerprint());
+                byte[] fingerprintBytes = Base64.getDecoder().decode(fingerprintBase64);
                 ImageData fingerprintData = ImageDataFactory.create(fingerprintBytes);
                 Image fingerprintImage = new Image(fingerprintData);
                 fingerprintImage.setAutoScale(true).setMaxHeight(60).setMaxWidth(60);
@@ -795,19 +795,9 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .setWidth(UnitValue.createPercentValue(100))
                 .setMarginTop(10);
 
-        Cell thuMauCell = new Cell()
-                .setBorder(Border.NO_BORDER)
-                .setTextAlignment(TextAlignment.CENTER)
-                .setMinHeight(100); // Tăng chiều cao tối thiểu của ô
-
-        thuMauCell.add(new Paragraph("NGƯỜI THU MẪU\n(ký, ghi rõ họ tên và lăn tay)")
-                .setFontSize(9)
-                .setMarginBottom(5)); // Thêm khoảng cách giữa dòng chữ và ảnh
-
-        String thuMauFingerprintBase64 = order.getRegistrationStaff() != null
-                ? order.getRegistrationStaff().getFingerprint()
-                : null;
-
+        Cell thuMauCell = new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.CENTER);
+        thuMauCell.add(new Paragraph("NGƯỜI THU MẪU\n(ký, ghi rõ họ tên và lăn tay)").setFontSize(9));
+        String thuMauFingerprintBase64 = order.getRegistrationStaff() != null ? order.getRegistrationStaff().getFingerprint() : null;
         if (thuMauFingerprintBase64 != null && !thuMauFingerprintBase64.isBlank()) {
             try {
                 if (thuMauFingerprintBase64.startsWith("data:image")) {
@@ -815,19 +805,19 @@ public class TestOrderServiceImpl implements TestOrderService {
                 }
                 byte[] fpBytes = Base64.getDecoder().decode(thuMauFingerprintBase64);
                 ImageData fpData = ImageDataFactory.create(fpBytes);
-                Image fpImage = new Image(fpData)
-                        .setAutoScale(true)
-                        .setMaxHeight(80)  // Tăng kích thước ảnh
-                        .setMaxWidth(80)
-                        .setMarginTop(5);
+                Image fpImage = new Image(fpData).setAutoScale(true).setMaxHeight(60).setMaxWidth(60);
+
+
+
+
                 thuMauCell.add(fpImage);
             } catch (Exception e) {
                 thuMauCell.add(new Paragraph("(Vân tay lỗi)").setFontColor(ColorConstants.RED));
-            }
-        } else {
-            thuMauCell.add(new Paragraph("(Chưa có vân tay)").setFontColor(ColorConstants.GRAY));
-        }
 
+            }
+            } else {
+                thuMauCell.add(new Paragraph("(Chưa có vân tay)").setFontColor(ColorConstants.GRAY));
+            }
         finalSignTable.addCell(thuMauCell);
 
         Cell duocLayMauCell = new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.CENTER);

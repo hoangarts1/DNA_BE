@@ -22,7 +22,7 @@ public class TestOrder {
     @OneToMany(mappedBy = "order")
     private List<TestSample> testSamples;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "registration_staff_id")
     private Staff registrationStaff;
 
