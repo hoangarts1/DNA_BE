@@ -53,8 +53,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/blogs/**").permitAll()
                         .requestMatchers("/api/account/**").permitAll()
                         .requestMatchers("/api/rating-feedbacks/**").permitAll()
-                        .requestMatchers("/api/number-sample/**").permitAll()
-
+                        .requestMatchers("/api/sample-types/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore((request, response, chain) -> {
