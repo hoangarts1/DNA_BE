@@ -2,9 +2,6 @@ package com.ADNService.SWP391.entity;
 
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Table(name = "service")
 public class Services {
@@ -29,16 +26,25 @@ public class Services {
     @Column(name = "service_price", nullable = false)
     private double servicePrice;
 
+    @Column(name = "number_of_samples", nullable = false, columnDefinition = "INT DEFAULT 2")
+    private int numberOfSamples = 2;
+
+    @Column(name = "price_per_additional_sample", nullable = true)
+    private Double pricePerAdditionalSample;
+
     public Services() {
     }
 
-    public Services(Long serviceID, String serviceName, String serviceType, String describe, int timeTest, double servicePrice) {
+    public Services(Long serviceID, String serviceName, String serviceType, int timeTest,
+                    String describe, double servicePrice, int numberOfSamples, Double pricePerAdditionalSample) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
         this.serviceType = serviceType;
-        this.describe = describe;
         this.timeTest = timeTest;
+        this.describe = describe;
         this.servicePrice = servicePrice;
+        this.numberOfSamples = numberOfSamples;
+        this.pricePerAdditionalSample = pricePerAdditionalSample;
     }
 
     public Long getServiceID() {
@@ -87,5 +93,21 @@ public class Services {
 
     public void setServicePrice(double servicePrice) {
         this.servicePrice = servicePrice;
+    }
+
+    public int getNumberOfSamples() {
+        return numberOfSamples;
+    }
+
+    public void setNumberOfSamples(int numberOfSamples) {
+        this.numberOfSamples = numberOfSamples;
+    }
+
+    public Double getPricePerAdditionalSample() {
+        return pricePerAdditionalSample;
+    }
+
+    public void setPricePerAdditionalSample(Double pricePerAdditionalSample) {
+        this.pricePerAdditionalSample = pricePerAdditionalSample;
     }
 }

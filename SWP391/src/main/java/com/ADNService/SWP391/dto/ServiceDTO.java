@@ -7,33 +7,22 @@ public class ServiceDTO {
     private int timeTest;
     private String describe;
     private double price;
+    private int numberOfSamples = 2;
+    private Double pricePerAdditionalSample;
 
     public ServiceDTO() {
     }
 
-    public ServiceDTO( Long serviceID, String serviceName, String serviceType,  double price, int timeTest, String describe) {
+    public ServiceDTO(Long serviceID, String serviceName, String serviceType, double price,
+                      int timeTest, String describe, int numberOfSamples, Double pricePerAdditionalSample) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
         this.serviceType = serviceType;
         this.price = price;
         this.timeTest = timeTest;
         this.describe = describe;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public String getDescribe() {
-        return describe;
-    }
-
-    public void setDescribe(String describe) {
-        this.describe = describe;
+        this.numberOfSamples = numberOfSamples;
+        this.pricePerAdditionalSample = pricePerAdditionalSample;
     }
 
     public Long getServiceID() {
@@ -66,5 +55,37 @@ public class ServiceDTO {
 
     public void setTimeTest(int timeTest) {
         this.timeTest = timeTest;
+    }
+
+    public String getDescribe() {
+        return describe;
+    }
+
+    public void setDescribe(String describe) {
+        this.describe = describe;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public int getNumberOfSamples() {
+        return numberOfSamples;
+    }
+
+    public void setNumberOfSamples(int numberOfSamples) {
+        this.numberOfSamples = numberOfSamples;
+    }
+
+    public Double getPricePerAdditionalSample() {
+        return pricePerAdditionalSample;
+    }
+
+    public void setPricePerAdditionalSample(Double pricePerAdditionalSample) {
+        this.pricePerAdditionalSample = pricePerAdditionalSample;
     }
 }

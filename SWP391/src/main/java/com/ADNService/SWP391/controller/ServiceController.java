@@ -46,4 +46,10 @@ public class ServiceController {
         serviceInterface.deleteService(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}/calculate-price")
+    public ResponseEntity<Double> calculateTotalPrice(@PathVariable String id, @RequestParam int numberOfSamples) {
+        double totalPrice = serviceInterface.calculateTotalPrice(id, numberOfSamples);
+        return ResponseEntity.ok(totalPrice);
+    }
 }
