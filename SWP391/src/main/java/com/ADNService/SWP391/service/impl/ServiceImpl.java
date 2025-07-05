@@ -1,17 +1,14 @@
 package com.ADNService.SWP391.service.impl;
-import com.ADNService.SWP391.entity.Services;
 
 import com.ADNService.SWP391.dto.ServiceDTO;
-import com.ADNService.SWP391.entity.Account;
+import com.ADNService.SWP391.entity.Services;
 import com.ADNService.SWP391.exception.CustomException;
 import com.ADNService.SWP391.repository.ServiceRepository;
-import com.ADNService.SWP391.repository.AccountRepository;
 import com.ADNService.SWP391.service.ServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
 
 @Service
 public class ServiceImpl implements ServiceInterface {
@@ -21,33 +18,29 @@ public class ServiceImpl implements ServiceInterface {
 
     @Override
     public ServiceDTO createService(ServiceDTO dto) {
-
         Services service = new Services();
-
-        service.setServiceID(dto.getServiceID());
         service.setServiceName(dto.getServiceName());
-        service.setServicePurpose(dto.getServicePurpose());
+        service.setServiceType(dto.getServiceType());
         service.setTimeTest(dto.getTimeTest());
-        service.setServiceBlog(dto.getServiceBlog());
+        service.setDescribe(dto.getDescribe());
+        service.setNumberOfSamples(dto.getNumberOfSamples() != 0 ? dto.getNumberOfSamples() : 2);
+        service.setPricePerAdditionalSample(dto.getPricePerAdditionalSample());
         service.setServicePrice(dto.getPrice());
-        service.setQuantity(dto.getQuantity());
-        service.setNumberOfSample(dto.getNumberOfSample());
 
         Services savedService = serviceRepository.save(service);
 
         ServiceDTO result = new ServiceDTO();
         result.setServiceID(savedService.getServiceID());
         result.setServiceName(savedService.getServiceName());
-        result.setServicePurpose(savedService.getServicePurpose());
+        result.setServiceType(savedService.getServiceType());
         result.setTimeTest(savedService.getTimeTest());
-        result.setServiceBlog(savedService.getServiceBlog());
+        result.setDescribe(savedService.getDescribe());
         result.setPrice(savedService.getServicePrice());
-        result.setQuantity(savedService.getQuantity());
-        result.setNumberOfSample(savedService.getNumberOfSample());
+        result.setNumberOfSamples(savedService.getNumberOfSamples());
+        result.setPricePerAdditionalSample(savedService.getPricePerAdditionalSample());
 
         return result;
     }
-
 
     @Override
     public ServiceDTO getServiceById(String id) {
@@ -57,12 +50,12 @@ public class ServiceImpl implements ServiceInterface {
         ServiceDTO dto = new ServiceDTO();
         dto.setServiceID(service.getServiceID());
         dto.setServiceName(service.getServiceName());
-        dto.setServicePurpose(service.getServicePurpose());
+        dto.setServiceType(service.getServiceType());
         dto.setTimeTest(service.getTimeTest());
-        dto.setServiceBlog(service.getServiceBlog());
+        dto.setDescribe(service.getDescribe());
         dto.setPrice(service.getServicePrice());
-        dto.setQuantity(service.getQuantity());
-        dto.setNumberOfSample(service.getNumberOfSample());
+        dto.setNumberOfSamples(service.getNumberOfSamples());
+        dto.setPricePerAdditionalSample(service.getPricePerAdditionalSample());
 
         return dto;
     }
@@ -75,12 +68,12 @@ public class ServiceImpl implements ServiceInterface {
             ServiceDTO dto = new ServiceDTO();
             dto.setServiceID(service.getServiceID());
             dto.setServiceName(service.getServiceName());
-            dto.setServicePurpose(service.getServicePurpose());
+            dto.setServiceType(service.getServiceType());
             dto.setTimeTest(service.getTimeTest());
-            dto.setServiceBlog(service.getServiceBlog());
+            dto.setDescribe(service.getDescribe());
             dto.setPrice(service.getServicePrice());
-            dto.setQuantity(service.getQuantity());
-            dto.setNumberOfSample(service.getNumberOfSample());
+            dto.setNumberOfSamples(service.getNumberOfSamples());
+            dto.setPricePerAdditionalSample(service.getPricePerAdditionalSample());
             return dto;
         }).toList();
     }
@@ -91,24 +84,24 @@ public class ServiceImpl implements ServiceInterface {
                 .orElseThrow(() -> new CustomException("Service not found with ID: " + id));
 
         service.setServiceName(dto.getServiceName());
-        service.setServicePurpose(dto.getServicePurpose());
+        service.setServiceType(dto.getServiceType());
         service.setTimeTest(dto.getTimeTest());
-        service.setServiceBlog(dto.getServiceBlog());
+        service.setDescribe(dto.getDescribe());
+        service.setNumberOfSamples(dto.getNumberOfSamples() != 0 ? dto.getNumberOfSamples() : 2);
+        service.setPricePerAdditionalSample(dto.getPricePerAdditionalSample());
         service.setServicePrice(dto.getPrice());
-        service.setQuantity(dto.getQuantity());
-        service.setNumberOfSample(dto.getNumberOfSample());
 
         Services updated = serviceRepository.save(service);
 
         ServiceDTO result = new ServiceDTO();
         result.setServiceID(updated.getServiceID());
         result.setServiceName(updated.getServiceName());
-        result.setServicePurpose(updated.getServicePurpose());
+        result.setServiceType(updated.getServiceType());
         result.setTimeTest(updated.getTimeTest());
-        result.setServiceBlog(updated.getServiceBlog());
+        result.setDescribe(updated.getDescribe());
         result.setPrice(updated.getServicePrice());
-        result.setQuantity(updated.getQuantity());
-        result.setNumberOfSample(updated.getNumberOfSample());
+        result.setNumberOfSamples(updated.getNumberOfSamples());
+        result.setPricePerAdditionalSample(updated.getPricePerAdditionalSample());
 
         return result;
     }
@@ -119,5 +112,20 @@ public class ServiceImpl implements ServiceInterface {
                 .orElseThrow(() -> new CustomException("Service not found with ID: " + id));
 
         serviceRepository.delete(service);
+    }
+
+    @Override
+    public double calculateTotalPrice(String serviceId, int numberOfSamples) {
+        if (numberOfSamples < 0) {
+            throw new CustomException("Number of samples must be non-negative");
+        }
+        Services service = serviceRepository.findById(Long.valueOf(serviceId))
+                .orElseThrow(() -> new CustomException("Service not found with ID: " + serviceId));
+
+        double totalPrice = service.getServicePrice();
+        if (numberOfSamples > 2 && service.getPricePerAdditionalSample() != null) {
+            totalPrice += (numberOfSamples - 2) * service.getPricePerAdditionalSample();
+        }
+        return totalPrice;
     }
 }

@@ -3,57 +3,26 @@ package com.ADNService.SWP391.dto;
 public class ServiceDTO {
     private Long serviceID;
     private String serviceName;
-    private String servicePurpose;
+    private String serviceType;
     private int timeTest;
-    private String serviceBlog;
+    private String describe;
     private double price;
-    private int quantity;
-    private int numberOfSample;
+    private int numberOfSamples = 2;
+    private Double pricePerAdditionalSample;
 
     public ServiceDTO() {
     }
 
-    public ServiceDTO(Long serviceID, String serviceName, String servicePurpose, int quantity, double price, int timeTest, int numberOfSample, String serviceBlog) {
+    public ServiceDTO(Long serviceID, String serviceName, String serviceType, double price,
+                      int timeTest, String describe, int numberOfSamples, Double pricePerAdditionalSample) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
-        this.servicePurpose = servicePurpose;
-        this.quantity = quantity;
+        this.serviceType = serviceType;
         this.price = price;
         this.timeTest = timeTest;
-        this.numberOfSample = numberOfSample;
-        this.serviceBlog = serviceBlog;
-    }
-
-    public int getNumberOfSample() {
-        return numberOfSample;
-    }
-
-    public void setNumberOfSample(int numberOfSample) {
-        this.numberOfSample = numberOfSample;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public String getServiceBlog() {
-        return serviceBlog;
-    }
-
-    public void setServiceBlog(String serviceBlog) {
-        this.serviceBlog = serviceBlog;
+        this.describe = describe;
+        this.numberOfSamples = numberOfSamples;
+        this.pricePerAdditionalSample = pricePerAdditionalSample;
     }
 
     public Long getServiceID() {
@@ -72,12 +41,12 @@ public class ServiceDTO {
         this.serviceName = serviceName;
     }
 
-    public String getServicePurpose() {
-        return servicePurpose;
+    public String getServiceType() {
+        return serviceType;
     }
 
-    public void setServicePurpose(String servicePurpose) {
-        this.servicePurpose = servicePurpose;
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
     }
 
     public int getTimeTest() {
@@ -86,5 +55,37 @@ public class ServiceDTO {
 
     public void setTimeTest(int timeTest) {
         this.timeTest = timeTest;
+    }
+
+    public String getDescribe() {
+        return describe;
+    }
+
+    public void setDescribe(String describe) {
+        this.describe = describe;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public int getNumberOfSamples() {
+        return numberOfSamples;
+    }
+
+    public void setNumberOfSamples(int numberOfSamples) {
+        this.numberOfSamples = numberOfSamples;
+    }
+
+    public Double getPricePerAdditionalSample() {
+        return pricePerAdditionalSample;
+    }
+
+    public void setPricePerAdditionalSample(Double pricePerAdditionalSample) {
+        this.pricePerAdditionalSample = pricePerAdditionalSample;
     }
 }

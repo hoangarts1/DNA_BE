@@ -7,9 +7,10 @@ public class TestSampleDTO {
     private Long id;
     private Long orderId;
     private Long customerId;
-    private Long staffId;
 
     private String name;
+    private String gender;
+
     private Date dateOfBirth;
     private String documentType;
     private String documentNumber;
@@ -18,21 +19,28 @@ public class TestSampleDTO {
     private String placeOfIssue;
     private String nationality;
     private String address;
-    private String sampleType;
+    private Long sampleTypeId;
     private Integer numberOfSample;
     private String relationship;
     private String medicalHistory;
     private String fingerprint;
 
+    private String kitCode;
+
+
+
+
+
+
     public TestSampleDTO() {
     }
 
-    public TestSampleDTO(Long id, Long orderId, Long customerId, Long staffId, String name, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, String sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint) {
+    public TestSampleDTO(Long id, Long orderId, Long customerId, String name, String gender, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, Long sampleTypeId, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint, String kitCode) {
         this.id = id;
         this.orderId = orderId;
         this.customerId = customerId;
-        this.staffId = staffId;
         this.name = name;
+        this.gender = gender;
         this.dateOfBirth = dateOfBirth;
         this.documentType = documentType;
         this.documentNumber = documentNumber;
@@ -41,12 +49,29 @@ public class TestSampleDTO {
         this.placeOfIssue = placeOfIssue;
         this.nationality = nationality;
         this.address = address;
-        this.sampleType = sampleType;
+        this.sampleTypeId = sampleTypeId;
         this.numberOfSample = numberOfSample;
         this.relationship = relationship;
         this.medicalHistory = medicalHistory;
         this.fingerprint = fingerprint;
+        this.kitCode = kitCode;
     }
+
+    public String getKitCode() {
+        return kitCode;
+    }
+
+    public void setKitCode(String kitCode) {
+        this.kitCode = kitCode;
+    }
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
 
     public Long getId() {
         return id;
@@ -70,14 +95,6 @@ public class TestSampleDTO {
 
     public void setCustomerId(Long customerId) {
         this.customerId = customerId;
-    }
-
-    public Long getStaffId() {
-        return staffId;
-    }
-
-    public void setStaffId(Long staffId) {
-        this.staffId = staffId;
     }
 
     public String getName() {
@@ -152,12 +169,12 @@ public class TestSampleDTO {
         this.address = address;
     }
 
-    public String getSampleType() {
-        return sampleType;
+    public Long getSampleTypeId() {
+        return sampleTypeId;
     }
 
-    public void setSampleType(String sampleType) {
-        this.sampleType = sampleType;
+    public void setSampleTypeId(Long sampleTypeId) {
+        this.sampleTypeId = sampleTypeId;
     }
 
     public Integer getNumberOfSample() {

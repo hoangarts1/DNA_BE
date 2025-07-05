@@ -9,8 +9,10 @@ import com.ADNService.SWP391.service.TestResultSampleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,124 +25,106 @@ public class TestResultSampleServiceImpl implements TestResultSampleService {
     private TestSampleRepository testSampleRepository;
 
     @Override
-    public TestResultSampleDTO createTestResultSample(TestResultSampleDTO dto) {
-        TestSample testSample = testSampleRepository.findById(dto.getTestSampleId())
-                .orElseThrow(() -> new RuntimeException("TestSample with ID " + dto.getTestSampleId() + " does not exist."));
-
-        Optional<TestResultSample> existingSample = testResultSampleRepository.findById(dto.getTestSampleId());
-        if (existingSample.isPresent()) {
-            throw new RuntimeException("TestSample with ID "+ dto.getId() + " already exists in TestResultSample.");
-        }
-
-        TestResultSample result = new TestResultSample();
-        result.setTestSample(testSample);
-        result.setAmelogenin(dto.getAmelogenin());
-        result.setD3S1358(dto.getD3S1358());
-        result.setD2S441(dto.getD2S441());
-        result.setD10S1248(dto.getD10S1248());
-        result.setD13S317(dto.getD13S317());
-        result.setD16S539(dto.getD16S539());
-        result.setCsf1po(dto.getCsf1po());
-        result.setTh01(dto.getTh01());
-        result.setVwa(dto.getVwa());
-        result.setD7S820(dto.getD7S820());
-        result.setD21S11(dto.getD21S11());
-        result.setPentaE(dto.getPentaE());
-        result.setFga(dto.getFga());
-        result.setD22S1045(dto.getD22S1045());
-        result.setD8S1179(dto.getD8S1179());
-        result.setD18S51(dto.getD18S51());
-        result.setPentaD(dto.getPentaD());
-        result.setD2S1339(dto.getD2S1339());
-        result.setD19S433(dto.getD19S433());
-        result.setD5S818(dto.getD5S818());
-        result.setD1S1656(dto.getD1S1656());
-        result.setTpox(dto.getTpox());
-
-        TestResultSample saved = testResultSampleRepository.save(result);
-        return convertToDTO(saved);
+    public List<TestResultSampleDTO> getTestResultSamplesByTestSampleId(Long testSampleId) {
+        List<TestResultSample> samples = testResultSampleRepository.findByTestSampleId(testSampleId);
+        return samples.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     @Override
-    public List<TestResultSampleDTO> getAllTestResultSamples() {
-        return testResultSampleRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public List<TestResultSampleDTO> getTestResultSamplesByOrderId(Long orderId) {
+        List<TestResultSample> samples = testResultSampleRepository.findByOrderId(orderId);
+        return samples.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     @Override
     public TestResultSampleDTO getTestResultSampleById(Long id) {
-        return testResultSampleRepository.findById(id)
-                .map(this::convertToDTO)
-                .orElse(null);
+        TestResultSample sample = testResultSampleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("TestResultSample not found with id: " + id));
+        return convertToDTO(sample);
+    }
+
+    @Override
+    public TestResultSampleDTO createTestResultSample(TestResultSampleDTO dto) {
+        TestSample testSample = testSampleRepository.findById(dto.getTestSampleId())
+                .orElseThrow(() -> new RuntimeException("TestSample not found with id: " + dto.getTestSampleId()));
+
+        TestResultSample sample = new TestResultSample(testSample, dto.getLocusName(), dto.getAllele1(), dto.getAllele2());
+        TestResultSample saved = testResultSampleRepository.save(sample);
+
+        return convertToDTO(saved);
+    }
+
+    @Override
+    public List<TestResultSampleDTO> createTestResultSamples(List<TestResultSampleDTO> dtoList) {
+        validateUniqueLocus(dtoList);
+
+        List<TestResultSample> samples = dtoList.stream().map(dto -> {
+            TestSample testSample = testSampleRepository.findById(dto.getTestSampleId())
+                    .orElseThrow(() -> new RuntimeException("TestSample not found with id: " + dto.getTestSampleId()));
+
+            // Kiểm tra xem bản ghi đã tồn tại chưa
+            Optional<TestResultSample> existingSample = testResultSampleRepository
+                    .findByTestSampleIdAndLocusName(dto.getTestSampleId(), dto.getLocusName());
+
+            TestResultSample sample;
+            if (existingSample.isPresent()) {
+                // Cập nhật bản ghi hiện có
+                sample = existingSample.get();
+                sample.setAllele1(dto.getAllele1());
+                sample.setAllele2(dto.getAllele2());
+            } else {
+                // Tạo mới bản ghi
+                sample = new TestResultSample(testSample, dto.getLocusName(), dto.getAllele1(), dto.getAllele2());
+            }
+
+            return sample;
+        }).collect(Collectors.toList());
+
+        List<TestResultSample> savedSamples = testResultSampleRepository.saveAll(samples);
+        return savedSamples.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     @Override
     public TestResultSampleDTO updateTestResultSample(Long id, TestResultSampleDTO dto) {
-        TestResultSample resultSample = testResultSampleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("TestResultSample with ID "+ id + " does not exist."));
+        TestResultSample sample = testResultSampleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("TestResultSample not found with id: " + id));
 
-        TestResultSample result = new TestResultSample();
-        result.setAmelogenin(dto.getAmelogenin());
-        result.setD3S1358(dto.getD3S1358());
-        result.setD2S441(dto.getD2S441());
-        result.setD10S1248(dto.getD10S1248());
-        result.setD13S317(dto.getD13S317());
-        result.setD16S539(dto.getD16S539());
-        result.setCsf1po(dto.getCsf1po());
-        result.setTh01(dto.getTh01());
-        result.setVwa(dto.getVwa());
-        result.setD7S820(dto.getD7S820());
-        result.setD21S11(dto.getD21S11());
-        result.setPentaE(dto.getPentaE());
-        result.setFga(dto.getFga());
-        result.setD22S1045(dto.getD22S1045());
-        result.setD8S1179(dto.getD8S1179());
-        result.setD18S51(dto.getD18S51());
-        result.setPentaD(dto.getPentaD());
-        result.setD2S1339(dto.getD2S1339());
-        result.setD19S433(dto.getD19S433());
-        result.setD5S818(dto.getD5S818());
-        result.setD1S1656(dto.getD1S1656());
-        result.setTpox(dto.getTpox());
+        sample.setLocusName(dto.getLocusName());
+        sample.setAllele1(dto.getAllele1());
+        sample.setAllele2(dto.getAllele2());
 
-        TestResultSample updated = testResultSampleRepository.save(result);
+        TestResultSample updated = testResultSampleRepository.save(sample);
+
         return convertToDTO(updated);
     }
 
     @Override
     public void deleteTestResultSample(Long id) {
-        TestResultSample resultSample = testResultSampleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("TestResultSample with ID "+ id + " does not exist."));
+        if (!testResultSampleRepository.existsById(id)) {
+            throw new RuntimeException("TestResultSample not found with id: " + id);
+        }
         testResultSampleRepository.deleteById(id);
     }
 
-    private TestResultSampleDTO convertToDTO(TestResultSample result) {
-        TestResultSampleDTO dto = new TestResultSampleDTO();
-        dto.setId(result.getId());
-        dto.setTestSampleId(result.getTestSample() != null ? result.getTestSample().getId() : null);
-        dto.setAmelogenin(result.getAmelogenin());
-        dto.setD3S1358(result.getD3S1358());
-        dto.setD2S441(result.getD2S441());
-        dto.setD10S1248(result.getD10S1248());
-        dto.setD13S317(result.getD13S317());
-        dto.setD16S539(result.getD16S539());
-        dto.setCsf1po(result.getCsf1po());
-        dto.setTh01(result.getTh01());
-        dto.setVwa(result.getVwa());
-        dto.setD7S820(result.getD7S820());
-        dto.setD21S11(result.getD21S11());
-        dto.setPentaE(result.getPentaE());
-        dto.setFga(result.getFga());
-        dto.setD22S1045(result.getD22S1045());
-        dto.setD8S1179(result.getD8S1179());
-        dto.setD18S51(result.getD18S51());
-        dto.setPentaD(result.getPentaD());
-        dto.setD2S1339(result.getD2S1339());
-        dto.setD19S433(result.getD19S433());
-        dto.setD5S818(result.getD5S818());
-        dto.setD1S1656(result.getD1S1656());
-        dto.setTpox(result.getTpox());
-        return dto;
+    private TestResultSampleDTO convertToDTO(TestResultSample sample) {
+        return new TestResultSampleDTO(
+                sample.getId(),
+                sample.getTestSample().getId(),
+                sample.getLocusName(),
+                sample.getAllele1(),
+                sample.getAllele2()
+        );
+    }
+
+    private void validateUniqueLocus(List<TestResultSampleDTO> dtoList) {
+        Set<String> uniqueKeys = new HashSet<>();
+
+        for (TestResultSampleDTO dto : dtoList) {
+            String key = dto.getTestSampleId() + "-" + dto.getLocusName();
+
+            if (!uniqueKeys.add(key)) {
+                throw new RuntimeException("Duplicate locus: " + dto.getLocusName() + " for TestSampleId: " + dto.getTestSampleId());
+            }
+        }
     }
 }

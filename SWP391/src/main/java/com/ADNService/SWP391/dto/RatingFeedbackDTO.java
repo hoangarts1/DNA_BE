@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public class RatingFeedbackDTO {
     private Long ratingFeedbackId;
-    private Long customerId;
+    private Long testOrderId;
     private int rating;
     private String comment;
     private LocalDate date;
@@ -12,9 +12,9 @@ public class RatingFeedbackDTO {
     public RatingFeedbackDTO() {
     }
 
-    public RatingFeedbackDTO(String comment, Long customerId, LocalDate date, int rating, Long ratingFeedbackId) {
+    public RatingFeedbackDTO(String comment, Long testOrderId, LocalDate date, int rating, Long ratingFeedbackId) {
         this.comment = comment;
-        this.customerId = customerId;
+        this.testOrderId = testOrderId;
         this.date = date;
         this.rating = rating;
         this.ratingFeedbackId = ratingFeedbackId;
@@ -44,12 +44,12 @@ public class RatingFeedbackDTO {
         this.date = date;
     }
 
-    public Long getCustomerId() {
-        return customerId;
+    public Long getTestOrderId() {
+        return testOrderId;
     }
 
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
+    public void setTestOrderId(Long testOrderId) {
+        this.testOrderId = testOrderId;
     }
 
     public String getComment() {

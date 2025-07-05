@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,28 +23,36 @@ public class TestSampleServiceImpl implements TestSampleService {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private StaffRepository staffRepository;
+    private SampleTypeRepository sampleTypeRepository;
 
     @Override
     public TestSampleDTO createTestSample(TestSampleDTO dto) {
+        if (dto.getOrderId() == null) {
+            throw new IllegalArgumentException("ID đơn hàng là bắt buộc");
+        }
+
+        if (dto.getCustomerId() == null) {
+            throw new IllegalArgumentException("ID khách hàng là bắt buộc");
+        }
+
         TestOrder order = testOrderRepository.findById(dto.getOrderId())
-                .orElseThrow(() -> new RuntimeException("Order with ID " + dto.getOrderId() + " does not exist."));
+                .orElseThrow(() -> new IllegalArgumentException("Đơn hàng với ID " + dto.getOrderId() + " không tồn tại."));
 
         Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Customer with ID " + dto.getCustomerId() + " does not exist."));
+                .orElseThrow(() -> new IllegalArgumentException("Khách hàng với ID " + dto.getCustomerId() + " không tồn tại."));
 
-        Staff staff = staffRepository.findById(dto.getStaffId())
-                .orElseThrow(() -> new RuntimeException("Staff with ID " + dto.getStaffId() + " does not exist."));
-
-        Optional<TestSample> existingSample = testSampleRepository.findById(dto.getOrderId());
-        if (existingSample.isPresent()) {
-            throw new RuntimeException("Test Sample with Order ID " + dto.getOrderId() + " already exists.");
+        SampleType sampleType = null;
+        if (dto.getSampleTypeId() != null) {
+            sampleType = sampleTypeRepository.findById(dto.getSampleTypeId())
+                    .orElseThrow(() -> new IllegalArgumentException("Loại mẫu với ID " + dto.getSampleTypeId() + " không tồn tại."));
         }
+
         TestSample sample = new TestSample();
         sample.setOrder(order);
         sample.setCustomer(customer);
-        sample.setStaff(staff);
+        sample.setSampleType(sampleType); // Cho phép sampleType là null
         sample.setName(dto.getName());
+        sample.setGender(dto.getGender());
         sample.setDateOfBirth(dto.getDateOfBirth());
         sample.setDocumentType(dto.getDocumentType());
         sample.setDocumentNumber(dto.getDocumentNumber());
@@ -54,14 +61,13 @@ public class TestSampleServiceImpl implements TestSampleService {
         sample.setPlaceOfIssue(dto.getPlaceOfIssue());
         sample.setNationality(dto.getNationality());
         sample.setAddress(dto.getAddress());
-        sample.setSampleType(dto.getSampleType());
         sample.setNumberOfSample(dto.getNumberOfSample());
         sample.setRelationship(dto.getRelationship());
         sample.setMedicalHistory(dto.getMedicalHistory());
         sample.setFingerprint(dto.getFingerprint());
+        sample.setKitCode(dto.getKitCode());
 
-        TestSample savedSample = testSampleRepository.save(sample);
-        return convertToDTO(savedSample);
+        return convertToDTO(testSampleRepository.save(sample));
     }
 
     @Override
@@ -79,15 +85,33 @@ public class TestSampleServiceImpl implements TestSampleService {
     }
 
     @Override
+    public List<TestSampleDTO> getTestSamplesByOrderId(Long orderId) {
+        return testSampleRepository.getTestSamplesByOrder_OrderId(orderId).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public TestSampleDTO updateTestSample(Long id, TestSampleDTO dto) {
-        Optional<TestSample> optionalTestSample = testSampleRepository.findById(id);
-        if (optionalTestSample.isEmpty()) {
-            throw new RuntimeException("Test Sample with ID " + id + " does not exist.");
+        TestSample sample = testSampleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Mẫu xét nghiệm với ID " + id + " không tồn tại."));
+
+        if (dto.getCustomerId() != null) {
+            Customer customer = customerRepository.findById(dto.getCustomerId())
+                    .orElseThrow(() -> new IllegalArgumentException("Khách hàng với ID " + dto.getCustomerId() + " không tồn tại."));
+            sample.setCustomer(customer);
         }
 
-        TestSample sample = optionalTestSample.get();
+        if (dto.getSampleTypeId() != null) {
+            SampleType sampleType = sampleTypeRepository.findById(dto.getSampleTypeId())
+                    .orElseThrow(() -> new IllegalArgumentException("Loại mẫu với ID " + dto.getSampleTypeId() + " không tồn tại."));
+            sample.setSampleType(sampleType);
+        } else {
+            sample.setSampleType(null); // Cho phép sampleType là null
+        }
 
         sample.setName(dto.getName());
+        sample.setGender(dto.getGender());
         sample.setDateOfBirth(dto.getDateOfBirth());
         sample.setDocumentType(dto.getDocumentType());
         sample.setDocumentNumber(dto.getDocumentNumber());
@@ -96,21 +120,19 @@ public class TestSampleServiceImpl implements TestSampleService {
         sample.setPlaceOfIssue(dto.getPlaceOfIssue());
         sample.setNationality(dto.getNationality());
         sample.setAddress(dto.getAddress());
-        sample.setSampleType(dto.getSampleType());
         sample.setNumberOfSample(dto.getNumberOfSample());
         sample.setRelationship(dto.getRelationship());
         sample.setMedicalHistory(dto.getMedicalHistory());
         sample.setFingerprint(dto.getFingerprint());
+        sample.setKitCode(dto.getKitCode());
 
-        TestSample updatedSample = testSampleRepository.save(sample);
-        return convertToDTO(updatedSample);
+        return convertToDTO(testSampleRepository.save(sample));
     }
 
     @Override
     public void deleteTestSample(Long id) {
-        Optional<TestSample> sample = testSampleRepository.findById(id);
-        if (sample.isEmpty()) {
-            throw new RuntimeException("Test Sample with ID " + id + " does not exist.");
+        if (!testSampleRepository.existsById(id)) {
+            throw new IllegalArgumentException("Mẫu xét nghiệm với ID " + id + " không tồn tại.");
         }
         testSampleRepository.deleteById(id);
     }
@@ -120,8 +142,9 @@ public class TestSampleServiceImpl implements TestSampleService {
         dto.setId(sample.getId());
         dto.setOrderId(sample.getOrder() != null ? sample.getOrder().getOrderId() : null);
         dto.setCustomerId(sample.getCustomer() != null ? sample.getCustomer().getId() : null);
-        dto.setStaffId(sample.getStaff() != null ? sample.getStaff().getId() : null);
+        dto.setSampleTypeId(sample.getSampleType() != null ? sample.getSampleType().getId() : null);
         dto.setName(sample.getName());
+        dto.setGender(sample.getGender());
         dto.setDateOfBirth(sample.getDateOfBirth());
         dto.setDocumentType(sample.getDocumentType());
         dto.setDocumentNumber(sample.getDocumentNumber());
@@ -130,12 +153,11 @@ public class TestSampleServiceImpl implements TestSampleService {
         dto.setPlaceOfIssue(sample.getPlaceOfIssue());
         dto.setNationality(sample.getNationality());
         dto.setAddress(sample.getAddress());
-        dto.setSampleType(sample.getSampleType());
         dto.setNumberOfSample(sample.getNumberOfSample());
         dto.setRelationship(sample.getRelationship());
         dto.setMedicalHistory(sample.getMedicalHistory());
         dto.setFingerprint(sample.getFingerprint());
-
+        dto.setKitCode(sample.getKitCode());
         return dto;
     }
 }

@@ -5,19 +5,19 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.List;
 
@@ -30,6 +30,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -40,7 +41,19 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/services/**").hasRole("MANAGER") //
+                        .requestMatchers("/api/customers/**").permitAll()
+                        .requestMatchers("/api/test-result-samples/**").permitAll()
+                        .requestMatchers("/api/testorders/**").permitAll()
+                        .requestMatchers("/api/services/**").permitAll() //
+                        .requestMatchers("/api/testSamples/**").permitAll()
+                        .requestMatchers("/api/staff/**").permitAll()
+                        .requestMatchers("/api/payments/vnpay-return").permitAll()
+                        .requestMatchers("api/test-results/**").permitAll()
+                        .requestMatchers("api/pdf/**").permitAll()
+                        .requestMatchers("/api/blogs/**").permitAll()
+                        .requestMatchers("/api/account/**").permitAll()
+                        .requestMatchers("/api/rating-feedbacks/**").permitAll()
+                        .requestMatchers("/api/sample-types/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore((request, response, chain) -> {
@@ -78,6 +91,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-
 
 }

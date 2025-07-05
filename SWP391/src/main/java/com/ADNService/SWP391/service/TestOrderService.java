@@ -10,4 +10,8 @@ public interface TestOrderService {
     TestOrderDTO createOrder(TestOrderDTO dto);
     TestOrderDTO updateOrder(String id, TestOrderDTO dto);
     void deleteOrder(String id);
+    List<TestOrderDTO> getOrdersByCustomerId(Long customerId);
+    byte[] generateTestOrderPdf(Long id);
+
+    TestOrderDTO getTestOrderById(Long orderId);
 }

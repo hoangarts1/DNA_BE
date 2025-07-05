@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "TestSample")
@@ -14,6 +15,9 @@ public class TestSample {
     private Long id;
 
     // Relationship
+    @OneToMany(mappedBy = "testSample", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TestResultSample> testResultSamples;
+
     @ManyToOne
     @JoinColumn(name = "order_id")
     private TestOrder order;
@@ -22,34 +26,71 @@ public class TestSample {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToOne
-    @JoinColumn(name = "staff_id")
-    private Staff staff;
-
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String name;
+
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
+    private String gender;
+
     private Date dateOfBirth;
+
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String documentType;
+
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String documentNumber;
+
     private Date dateOfIssue;
+
     private Date expirationDate;
+
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String placeOfIssue;
+
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String nationality;
+
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String address;
-    private String sampleType;
+
+    @ManyToOne
+    @JoinColumn(name = "sample_type_id", nullable = true)
+    private SampleType sampleType;
+
+
     private Integer numberOfSample;
+
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String relationship;
+
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String medicalHistory;
+
+    @Column(nullable = false, columnDefinition = "NVARCHAR(MAX)")
     private String fingerprint;
+
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
+    private String kitCode;
+
+    public String getKitCode() {
+        return kitCode;
+    }
+
+    public void setKitCode(String kitCode) {
+        this.kitCode = kitCode;
+    }
+
 
     public TestSample() {
     }
 
-    public TestSample(Long id, TestOrder order, Customer customer, Staff staff, String name, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, String sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint) {
+    public TestSample(Long id, List<TestResultSample> testResultSamples, TestOrder order, Customer customer, String name, String gender, Date dateOfBirth, String documentType, String documentNumber, Date dateOfIssue, Date expirationDate, String placeOfIssue, String nationality, String address, SampleType sampleType, Integer numberOfSample, String relationship, String medicalHistory, String fingerprint, String kitCode) {
         this.id = id;
+        this.testResultSamples = testResultSamples;
         this.order = order;
         this.customer = customer;
-        this.staff = staff;
         this.name = name;
+        this.gender = gender;
         this.dateOfBirth = dateOfBirth;
         this.documentType = documentType;
         this.documentNumber = documentNumber;
@@ -63,7 +104,17 @@ public class TestSample {
         this.relationship = relationship;
         this.medicalHistory = medicalHistory;
         this.fingerprint = fingerprint;
+        this.kitCode = kitCode;
     }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
 
     public Long getId() {
         return id;
@@ -87,14 +138,6 @@ public class TestSample {
 
     public void setCustomer(Customer customer) {
         this.customer = customer;
-    }
-
-    public Staff getStaff() {
-        return staff;
-    }
-
-    public void setStaff(Staff staff) {
-        this.staff = staff;
     }
 
     public String getName() {
@@ -169,11 +212,19 @@ public class TestSample {
         this.address = address;
     }
 
-    public String getSampleType() {
+    public List<TestResultSample> getTestResultSamples() {
+        return testResultSamples;
+    }
+
+    public void setTestResultSamples(List<TestResultSample> testResultSamples) {
+        this.testResultSamples = testResultSamples;
+    }
+
+    public SampleType getSampleType() {
         return sampleType;
     }
 
-    public void setSampleType(String sampleType) {
+    public void setSampleType(SampleType sampleType) {
         this.sampleType = sampleType;
     }
 

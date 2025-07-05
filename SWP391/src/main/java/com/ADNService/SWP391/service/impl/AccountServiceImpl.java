@@ -5,6 +5,7 @@ import com.ADNService.SWP391.entity.Account;
 import com.ADNService.SWP391.repository.AccountRepository;
 import com.ADNService.SWP391.service.AccountService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
 @Service
 public class AccountServiceImpl implements AccountService {
 
+    @Autowired
     private AccountRepository accountRepository;
 
     @Override
@@ -42,6 +44,20 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found with id: " + id));
         account.setActive(false);
+        accountRepository.save(account);
+    }
+
+    @Override
+    public Account findByUsername(String username) {
+        return accountRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found with username: " + username));
+    }
+
+    @Override
+    public void activateAccount(Long id) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found with id: " + id));
+        account.setActive(true);
         accountRepository.save(account);
     }
 }

@@ -2,6 +2,7 @@ package com.ADNService.SWP391.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "TestOrder")
@@ -11,64 +12,61 @@ public class TestOrder {
     private Long orderId;
 
     @ManyToOne
-    @JoinColumn(name = "customerID")
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
     @ManyToOne
-    @JoinColumn(name = "accountID")
-    private Account account;
-
-    @ManyToOne
-    @JoinColumn(name = "serviceID")
+    @JoinColumn(name = "service_id")
     private Services services;
 
+    @OneToMany(mappedBy = "order")
+    private List<TestSample> testSamples;
+
+    @ManyToOne
+    @JoinColumn(name = "registration_staff_id")
+    private Staff registrationStaff;
+
+    @ManyToOne
+    @JoinColumn(name = "testing_staff_id")
+    private Staff testingStaff;
+
     private LocalDate orderDate;
-    private String sampleType;
+
+    @Column(columnDefinition = "NVARCHAR(255)")
     private String orderStatus;
+
+    @Column( columnDefinition = "NVARCHAR(255)")
+    private String sampleMethod;
+
+    @Column( columnDefinition = "NVARCHAR(255)")
     private String resultDeliveryMethod;
+
+    @Column(columnDefinition = "NVARCHAR(255)")
     private String resultDeliverAddress;
-    private String kitCode;
+
     private int sampleQuantity;
     private int amount;
 
-    public Account getAccount() {
-        return account;
+    @OneToMany(mappedBy = "testOrder")
+    private List<RatingFeedback> ratingFeedbacks;
+
+    public List<RatingFeedback> getRatingFeedbacks() {
+        return ratingFeedbacks;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
+    public void setRatingFeedbacks(List<RatingFeedback> ratingFeedbacks) {
+        this.ratingFeedbacks = ratingFeedbacks;
     }
 
-    public int getAmount() {
-        return amount;
+// Getter & Setter
+
+
+    public List<TestSample> getTestSamples() {
+        return testSamples;
     }
 
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
-    public String getKitCode() {
-        return kitCode;
-    }
-
-    public void setKitCode(String kitCode) {
-        this.kitCode = kitCode;
-    }
-
-    public LocalDate getOrderDate() {
-        return orderDate;
-    }
-
-    public void setOrderDate(LocalDate orderDate) {
-        this.orderDate = orderDate;
+    public void setTestSamples(List<TestSample> testSamples) {
+        this.testSamples = testSamples;
     }
 
     public Long getOrderId() {
@@ -79,6 +77,46 @@ public class TestOrder {
         this.orderId = orderId;
     }
 
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public Services getServices() {
+        return services;
+    }
+
+    public void setServices(Services services) {
+        this.services = services;
+    }
+
+    public Staff getRegistrationStaff() {
+        return registrationStaff;
+    }
+
+    public void setRegistrationStaff(Staff registrationStaff) {
+        this.registrationStaff = registrationStaff;
+    }
+
+    public Staff getTestingStaff() {
+        return testingStaff;
+    }
+
+    public void setTestingStaff(Staff testingStaff) {
+        this.testingStaff = testingStaff;
+    }
+
+    public LocalDate getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(LocalDate orderDate) {
+        this.orderDate = orderDate;
+    }
+
     public String getOrderStatus() {
         return orderStatus;
     }
@@ -87,12 +125,12 @@ public class TestOrder {
         this.orderStatus = orderStatus;
     }
 
-    public String getResultDeliverAddress() {
-        return resultDeliverAddress;
+    public String getSampleMethod() {
+        return sampleMethod;
     }
 
-    public void setResultDeliverAddress(String resultDeliverAddress) {
-        this.resultDeliverAddress = resultDeliverAddress;
+    public void setSampleMethod(String sampleType) {
+        this.sampleMethod = sampleType;
     }
 
     public String getResultDeliveryMethod() {
@@ -103,6 +141,14 @@ public class TestOrder {
         this.resultDeliveryMethod = resultDeliveryMethod;
     }
 
+    public String getResultDeliverAddress() {
+        return resultDeliverAddress;
+    }
+
+    public void setResultDeliverAddress(String resultDeliverAddress) {
+        this.resultDeliverAddress = resultDeliverAddress;
+    }
+
     public int getSampleQuantity() {
         return sampleQuantity;
     }
@@ -111,19 +157,12 @@ public class TestOrder {
         this.sampleQuantity = sampleQuantity;
     }
 
-    public String getSampleType() {
-        return sampleType;
+    public int getAmount() {
+        return amount;
     }
 
-    public void setSampleType(String sampleType) {
-        this.sampleType = sampleType;
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 
-    public Services getServices() {
-        return services;
-    }
-
-    public void setServices(Services services) {
-        this.services = services;
-    }
 }

@@ -22,23 +22,27 @@ public class Customer {
     @JoinColumn(name = "account_id", referencedColumnName = "id")
     private Account account;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String address;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String gender;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
 
-    @Column(nullable = false)
+    @Column(name = "cccd", nullable = false, unique = true, length = 50)
+    private String cccd;
+
+
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String documentType;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String placeOfIssue;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     @Temporal(TemporalType.DATE)
     private Date dateOfIssue;
 
@@ -116,6 +120,12 @@ public class Customer {
         this.placeOfIssue = placeOfIssue;
     }
 
+    public String getCccd() {
+        return cccd;
+    }
 
+    public void setCccd(String cccd) {
+        this.cccd = cccd;
+    }
 }
 

@@ -1,6 +1,6 @@
 package com.ADNService.SWP391.enums;
 
 public enum StaffType {
-    NORMALSTAFF,
-    LABSTAFF
+    LAB_STAFF,
+    NORMAL_STAFF
 }

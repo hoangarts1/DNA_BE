@@ -11,14 +11,14 @@ public class Services {
     @Column(name = "service_id")
     private Long serviceID;
 
-    @Column(name = "service_name", nullable = false)
+    @Column(name = "service_name", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String serviceName;
 
-    @Column(name = "service_purpose", nullable = false)
-    private String servicePurpose;
+    @Column(name = "service_type", nullable = false, columnDefinition = "NVARCHAR(255)")
+    private String serviceType;
 
-    @Column(name = "service_blog", nullable = false)
-    private String serviceBlog;
+    @Column(name = "describe", nullable = true, columnDefinition = "NVARCHAR(255)")
+    private String describe;
 
     @Column(name = "time_test", nullable = false)
     private int timeTest;
@@ -26,28 +26,27 @@ public class Services {
     @Column(name = "service_price", nullable = false)
     private double servicePrice;
 
-    @Column(name = "quantity", nullable = false)
-    private int quantity;
+    @Column(name = "number_of_samples", nullable = false, columnDefinition = "INT DEFAULT 2")
+    private int numberOfSamples = 2;
 
-    @Column(name = "number_of_sample", nullable = false)
-    private int numberOfSample;
+    @Column(name = "price_per_additional_sample", nullable = true)
+    private Double pricePerAdditionalSample;
 
     public Services() {
     }
 
-    public Services(Long serviceID, String serviceName, String servicePurpose, int timeTest,
-        String serviceBlog, double servicePrice, int quantity, int numberOfSample) {
+    public Services(Long serviceID, String serviceName, String serviceType, int timeTest,
+                    String describe, double servicePrice, int numberOfSamples, Double pricePerAdditionalSample) {
         this.serviceID = serviceID;
         this.serviceName = serviceName;
-        this.servicePurpose = servicePurpose;
+        this.serviceType = serviceType;
         this.timeTest = timeTest;
-        this.serviceBlog = serviceBlog;
+        this.describe = describe;
         this.servicePrice = servicePrice;
-        this.quantity = quantity;
-        this.numberOfSample = numberOfSample;
+        this.numberOfSamples = numberOfSamples;
+        this.pricePerAdditionalSample = pricePerAdditionalSample;
     }
 
-    // Getters and Setters
     public Long getServiceID() {
         return serviceID;
     }
@@ -64,20 +63,20 @@ public class Services {
         this.serviceName = serviceName;
     }
 
-    public String getServicePurpose() {
-        return servicePurpose;
+    public String getServiceType() {
+        return serviceType;
     }
 
-    public void setServicePurpose(String servicePurpose) {
-        this.servicePurpose = servicePurpose;
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
     }
 
-    public String getServiceBlog() {
-        return serviceBlog;
+    public String getDescribe() {
+        return describe;
     }
 
-    public void setServiceBlog(String serviceBlog) {
-        this.serviceBlog = serviceBlog;
+    public void setDescribe(String describe) {
+        this.describe = describe;
     }
 
     public int getTimeTest() {
@@ -96,19 +95,19 @@ public class Services {
         this.servicePrice = servicePrice;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public int getNumberOfSamples() {
+        return numberOfSamples;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setNumberOfSamples(int numberOfSamples) {
+        this.numberOfSamples = numberOfSamples;
     }
 
-    public int getNumberOfSample() {
-        return numberOfSample;
+    public Double getPricePerAdditionalSample() {
+        return pricePerAdditionalSample;
     }
 
-    public void setNumberOfSample(int numberOfSample) {
-        this.numberOfSample = numberOfSample;
+    public void setPricePerAdditionalSample(Double pricePerAdditionalSample) {
+        this.pricePerAdditionalSample = pricePerAdditionalSample;
     }
 }

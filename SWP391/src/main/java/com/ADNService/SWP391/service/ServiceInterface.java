@@ -10,4 +10,5 @@ public interface ServiceInterface{
     List<ServiceDTO> getAllServices();
     ServiceDTO updateService(String id, ServiceDTO dto);
     void deleteService(String id);
+    double calculateTotalPrice(String serviceId, int numberOfSamples);
 }

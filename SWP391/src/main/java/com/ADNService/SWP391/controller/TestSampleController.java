@@ -3,6 +3,7 @@ package com.ADNService.SWP391.controller;
 import com.ADNService.SWP391.dto.TestSampleDTO;
 import com.ADNService.SWP391.service.TestSampleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,5 +38,18 @@ public class TestSampleController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         testSampleService.deleteTestSample(id);
+    }
+
+    @GetMapping("/TestOrder/{orderId}/TestSamples")
+    public ResponseEntity<List<TestSampleDTO>> getTestSamplesByOrderId(@PathVariable Long orderId) {
+        List<TestSampleDTO> samples = testSampleService.getTestSamplesByOrderId(orderId);
+        return ResponseEntity.ok(samples);
+    }
+
+
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<List<TestSampleDTO>> getByOrderId(@PathVariable Long orderId) {
+        List<TestSampleDTO> samples = testSampleService.getTestSamplesByOrderId(orderId);
+        return ResponseEntity.ok(samples);
     }
 }

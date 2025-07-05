@@ -22,8 +22,10 @@ public class Staff {
     @JoinColumn(name = "account_id", referencedColumnName = "id")
     private Account account;
 
+    @Column(unique = true, columnDefinition = "NVARCHAR(MAX)")
     private String fingerprint;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StaffType role;
 

@@ -1,30 +1,36 @@
 package com.ADNService.SWP391.dto;
 
 import com.ADNService.SWP391.enums.Role;
+import com.ADNService.SWP391.enums.StaffType;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class AccountDTO {
+    private Long id;
     private String username;
     private String password;
     private String fullName;
     private String email;
     private String phone;
     private Role role;
+    private StaffType staffType; // enum: NORMAL_STAFF, LAB_STAFF
+
 
 
     public AccountDTO() {
     }
 
-    public AccountDTO(String username, String password, String fullName, String email, String phone, Role role) {
+    public AccountDTO(Long id, String username, String password, String fullName, String email, String phone, Role role, StaffType staffType) {
         this.username = username;
         this.password = password;
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
         this.role = role;
+        this.staffType = staffType;
+        this.id = id;
     }
 
     public String getUsername() {
@@ -73,5 +79,18 @@ public class AccountDTO {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public StaffType getStaffType() {return staffType;}
+    public void setStaffType(StaffType staffType) {
+        this.staffType = staffType;
+    };
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

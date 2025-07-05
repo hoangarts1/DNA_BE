@@ -1,13 +1,14 @@
 package com.ADNService.SWP391.service;
 
 import com.ADNService.SWP391.dto.PaymentDTO;
+import com.ADNService.SWP391.entity.Payment;
 
 import java.util.List;
 
 public interface PaymentService {
-    PaymentDTO create(PaymentDTO dto);
-    PaymentDTO getById(Long id);
-    List<PaymentDTO> getAll();
-    PaymentDTO update(Long id, PaymentDTO dto);
-    void delete(Long id);
+        void create(PaymentDTO dto);
+        List<Payment> getPaymentsByCustomerId(Long customerId);
+        void markPaymentSuccess(String transactionId);
+        void markPaymentFailed(String transactionId, String responseCode);
+
 }

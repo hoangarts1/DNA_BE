@@ -3,21 +3,21 @@ package com.ADNService.SWP391.dto;
 public class TestResultDTO {
     private Long id;
     private Long orderId;
-    private Long testResultSampleId;
-    private Long accountId;
+    private Long sampleId1;
+    private Long sampleId2;
     private String result;
-    private String resultUrl;
+    private String resultPercent;
 
     public TestResultDTO() {
     }
 
-    public TestResultDTO(Long id, Long orderId, Long testResultSampleId, Long accountId, String result, String resultUrl) {
+    public TestResultDTO(Long id, Long orderId, Long sampleId1, Long sampleId2, String result, String resultPercent) {
         this.id = id;
         this.orderId = orderId;
-        this.testResultSampleId = testResultSampleId;
-        this.accountId = accountId;
+        this.sampleId1 = sampleId1;
+        this.sampleId2 = sampleId2;
         this.result = result;
-        this.resultUrl = resultUrl;
+        this.resultPercent = resultPercent;
     }
 
     public Long getId() {
@@ -36,20 +36,17 @@ public class TestResultDTO {
         this.orderId = orderId;
     }
 
-    public Long getTestResultSampleId() {
-        return testResultSampleId;
+    public Long getSampleId1() {
+        return sampleId1;
     }
-
-    public void setTestResultSampleId(Long testResultSampleId) {
-        this.testResultSampleId = testResultSampleId;
+    public void setSampleId1(Long sampleId1) {
+        this.sampleId1 = sampleId1;
     }
-
-    public Long getAccountId() {
-        return accountId;
+    public Long getSampleId2() {
+        return sampleId2;
     }
-
-    public void setAccountId(Long accountId) {
-        this.accountId = accountId;
+    public void setSampleId2(Long sampleId2) {
+        this.sampleId2 = sampleId2;
     }
 
     public String getResult() {
@@ -60,11 +57,12 @@ public class TestResultDTO {
         this.result = result;
     }
 
-    public String getResultUrl() {
-        return resultUrl;
+    public String getResultPercent() {
+        return resultPercent;
     }
 
-    public void setResultUrl(String resultUrl) {
-        this.resultUrl = resultUrl;
+    public void setResultPercent(String resultPercent) {
+        this.resultPercent = resultPercent;
     }
+
 }

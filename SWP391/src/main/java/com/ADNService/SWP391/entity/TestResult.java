@@ -1,8 +1,9 @@
 package com.ADNService.SWP391.entity;
 
 import jakarta.persistence.*;
+
 @Entity
-@Table(name = "TestResult")
+@Table(name = "test_result")
 public class TestResult {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,29 +14,33 @@ public class TestResult {
     private TestOrder testOrder;
 
     @ManyToOne
-    @JoinColumn(name = "test_result_sample_id")
-    private TestResultSample testResultSample;
+    @JoinColumn(name = "sample_id1")
+    private TestSample sampleId1; // Thêm trường sampleId1
 
     @ManyToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
+    @JoinColumn(name = "sample_id2")
+    private TestSample sampleId2; // Thêm trường sampleId2
 
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String result;
 
-    private String resultUrl;
+    @Column(columnDefinition = "NVARCHAR(255)")
+    private String resultPercent;
 
-    public TestResult() {
-    }
 
-    public TestResult(Long id, TestOrder testOrder, TestResultSample testResultSample, Account account, String result, String resultUrl) {
+    // Constructors
+    public TestResult() {}
+
+    public TestResult(Long id, TestOrder testOrder, TestSample sampleId1, TestSample sampleId2, String result, String resultPercent) {
         this.id = id;
         this.testOrder = testOrder;
-        this.testResultSample = testResultSample;
-        this.account = account;
+        this.sampleId1 = sampleId1;
+        this.sampleId2 = sampleId2;
         this.result = result;
-        this.resultUrl = resultUrl;
+        this.resultPercent = resultPercent;
     }
 
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -52,20 +57,20 @@ public class TestResult {
         this.testOrder = testOrder;
     }
 
-    public TestResultSample getTestResultSample() {
-        return testResultSample;
+    public TestSample getSampleId1() {
+        return sampleId1;
     }
 
-    public void setTestResultSample(TestResultSample testResultSample) {
-        this.testResultSample = testResultSample;
+    public void setSampleId1(TestSample sampleId1) {
+        this.sampleId1 = sampleId1;
     }
 
-    public Account getAccount() {
-        return account;
+    public TestSample getSampleId2() {
+        return sampleId2;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
+    public void setSampleId2(TestSample sampleId2) {
+        this.sampleId2 = sampleId2;
     }
 
     public String getResult() {
@@ -76,11 +81,12 @@ public class TestResult {
         this.result = result;
     }
 
-    public String getResultUrl() {
-        return resultUrl;
+    public String getResultPercent() {
+        return resultPercent;
     }
 
-    public void setResultUrl(String resultUrl) {
-        this.resultUrl = resultUrl;
+    public void setResultPercent(String resultPercent) {
+        this.resultPercent = resultPercent;
     }
+
 }
