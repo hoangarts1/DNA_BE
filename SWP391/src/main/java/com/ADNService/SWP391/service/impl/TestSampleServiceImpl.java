@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,28 +27,30 @@ public class TestSampleServiceImpl implements TestSampleService {
 
     @Override
     public TestSampleDTO createTestSample(TestSampleDTO dto) {
-        if (dto.getOrderId() == null)
-            throw new IllegalArgumentException("Order ID is required");
+        if (dto.getOrderId() == null) {
+            throw new IllegalArgumentException("ID đơn hàng là bắt buộc");
+        }
 
-        if (dto.getCustomerId() == null)
-            throw new IllegalArgumentException("Customer ID is required");
-
-        if (dto.getSampleTypeId() == null)
-            throw new IllegalArgumentException("Sample Type ID is required");
+        if (dto.getCustomerId() == null) {
+            throw new IllegalArgumentException("ID khách hàng là bắt buộc");
+        }
 
         TestOrder order = testOrderRepository.findById(dto.getOrderId())
-                .orElseThrow(() -> new RuntimeException("Order with ID " + dto.getOrderId() + " does not exist."));
+                .orElseThrow(() -> new IllegalArgumentException("Đơn hàng với ID " + dto.getOrderId() + " không tồn tại."));
 
         Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Customer with ID " + dto.getCustomerId() + " does not exist."));
+                .orElseThrow(() -> new IllegalArgumentException("Khách hàng với ID " + dto.getCustomerId() + " không tồn tại."));
 
-        SampleType sampleType = sampleTypeRepository.findById(dto.getSampleTypeId())
-                .orElseThrow(() -> new RuntimeException("Sample Type with ID " + dto.getSampleTypeId() + " does not exist."));
+        SampleType sampleType = null;
+        if (dto.getSampleTypeId() != null) {
+            sampleType = sampleTypeRepository.findById(dto.getSampleTypeId())
+                    .orElseThrow(() -> new IllegalArgumentException("Loại mẫu với ID " + dto.getSampleTypeId() + " không tồn tại."));
+        }
 
         TestSample sample = new TestSample();
         sample.setOrder(order);
         sample.setCustomer(customer);
-        sample.setSampleType(sampleType);  // liên kết sampleType
+        sample.setSampleType(sampleType); // Cho phép sampleType là null
         sample.setName(dto.getName());
         sample.setGender(dto.getGender());
         sample.setDateOfBirth(dto.getDateOfBirth());
@@ -93,18 +94,20 @@ public class TestSampleServiceImpl implements TestSampleService {
     @Override
     public TestSampleDTO updateTestSample(Long id, TestSampleDTO dto) {
         TestSample sample = testSampleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Test Sample with ID " + id + " does not exist."));
+                .orElseThrow(() -> new IllegalArgumentException("Mẫu xét nghiệm với ID " + id + " không tồn tại."));
 
         if (dto.getCustomerId() != null) {
             Customer customer = customerRepository.findById(dto.getCustomerId())
-                    .orElseThrow(() -> new RuntimeException("Customer with ID " + dto.getCustomerId() + " does not exist."));
+                    .orElseThrow(() -> new IllegalArgumentException("Khách hàng với ID " + dto.getCustomerId() + " không tồn tại."));
             sample.setCustomer(customer);
         }
 
         if (dto.getSampleTypeId() != null) {
             SampleType sampleType = sampleTypeRepository.findById(dto.getSampleTypeId())
-                    .orElseThrow(() -> new RuntimeException("Sample Type with ID " + dto.getSampleTypeId() + " does not exist."));
+                    .orElseThrow(() -> new IllegalArgumentException("Loại mẫu với ID " + dto.getSampleTypeId() + " không tồn tại."));
             sample.setSampleType(sampleType);
+        } else {
+            sample.setSampleType(null); // Cho phép sampleType là null
         }
 
         sample.setName(dto.getName());
@@ -129,7 +132,7 @@ public class TestSampleServiceImpl implements TestSampleService {
     @Override
     public void deleteTestSample(Long id) {
         if (!testSampleRepository.existsById(id)) {
-            throw new RuntimeException("Test Sample with ID " + id + " does not exist.");
+            throw new IllegalArgumentException("Mẫu xét nghiệm với ID " + id + " không tồn tại.");
         }
         testSampleRepository.deleteById(id);
     }
