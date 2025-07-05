@@ -1,17 +1,18 @@
 package com.ADNService.SWP391.service.impl;
 
-import java.time.format.DateTimeFormatter;
 import java.text.SimpleDateFormat;
 import com.ADNService.SWP391.dto.AccountDTO;
 import com.ADNService.SWP391.dto.CustomerDTO;
 import com.ADNService.SWP391.dto.TestOrderDTO;
 import com.ADNService.SWP391.entity.*;
+import com.ADNService.SWP391.enums.StaffType;
 import com.ADNService.SWP391.repository.*;
 import com.ADNService.SWP391.service.TestOrderService;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
@@ -30,20 +31,17 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 @Service
 public class TestOrderServiceImpl implements TestOrderService {
     @Autowired
     private TestSampleRepository testSampleRepository;
+
+    @Autowired
+    private StaffRepository staffRepository;
 
     private final TestOrderRepository testOrderRepository;
     private final CustomerRepository customerRepo;
@@ -68,29 +66,23 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         Customer customer = order.getCustomer();
-        Account account = customer.getAccount();  // Truy xuất Account từ Customer
+        Account account = customer.getAccount();
 
         TestOrderDTO dto = new TestOrderDTO();
         dto.setOrderId(order.getOrderId());
         dto.setCustomerId(customer.getId());
         dto.setOrderDate(order.getOrderDate());
-        // ... các field khác
 
-        // Set CustomerDTO
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setAddress(customer.getAddress());
-        // ... các field khác
         dto.setCustomer(customerDTO);
 
-        // Set AccountDTO
         AccountDTO accountDTO = new AccountDTO();
         accountDTO.setFullName(account.getFullName());
-        // ... các field khác
         dto.setAccount(accountDTO);
 
         return dto;
     }
-
 
     private TestOrderDTO convertToDTO(TestOrder order) {
         TestOrderDTO dto = new TestOrderDTO();
@@ -212,7 +204,8 @@ public class TestOrderServiceImpl implements TestOrderService {
         dto.setOrderId(null);
         TestOrder entity = convertToEntity(dto, null, false);
         try {
-            return convertToDTO(testOrderRepository.save(entity));
+            TestOrder savedOrder = testOrderRepository.save(entity);
+            return convertToDTO(savedOrder);
         } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to create Test Order: Duplicate data or constraint violation: " + e.getMessage());
         } catch (Exception e) {
@@ -244,6 +237,21 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .collect(Collectors.toList());
     }
 
+    private String getNormalStaffName(TestOrder order) {
+        Staff staff = order.getRegistrationStaff();
+        if (staff != null && staff.getRole() == StaffType.NORMAL_STAFF && staff.getAccount() != null) {
+            return staff.getAccount().getFullName();
+        }
+        // Fallback:Amber: Tìm bất kỳ NORMAL_STAFF nào
+        List<Staff> normalStaffList = staffRepository.findAll().stream()
+                .filter(s -> s.getRole() == StaffType.NORMAL_STAFF && s.getAccount() != null)
+                .collect(Collectors.toList());
+        if (!normalStaffList.isEmpty()) {
+            return normalStaffList.get(0).getAccount().getFullName();
+        }
+        return "Không tìm thấy nhân viên thu mẫu";
+    }
+
     @Override
     public byte[] generateTestOrderPdf(Long id) {
         TestOrder order = testOrderRepository.findById(id)
@@ -260,7 +268,6 @@ public class TestOrderServiceImpl implements TestOrderService {
                     PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED
             );
             document.setFont(font);
-
 
             document.setMargins(20, 20, 20, 20);
 
@@ -279,13 +286,14 @@ public class TestOrderServiceImpl implements TestOrderService {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi tạo PDF: " + e.getMessage());
         }
-
-
     }
+
     private void generateFormDanSu(Document document, TestOrder order) {
         Customer customer = order.getCustomer();
         Account acc = customer.getAccount();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        // Định dạng ngày tháng
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
         // === TIÊU ĐỀ ===
         document.add(new Paragraph("ĐƠN YÊU CẦU PHÂN TÍCH ADN")
@@ -294,9 +302,10 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .setBold());
 
         document.add(new Paragraph("Kính gửi: Viện Công Nghệ ADN và Phân Tích Di Truyền")
+                .setTextAlignment(TextAlignment.CENTER)
                 .setItalic()
-                .setFontSize(11)
-                .setMarginTop(10));
+                .setFontSize(13)
+                .setMarginTop(6));
 
         // === THÔNG TIN KHÁCH HÀNG ===
         document.add(new Paragraph(" ").setMarginTop(10));
@@ -308,17 +317,12 @@ public class TestOrderServiceImpl implements TestOrderService {
         String address = customer.getAddress();
         String cccd = customer.getCccd();
         String placeOfIssue = customer.getPlaceOfIssue();
-        Date dateOfIssueRaw = customer.getDateOfIssue();
-        String dateOfIssue = "";
-        if (dateOfIssueRaw != null) {
-            LocalDate localDateOfIssue = dateOfIssueRaw.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            dateOfIssue = localDateOfIssue.format(formatter);
-        }
+        String dateOfIssue = customer.getDateOfIssue() != null ? dateFormat.format(customer.getDateOfIssue()) : "";
 
         document.add(new Paragraph()
                 .add("Tôi tên là: ")
                 .add(new Text(fullName).setBold().setUnderline())
-                .add("            Giới tính: ")
+                .add("                                                 Giới tính: ")
                 .add(new Text(gender).setBold().setUnderline())
                 .setMarginTop(5));
 
@@ -327,17 +331,17 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .add(new Text(address).setUnderline()));
 
         document.add(new Paragraph()
-                .add("CMND/CCCD/Passport: ")
+                .add("CMND/CCCD/Hộ chiếu: ")
                 .add(new Text(cccd).setUnderline())
-                .add("     ngày cấp: ")
+                .add("         Ngày cấp: ")
                 .add(new Text(dateOfIssue).setUnderline())
-                .add("     nơi cấp: ")
+                .add("         Nơi cấp: ")
                 .add(new Text(placeOfIssue).setUnderline()));
 
         document.add(new Paragraph()
                 .add("Số điện thoại: ")
                 .add(new Text(phone).setUnderline())
-                .add("     Email/Zalo: ")
+                .add("                              Email/Zalo: ")
                 .add(new Text(email).setUnderline()));
 
         // === LỜI ĐỀ NGHỊ ===
@@ -346,93 +350,140 @@ public class TestOrderServiceImpl implements TestOrderService {
 
         // === BẢNG MẪU ===
         Table sampleTable = new Table(new float[]{1, 3, 2, 2, 2, 2, 3}).useAllAvailableWidth();
-        sampleTable.addHeaderCell("STT");
-        sampleTable.addHeaderCell("Họ tên");
-        sampleTable.addHeaderCell("Năm sinh");
-        sampleTable.addHeaderCell("Giới tính");
-        sampleTable.addHeaderCell("Mối quan hệ");
-        sampleTable.addHeaderCell("Loại mẫu");
-        sampleTable.addHeaderCell("Ghi chú");
 
+        // Màu nền header
+        DeviceRgb blueColor = new DeviceRgb(0x00, 0x4E, 0xB2);   // #004EB2
+        DeviceRgb orangeColor = new DeviceRgb(0xF6, 0x94, 0x1C); // #F6941C
+
+        // Header: từ STT đến Loại mẫu → nền xanh #004EB2, chữ trắng
+        String[] headers = {"STT", "Họ tên", "Năm sinh", "Giới tính", "Mối quan hệ", "Loại mẫu"};
+        for (String header : headers) {
+            Cell headerCell = new Cell()
+                    .add(new Paragraph(header).setFontColor(ColorConstants.WHITE))
+                    .setBackgroundColor(blueColor)
+                    .setTextAlignment(TextAlignment.CENTER);
+            sampleTable.addHeaderCell(headerCell);
+        }
+
+        // Cột "Ghi chú" → nền cam #F6941C, chữ trắng
+        Cell ghiChuHeader = new Cell()
+                .add(new Paragraph("Ghi chú").setFontColor(ColorConstants.WHITE))
+                .setBackgroundColor(orangeColor)
+                .setTextAlignment(TextAlignment.CENTER);
+        sampleTable.addHeaderCell(ghiChuHeader);
+
+        // Dữ liệu mẫu
         List<TestSample> samples = testSampleRepository.findByOrder_OrderId(order.getOrderId());
         int stt = 1;
+
+        // Thêm mẫu thật (căn giữa nội dung từng ô)
         for (TestSample s : samples) {
-            sampleTable.addCell(String.valueOf(stt++));
-            sampleTable.addCell(s.getName());
-
-            String formattedDob = "";
-            Date dob = s.getDateOfBirth();
-            if (dob != null) {
-                LocalDate localDob = dob.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                formattedDob = localDob.format(formatter);
-            }
-
-            sampleTable.addCell(formattedDob);
-            sampleTable.addCell(s.getGender());
-            sampleTable.addCell(s.getRelationship());
-            sampleTable.addCell(s.getSampleType() != null ? s.getSampleType().getSampleType() : "");
-            sampleTable.addCell("");
+            sampleTable.addCell(new Cell().add(new Paragraph(String.valueOf(stt++))).setTextAlignment(TextAlignment.CENTER));
+            sampleTable.addCell(new Cell().add(new Paragraph(s.getName())).setTextAlignment(TextAlignment.CENTER));
+            sampleTable.addCell(new Cell().add(new Paragraph(
+                    s.getDateOfBirth() != null ? dateFormat.format(s.getDateOfBirth()) : ""
+            )).setTextAlignment(TextAlignment.CENTER));
+            sampleTable.addCell(new Cell().add(new Paragraph(s.getGender())).setTextAlignment(TextAlignment.CENTER));
+            sampleTable.addCell(new Cell().add(new Paragraph(s.getRelationship())).setTextAlignment(TextAlignment.CENTER));
+            sampleTable.addCell(new Cell().add(new Paragraph(
+                    s.getSampleType() != null ? s.getSampleType().getSampleType() : ""
+            )).setTextAlignment(TextAlignment.CENTER));
+            sampleTable.addCell(new Cell().add(new Paragraph("")).setTextAlignment(TextAlignment.CENTER));
         }
-        document.add(sampleTable.setMarginTop(10));
+
+        // Bổ sung dòng trống nếu chưa đủ 5 mẫu
+        int remainingRows = 5 - samples.size();
+        for (int i = 0; i < remainingRows; i++) {
+            sampleTable.addCell(new Cell().add(new Paragraph(String.valueOf(stt++))).setTextAlignment(TextAlignment.CENTER));
+            for (int j = 0; j < 6; j++) {
+                sampleTable.addCell(new Cell().add(new Paragraph("")).setTextAlignment(TextAlignment.CENTER));
+            }
+        }
+
+        document.add(sampleTable.setMarginTop(5));
 
         // === CAM KẾT ===
-        document.add(new Paragraph("Cam kết:").setBold().setMarginTop(10));
+        document.add(new Paragraph("Tôi xin cam kết:").setBold().setUnderline().setMarginTop(11));
         document.add(new Paragraph("""
-            1. Tôi tự nguyện đề nghị xét nghiệm ADN và chấp nhận chi phí xét nghiệm.
-            2. Tôi xác nhận thông tin tôi cung cấp là trung thực.
-            3. Tôi đã được giải thích rõ mục đích, ý nghĩa, phạm vi và tính chất pháp lý của kết quả xét nghiệm ADN.
-            4. Tôi đồng ý ký vào phiếu này và chịu trách nhiệm về mọi thông tin kê khai.
-            """));
+        1.Tôi tự nguyện đề nghị xét nghiệm ADN và chấp nhận chi phí xét nghiệm.
+        2.Những thông tin tôi đã khai trên đây là đúng sự thật và không thay đổi.
+        3.Tôi không để người nhà, người quen đến phiền nhiễu, làm mất trật tự.
+        4.Những trường hợp sinh đôi, người ghép tủy, nhận máu, nếu không khai báo trung thực sẽ bị phạt gấp 2 lần lệ phí đã nộp.
+        5.Tôi đã đọc và chấp nhận các điều khoản của Viện tại trang 02 của đơn này và tôi đồng ý để Viện thực hiện các phân tích
+          ADN với các mẫu trên. Nếu vi phạm, tôi xin chịu hoàn toàn trách nhiệm trước pháp luật.
+        """).setFontSize(11));
 
-        document.add(new Paragraph("[ ] Tôi đã đọc và đồng ý")
-                .setFontColor(ColorConstants.BLUE)
+        document.add(new Paragraph("Tôi đã đọc và đồng ý : [ ] ")
+                .setFontColor(ColorConstants.BLACK)
                 .setMarginTop(5));
 
         // === HÌNH THỨC NHẬN KẾT QUẢ ===
-        document.add(new Paragraph("Hình thức nhận kết quả:")
-                .setBold()
-                .setMarginTop(10));
         String deliveryMethod = order.getResultDeliveryMethod();
-        document.add(new Paragraph(deliveryMethod));
+        String displayMethod = switch (deliveryMethod) {
+            case "office" -> "Tại văn phòng";
+            case "home" -> "Tại nhà";
+            case "email" -> "Email";
+            default -> "Không xác định";
+        };
+
+        document.add(new Paragraph()
+                .add(new Text("Hình thức nhận kết quả: ").setBold())
+                .setFontSize(11)
+                .add(displayMethod)
+                .setMarginTop(10));
 
         // === NGÀY THÁNG VÀ CHỮ KÝ ===
         LocalDate today = LocalDate.now();
         document.add(new Paragraph(String.format("TP. HCM, ngày %02d tháng %02d năm %d", today.getDayOfMonth(), today.getMonthValue(), today.getYear()))
                 .setTextAlignment(TextAlignment.RIGHT)
                 .setFontSize(10)
-                .setMarginTop(10));
+                .setMarginTop(8));
 
-        Table signTable = new Table(new float[]{3, 3, 3}).useAllAvailableWidth().setMarginTop(10);
-        signTable.addCell(new Cell().add(new Paragraph("NGƯỜI TIẾP NHẬN MẪU\n(ký và ghi rõ họ tên)").setFontSize(9).setTextAlignment(TextAlignment.CENTER)).setBorder(Border.NO_BORDER));
+        Table signTable = new Table(new float[]{3, 3, 3})
+                .useAllAvailableWidth()
+                .setMarginTop(10);
 
-        Cell fingerprintCell = new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.CENTER);
+        // === CỘT 1: NGƯỜI TIẾP NHẬN MẪU ===
+        Cell thuMauCell = new Cell()
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setVerticalAlignment(VerticalAlignment.TOP)
+                .setMinHeight(100);
+
+        thuMauCell.add(new Paragraph("NGƯỜI TIẾP NHẬN MẪU\n(ký và ghi rõ họ tên)").setFontSize(9));
+        thuMauCell.add(new Paragraph(getNormalStaffName(order))
+                .setFontSize(12)
+                .setMarginTop(70.25f));
+
+        signTable.addCell(thuMauCell);
+
+        // === CỘT 2: NGÓN TRỎ PHẢI ===
+        Cell fingerprintCell = new Cell()
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setVerticalAlignment(VerticalAlignment.TOP)
+                .setMinHeight(100);
+
         fingerprintCell.add(new Paragraph("NGÓN TRỎ PHẢI\n(Đối với hành chính)").setFontSize(9));
+        fingerprintCell.add(new Paragraph("\n\n\n\n\n"));
 
-//        String fingerprintBase64 = getFingerprintBase64(order.getOrderId());
-//        if (fingerprintBase64 != null) {
-//            try {
-//                byte[] fingerprintBytes = Base64.getDecoder().decode(fingerprintBase64);
-//                ImageData fingerprintData = ImageDataFactory.create(fingerprintBytes);
-//                Image fingerprintImage = new Image(fingerprintData);
-//                fingerprintImage.setAutoScale(true).setMaxHeight(60).setMaxWidth(60);
-//                fingerprintCell.add(fingerprintImage);
-//            } catch (Exception e) {
-//                fingerprintCell.add(new Paragraph("(Vân tay lỗi)").setFontColor(ColorConstants.RED));
-//            }
-//        } else {
-//            fingerprintCell.add(new Paragraph("(Chưa có)").setFontColor(ColorConstants.GRAY));
-//        }
-//        signTable.addCell(fingerprintCell);
+        signTable.addCell(fingerprintCell);
 
-        signTable.addCell(new Cell()
-                .add(new Paragraph("NGƯỜI YÊU CẦU PHÂN TÍCH\n(ký và ghi rõ họ tên)").setFontSize(9).setTextAlignment(TextAlignment.CENTER))
-                .setBorder(Border.NO_BORDER));
+        // === CỘT 3: NGƯỜI YÊU CẦU PHÂN TÍCH ===
+        Cell requesterCell = new Cell()
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setVerticalAlignment(VerticalAlignment.TOP)
+                .setMinHeight(100);
+
+        requesterCell.add(new Paragraph("NGƯỜI YÊU CẦU PHÂN TÍCH\n(ký và ghi rõ họ tên)").setFontSize(9));
+        requesterCell.add(new Paragraph(fullName) // Lấy tên từ "Tôi tên là"
+                .setFontSize(12)
+                .setMarginTop(70.25f)); // Margin top giống nhân viên thu mẫu
+
+        signTable.addCell(requesterCell);
 
         document.add(signTable);
-        document.add(new Paragraph("Trang 01/02")
-                .setTextAlignment(TextAlignment.RIGHT)
-                .setFontSize(8)
-                .setMarginTop(10));
 
         // === TRANG 2 ===
         document.getPdfDocument().addNewPage();
@@ -443,30 +494,26 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMarginTop(10));
 
-        document.add(new Paragraph(getRulesText()).setFontSize(9).setMarginTop(10));
+        document.add(new Paragraph(getRulesText()).setFontSize(9).setMarginTop(15));
 
         document.add(new Paragraph("NGƯỜI YÊU CẦU PHÂN TÍCH ĐÃ ĐỌC KỸ VÀ ĐỒNG Ý VỚI CÁC ĐIỀU KHOẢN TRÊN")
                 .setBold()
                 .setTextAlignment(TextAlignment.CENTER)
-                .setMarginTop(20));
+                .setMarginTop(35));
 
         document.add(new Paragraph("(ký và ghi rõ họ tên)")
                 .setItalic()
                 .setTextAlignment(TextAlignment.CENTER));
 
         document.add(new Paragraph(" ").setHeight(20));
-        document.add(new Paragraph("Trang 02/02")
-                .setTextAlignment(TextAlignment.RIGHT)
-                .setFontSize(8)
-                .setMarginTop(10));
     }
-
-
 
     private void generateFormHanhChinh(Document document, TestOrder order) {
         Customer customer = order.getCustomer();
         Account acc = customer.getAccount();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        // Định dạng ngày tháng
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
         // === TIÊU ĐỀ ===
         document.add(new Paragraph("ĐƠN YÊU CẦU PHÂN TÍCH ADN")
@@ -475,9 +522,10 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .setBold());
 
         document.add(new Paragraph("Kính gửi: Viện Công Nghệ ADN và Phân Tích Di Truyền")
+                .setTextAlignment(TextAlignment.CENTER)
                 .setItalic()
-                .setFontSize(11)
-                .setMarginTop(10));
+                .setFontSize(13)
+                .setMarginTop(6));
 
         // === THÔNG TIN KHÁCH HÀNG ===
         document.add(new Paragraph(" ").setMarginTop(10));
@@ -489,17 +537,12 @@ public class TestOrderServiceImpl implements TestOrderService {
         String address = customer.getAddress();
         String cccd = customer.getCccd();
         String placeOfIssue = customer.getPlaceOfIssue();
-        Date dateOfIssueRaw = customer.getDateOfIssue();
-        String dateOfIssue = "";
-        if (dateOfIssueRaw != null) {
-            LocalDate localDateOfIssue = dateOfIssueRaw.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            dateOfIssue = localDateOfIssue.format(formatter);
-        }
+        String dateOfIssue = customer.getDateOfIssue() != null ? dateFormat.format(customer.getDateOfIssue()) : "";
 
         document.add(new Paragraph()
                 .add("Tôi tên là: ")
                 .add(new Text(fullName).setBold().setUnderline())
-                .add("            Giới tính: ")
+                .add("                                                 Giới tính: ")
                 .add(new Text(gender).setBold().setUnderline())
                 .setMarginTop(5));
 
@@ -508,17 +551,17 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .add(new Text(address).setUnderline()));
 
         document.add(new Paragraph()
-                .add("CMND/CCCD/Passport: ")
+                .add("CMND/CCCD/Hộ chiếu: ")
                 .add(new Text(cccd).setUnderline())
-                .add("     ngày cấp: ")
+                .add("         Ngày cấp: ")
                 .add(new Text(dateOfIssue).setUnderline())
-                .add("     nơi cấp: ")
+                .add("         Nơi cấp: ")
                 .add(new Text(placeOfIssue).setUnderline()));
 
         document.add(new Paragraph()
                 .add("Số điện thoại: ")
                 .add(new Text(phone).setUnderline())
-                .add("     Email/Zalo: ")
+                .add("                              Email/Zalo: ")
                 .add(new Text(email).setUnderline()));
 
         // === LỜI ĐỀ NGHỊ ===
@@ -527,54 +570,87 @@ public class TestOrderServiceImpl implements TestOrderService {
 
         // === BẢNG MẪU ===
         Table sampleTable = new Table(new float[]{1, 3, 2, 2, 2, 2, 3}).useAllAvailableWidth();
-        sampleTable.addHeaderCell("STT");
-        sampleTable.addHeaderCell("Họ tên");
-        sampleTable.addHeaderCell("Năm sinh");
-        sampleTable.addHeaderCell("Giới tính");
-        sampleTable.addHeaderCell("Mối quan hệ");
-        sampleTable.addHeaderCell("Loại mẫu");
-        sampleTable.addHeaderCell("Ghi chú");
 
+        // Màu nền header
+        DeviceRgb blueColor = new DeviceRgb(0x00, 0x4E, 0xB2);   // #004EB2
+        DeviceRgb orangeColor = new DeviceRgb(0xF6, 0x94, 0x1C); // #F6941C
+
+        // Header: từ STT đến Loại mẫu → nền xanh #004EB2, chữ trắng
+        String[] headers = {"STT", "Họ tên", "Năm sinh", "Giới tính", "Mối quan hệ", "Loại mẫu"};
+        for (String header : headers) {
+            Cell headerCell = new Cell()
+                    .add(new Paragraph(header).setFontColor(ColorConstants.WHITE))
+                    .setBackgroundColor(blueColor)
+                    .setTextAlignment(TextAlignment.CENTER);
+            sampleTable.addHeaderCell(headerCell);
+        }
+
+        // Cột "Ghi chú" → nền cam #F6941C, chữ trắng
+        Cell ghiChuHeader = new Cell()
+                .add(new Paragraph("Ghi chú").setFontColor(ColorConstants.WHITE))
+                .setBackgroundColor(orangeColor)
+                .setTextAlignment(TextAlignment.CENTER);
+        sampleTable.addHeaderCell(ghiChuHeader);
+
+        // Dữ liệu mẫu
         List<TestSample> samples = testSampleRepository.findByOrder_OrderId(order.getOrderId());
         int stt = 1;
+
+        // Thêm mẫu thật (căn giữa nội dung từng ô)
         for (TestSample s : samples) {
-            sampleTable.addCell(String.valueOf(stt++));
-            sampleTable.addCell(s.getName());
-
-            String formattedDob = "";
-            Date dob = s.getDateOfBirth();
-            if (dob != null) {
-                LocalDate localDob = dob.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                formattedDob = localDob.format(formatter);
-            }
-
-            sampleTable.addCell(formattedDob);
-            sampleTable.addCell(s.getGender());
-            sampleTable.addCell(s.getRelationship());
-            sampleTable.addCell(s.getSampleType() != null ? s.getSampleType().getSampleType() : "");
-            sampleTable.addCell("");
+            sampleTable.addCell(new Cell().add(new Paragraph(String.valueOf(stt++))).setTextAlignment(TextAlignment.CENTER));
+            sampleTable.addCell(new Cell().add(new Paragraph(s.getName())).setTextAlignment(TextAlignment.CENTER));
+            sampleTable.addCell(new Cell().add(new Paragraph(
+                    s.getDateOfBirth() != null ? dateFormat.format(s.getDateOfBirth()) : ""
+            )).setTextAlignment(TextAlignment.CENTER));
+            sampleTable.addCell(new Cell().add(new Paragraph(s.getGender())).setTextAlignment(TextAlignment.CENTER));
+            sampleTable.addCell(new Cell().add(new Paragraph(s.getRelationship())).setTextAlignment(TextAlignment.CENTER));
+            sampleTable.addCell(new Cell().add(new Paragraph(
+                    s.getSampleType() != null ? s.getSampleType().getSampleType() : ""
+            )).setTextAlignment(TextAlignment.CENTER));
+            sampleTable.addCell(new Cell().add(new Paragraph("")).setTextAlignment(TextAlignment.CENTER));
         }
-        document.add(sampleTable.setMarginTop(10));
+
+        // Bổ sung dòng trống nếu chưa đủ 5 mẫu
+        int remainingRows = 5 - samples.size();
+        for (int i = 0; i < remainingRows; i++) {
+            sampleTable.addCell(new Cell().add(new Paragraph(String.valueOf(stt++))).setTextAlignment(TextAlignment.CENTER));
+            for (int j = 0; j < 6; j++) {
+                sampleTable.addCell(new Cell().add(new Paragraph("")).setTextAlignment(TextAlignment.CENTER));
+            }
+        }
+
+        document.add(sampleTable.setMarginTop(5));
 
         // === CAM KẾT ===
-        document.add(new Paragraph("Cam kết:").setBold().setMarginTop(10));
+        document.add(new Paragraph("Tôi xin cam kết:").setBold().setUnderline().setMarginTop(11));
         document.add(new Paragraph("""
-            1. Tôi tự nguyện đề nghị xét nghiệm ADN và chấp nhận chi phí xét nghiệm.
-            2. Tôi xác nhận thông tin tôi cung cấp là trung thực.
-            3. Tôi đã được giải thích rõ mục đích, ý nghĩa, phạm vi và tính chất pháp lý của kết quả xét nghiệm ADN.
-            4. Tôi đồng ý ký vào phiếu này và chịu trách nhiệm về mọi thông tin kê khai.
-            """));
+        1.Tôi tự nguyện đề nghị xét nghiệm ADN và chấp nhận chi phí xét nghiệm.
+        2.Những thông tin tôi đã khai trên đây là đúng sự thật và không thay đổi.
+        3.Tôi không để người nhà, người quen đến phiền nhiễu, làm mất trật tự.
+        4.Những trường hợp sinh đôi, người ghép tủy, nhận máu, nếu không khai báo trung thực sẽ bị phạt gấp 2 lần lệ phí đã nộp.
+        5.Tôi đã đọc và chấp nhận các điều khoản của Viện tại trang 02 của đơn này và tôi đồng ý để Viện thực hiện các phân tích
+          ADN với các mẫu trên. Nếu vi phạm, tôi xin chịu hoàn toàn trách nhiệm trước pháp luật.
+        """).setFontSize(11));
 
-        document.add(new Paragraph("[ ] Tôi đã đọc và đồng ý")
-                .setFontColor(ColorConstants.BLUE)
+        document.add(new Paragraph("Tôi đã đọc và đồng ý : [ ] ")
+                .setFontColor(ColorConstants.BLACK)
                 .setMarginTop(5));
 
         // === HÌNH THỨC NHẬN KẾT QUẢ ===
-        document.add(new Paragraph("Hình thức nhận kết quả:")
-                .setBold()
-                .setMarginTop(10));
         String deliveryMethod = order.getResultDeliveryMethod();
-        document.add(new Paragraph(deliveryMethod));
+        String displayMethod = switch (deliveryMethod) {
+            case "office" -> "Tại văn phòng";
+            case "home" -> "Tại nhà";
+            case "email" -> "Email";
+            default -> "Không xác định";
+        };
+
+        document.add(new Paragraph()
+                .add(new Text("Hình thức nhận kết quả: ").setBold())
+                .setFontSize(11)
+                .add(displayMethod)
+                .setMarginTop(10));
 
         // === NGÀY THÁNG VÀ CHỮ KÝ ===
         LocalDate today = LocalDate.now();
@@ -584,20 +660,41 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .setMarginTop(10));
 
         Table signTable = new Table(new float[]{3, 3, 3}).useAllAvailableWidth().setMarginTop(10);
-        signTable.addCell(new Cell().add(new Paragraph("NGƯỜI TIẾP NHẬN MẪU\n(ký và ghi rõ họ tên)").setFontSize(9).setTextAlignment(TextAlignment.CENTER)).setBorder(Border.NO_BORDER));
 
+        // Cột NGƯỜI TIẾP NHẬN MẪU
+        Cell thuMauCell = new Cell()
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setMinHeight(100);
+
+        thuMauCell.add(new Paragraph("NGƯỜI TIẾP NHẬN MẪU\n(ký và ghi rõ họ tên)")
+                .setFontSize(9)
+                .setMarginBottom(5));
+
+        // Lấy tên NORMAL_STAFF và thêm vào dưới
+        String normalStaffName = getNormalStaffName(order);
+        thuMauCell.add(new Paragraph(normalStaffName)
+                .setFontSize(12)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setMarginTop(70.25f)); // Margin top tương đương Height(70.25f)
+
+        signTable.addCell(thuMauCell);
+
+        // Cột VÂN TAY
         Cell fingerprintCell = new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.CENTER);
         fingerprintCell.add(new Paragraph("NGÓN TRỎ PHẢI\n(Đối với hành chính)").setFontSize(9));
-
-        String fingerprintBase64 = getFingerprintBase64(order.getOrderId());
-        if (fingerprintBase64 != null) {
-
-
+        String normalStaffFingerprint = getNormalStaffFingerprint(order);
+        if (normalStaffFingerprint != null && !normalStaffFingerprint.isBlank()) {
             try {
-                byte[] fingerprintBytes = Base64.getDecoder().decode(fingerprintBase64);
+                if (normalStaffFingerprint.startsWith("data:image")) {
+                    normalStaffFingerprint = normalStaffFingerprint.split(",")[1];
+                }
+                byte[] fingerprintBytes = Base64.getDecoder().decode(normalStaffFingerprint);
                 ImageData fingerprintData = ImageDataFactory.create(fingerprintBytes);
                 Image fingerprintImage = new Image(fingerprintData);
-                fingerprintImage.setAutoScale(true).setMaxHeight(60).setMaxWidth(60);
+                fingerprintImage.setWidth(55).setHeight(70.25f);
+                fingerprintImage.setHorizontalAlignment(HorizontalAlignment.CENTER);
+                fingerprintCell.add(new Paragraph("\n"));
                 fingerprintCell.add(fingerprintImage);
             } catch (Exception e) {
                 fingerprintCell.add(new Paragraph("(Vân tay lỗi)").setFontColor(ColorConstants.RED));
@@ -605,18 +702,24 @@ public class TestOrderServiceImpl implements TestOrderService {
         } else {
             fingerprintCell.add(new Paragraph("(Chưa có)").setFontColor(ColorConstants.GRAY));
         }
-
+        fingerprintCell.setVerticalAlignment(VerticalAlignment.MIDDLE);
         signTable.addCell(fingerprintCell);
 
-        signTable.addCell(new Cell()
-                .add(new Paragraph("NGƯỜI YÊU CẦU PHÂN TÍCH\n(ký và ghi rõ họ tên)").setFontSize(9).setTextAlignment(TextAlignment.CENTER))
-                .setBorder(Border.NO_BORDER));
+        // === CỘT 3: NGƯỜI YÊU CẦU PHÂN TÍCH ===
+        Cell requesterCell = new Cell()
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setVerticalAlignment(VerticalAlignment.TOP)
+                .setMinHeight(100);
+
+        requesterCell.add(new Paragraph("NGƯỜI YÊU CẦU PHÂN TÍCH\n(ký và ghi rõ họ tên)").setFontSize(9));
+        requesterCell.add(new Paragraph(fullName) // Lấy tên từ "Tôi tên là"
+                .setFontSize(12)
+                .setMarginTop(70.25f)); // Margin top giống nhân viên thu mẫu
+
+        signTable.addCell(requesterCell);
 
         document.add(signTable);
-        document.add(new Paragraph("Trang 01/03")
-                .setTextAlignment(TextAlignment.RIGHT)
-                .setFontSize(8)
-                .setMarginTop(10));
 
         // === TRANG 2 ===
         document.getPdfDocument().addNewPage();
@@ -627,35 +730,32 @@ public class TestOrderServiceImpl implements TestOrderService {
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMarginTop(10));
 
-        document.add(new Paragraph(getRulesText()).setFontSize(9).setMarginTop(10));
+        document.add(new Paragraph(getRulesText()).setFontSize(9).setMarginTop(15));
 
         document.add(new Paragraph("NGƯỜI YÊU CẦU PHÂN TÍCH ĐÃ ĐỌC KỸ VÀ ĐỒNG Ý VỚI CÁC ĐIỀU KHOẢN TRÊN")
                 .setBold()
                 .setTextAlignment(TextAlignment.CENTER)
-                .setMarginTop(20));
+                .setMarginTop(35));
 
         document.add(new Paragraph("(ký và ghi rõ họ tên)")
                 .setItalic()
                 .setTextAlignment(TextAlignment.CENTER));
 
         document.add(new Paragraph(" ").setHeight(20));
-        document.add(new Paragraph("Trang 02/03")
-                .setTextAlignment(TextAlignment.RIGHT)
-                .setFontSize(8)
-                .setMarginTop(10));
 
         // === Trang 3: Biên bản lấy mẫu ===
+        document.getPdfDocument().addNewPage();
+        document.setMargins(20, 20, 20, 20);
+
         document.add(new Paragraph("CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM")
                 .setTextAlignment(TextAlignment.CENTER).setBold());
         document.add(new Paragraph("Độc lập - Tự do - Hạnh phúc")
-                .setTextAlignment(TextAlignment.CENTER).setItalic().setMarginBottom(10));
+                .setTextAlignment(TextAlignment.CENTER).setMarginBottom(10));
         document.add(new Paragraph("BIÊN BẢN LẤY MẪU XÉT NGHIỆM")
                 .setBold().setFontSize(14).setTextAlignment(TextAlignment.CENTER).setMarginBottom(15));
 
         String diaChi = customer.getAddress();
-
-        Account staffAcc = order.getRegistrationStaff() != null ? order.getRegistrationStaff().getAccount() : null;
-        String staffName = staffAcc != null ? staffAcc.getFullName() : "...........";
+        String staffName = getNormalStaffName(order);
         String requesterName = acc.getFullName();
 
         document.add(new Paragraph(String.format("Hôm nay, ngày %02d tháng %02d năm %d, tại TP.Hồ Chí Minh",
@@ -666,9 +766,7 @@ public class TestOrderServiceImpl implements TestOrderService {
         document.add(new Paragraph("2. Người yêu cầu xét nghiệm: " + requesterName + "    Địa chỉ: " + diaChi));
         document.add(new Paragraph("Tiến hành lấy mẫu các đối tượng:"));
 
-
         int quantity = order.getSampleQuantity();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
         for (int i = 0; i < quantity; i++) {
             TestSample sample = (i < samples.size()) ? samples.get(i) : new TestSample();
@@ -734,23 +832,21 @@ public class TestOrderServiceImpl implements TestOrderService {
                     .setBorder(Border.NO_BORDER)
                     .setMinHeight(250f));
 
-// === CỘT PHẢI: VÂN TAY ===
+            // === CỘT PHẢI: VÂN TAY ===
             Table thumbTable = new Table(1).useAllAvailableWidth();
             thumbTable.setFontSize(9);
 
-// Dòng 1: tiêu đề người cho mẫu
             thumbTable.addCell(new Cell()
                     .add(new Paragraph("Người cho mẫu thứ " + (i + 1))
                             .setBold()
                             .setTextAlignment(TextAlignment.CENTER))
                     .setPadding(5)
-                    .setBorder(new SolidBorder(0.5f))); // ✅ Bo viền
+                    .setBorder(new SolidBorder(0.5f)));
 
-// Dòng 2: Ảnh vân tay (ô xám)
             Cell thumbCell = new Cell()
                     .setHeight(130f)
                     .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-                    .setVerticalAlignment(VerticalAlignment.MIDDLE); // ✅ Chuyển căn chỉnh dọc sang Cell
+                    .setVerticalAlignment(VerticalAlignment.MIDDLE);
             String fingerprint = sample.getFingerprint();
             if (fingerprint != null && !fingerprint.isBlank()) {
                 try {
@@ -760,9 +856,9 @@ public class TestOrderServiceImpl implements TestOrderService {
                     byte[] fpBytes = Base64.getDecoder().decode(fingerprint);
                     ImageData fpData = ImageDataFactory.create(fpBytes);
                     Image fpImage = new Image(fpData)
-                            .setWidth(UnitValue.createPercentValue(100)) // Kéo giãn chiều rộng
-                            .setHeight(130f) // Khớp chiều cao ô
-                            .setHorizontalAlignment(HorizontalAlignment.CENTER); // Căn giữa ngang
+                            .setWidth(UnitValue.createPercentValue(100))
+                            .setHeight(130f)
+                            .setHorizontalAlignment(HorizontalAlignment.CENTER);
                     thumbCell.add(fpImage);
                 } catch (Exception e) {
                     thumbCell.add(new Paragraph("(Vân tay lỗi)").setFontColor(ColorConstants.RED).setTextAlignment(TextAlignment.CENTER));
@@ -772,11 +868,10 @@ public class TestOrderServiceImpl implements TestOrderService {
             }
             thumbTable.addCell(thumbCell);
 
-// Dòng 3: ghi chú
             thumbTable.addCell(new Cell()
                     .add(new Paragraph("Vân tay ngón trỏ phải").setTextAlignment(TextAlignment.CENTER))
                     .setPadding(5)
-                    .setBorder(new SolidBorder(0.5f))); // ✅ Bo viền
+                    .setBorder(new SolidBorder(0.5f)));
 
             mainTable.addCell(new Cell()
                     .add(thumbTable)
@@ -787,59 +882,92 @@ public class TestOrderServiceImpl implements TestOrderService {
             document.add(mainTable);
         }
 
-
-
         document.add(new Paragraph(" "));
 
         Table finalSignTable = new Table(new float[]{3, 3, 3})
                 .setWidth(UnitValue.createPercentValue(100))
                 .setMarginTop(10);
 
-        Cell thuMauCell = new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.CENTER);
-        thuMauCell.add(new Paragraph("NGƯỜI THU MẪU\n(ký, ghi rõ họ tên và lăn tay)").setFontSize(9));
-        String thuMauFingerprintBase64 = order.getRegistrationStaff() != null ? order.getRegistrationStaff().getFingerprint() : null;
-        if (thuMauFingerprintBase64 != null && !thuMauFingerprintBase64.isBlank()) {
+        // Cột NGƯỜI THU MẪU
+        Cell thuMauCellFinal = new Cell()
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setMinHeight(100);
+
+        thuMauCellFinal.add(new Paragraph("NGƯỜI THU MẪU\n(ký, ghi rõ họ tên và lăn tay)")
+                .setFontSize(9)
+                .setMarginBottom(5));
+
+        if (normalStaffFingerprint != null && !normalStaffFingerprint.isBlank()) {
             try {
-                if (thuMauFingerprintBase64.startsWith("data:image")) {
-                    thuMauFingerprintBase64 = thuMauFingerprintBase64.split(",")[1];
+                if (normalStaffFingerprint.startsWith("data:image")) {
+                    normalStaffFingerprint = normalStaffFingerprint.split(",")[1];
                 }
-                byte[] fpBytes = Base64.getDecoder().decode(thuMauFingerprintBase64);
+                byte[] fpBytes = Base64.getDecoder().decode(normalStaffFingerprint);
                 ImageData fpData = ImageDataFactory.create(fpBytes);
-                Image fpImage = new Image(fpData).setAutoScale(true).setMaxHeight(60).setMaxWidth(60);
 
+                Image fpImage = new Image(fpData)
+                        .setWidth(50f)
+                        .setHeight(80f)
+                        .setMarginTop(5);
 
-
-
-                thuMauCell.add(fpImage);
+                thuMauCellFinal.add(fpImage);
             } catch (Exception e) {
-                thuMauCell.add(new Paragraph("(Vân tay lỗi)").setFontColor(ColorConstants.RED));
+                thuMauCellFinal.add(new Paragraph("(Vân tay lỗi)").setFontColor(ColorConstants.RED));
+            }
+        } else {
+            thuMauCellFinal.add(new Paragraph("(Chưa có vân tay)").setFontColor(ColorConstants.GRAY));
+        }
 
-            }
-            } else {
-                thuMauCell.add(new Paragraph("(Chưa có vân tay)").setFontColor(ColorConstants.GRAY));
-            }
-        finalSignTable.addCell(thuMauCell);
+        thuMauCellFinal.add(new Paragraph(normalStaffName)
+                .setFontSize(12)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setMarginTop(5)); // Thêm tên NORMAL_STAFF dưới ảnh vân tay
+
+        finalSignTable.addCell(thuMauCellFinal);
 
         Cell duocLayMauCell = new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.CENTER);
         duocLayMauCell.add(new Paragraph("NGƯỜI ĐƯỢC LẤY MẪU\n(ký và ghi rõ họ tên)").setFontSize(9));
         finalSignTable.addCell(duocLayMauCell);
 
-        Cell yeuCauCell = new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.CENTER);
-        yeuCauCell.add(new Paragraph("NGƯỜI YÊU CẦU XÉT NGHIỆM\n(ký và ghi rõ họ tên)").setFontSize(9));
+// Cột NGƯỜI YÊU CẦU XÉT NGHIỆM
+        Cell yeuCauCell = new Cell()
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setMinHeight(100);
+
+        yeuCauCell.add(new Paragraph("NGƯỜI YÊU CẦU XÉT NGHIỆM\n(ký và ghi rõ họ tên)")
+                .setFontSize(9)
+                .setMarginBottom(5));
+
+        yeuCauCell.add(new Paragraph(requesterName) // Lấy tên từ account.fullName
+                .setFontSize(12)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setMarginTop(70.25f)); // Margin top 70.25f
+
         finalSignTable.addCell(yeuCauCell);
 
         document.add(finalSignTable);
 
-        document.add(new Paragraph("\n\n\n\n"));
         document.add(new Paragraph("Nhân viên thu mẫu cam kết: Tôi xác nhận việc tư vấn, thu mẫu\nvà thông tin, chỉ lấy của người thân gia xét nghiệm là chính xác.\nTôi cam đoan không có sự gian lận nào đối với mẫu xét nghiệm.")
                 .setFontSize(9).setItalic());
-
-        document.add(new Paragraph("Trang 03/03")
-                .setTextAlignment(TextAlignment.RIGHT)
-                .setFontSize(8));
     }
 
-    // Có thể tách nội dung điều khoản ra để dễ đọc:
+    private String getNormalStaffFingerprint(TestOrder order) {
+        Staff staff = order.getRegistrationStaff();
+        if (staff != null && staff.getRole() == StaffType.NORMAL_STAFF && staff.getFingerprint() != null && !staff.getFingerprint().isBlank()) {
+            return staff.getFingerprint();
+        }
+        // Fallback: Find any NORMAL_STAFF with a valid fingerprint
+        List<Staff> normalStaffList = staffRepository.findAll().stream()
+                .filter(s -> s.getRole() == StaffType.NORMAL_STAFF && s.getFingerprint() != null && !s.getFingerprint().isBlank())
+                .collect(Collectors.toList());
+        if (!normalStaffList.isEmpty()) {
+            return normalStaffList.get(0).getFingerprint();
+        }
+        return null;
+    }
+
     private String getRulesText() {
         return """
             1. Viện Công nghệ ADN và Phân tích Di truyền được Bộ Khoa học và Công nghệ cấp phép chính thức đăng ký hoạt động theo giấy chứng nhận số A-1889.
@@ -869,7 +997,6 @@ public class TestOrderServiceImpl implements TestOrderService {
             TestSample firstSample = samples.get(0);
             String fingerprint = firstSample.getFingerprint();
             if (fingerprint != null && !fingerprint.isBlank()) {
-                // Loại bỏ tiền tố nếu có
                 if (fingerprint.startsWith("data:image")) {
                     fingerprint = fingerprint.split(",")[1];
                 }
@@ -878,5 +1005,4 @@ public class TestOrderServiceImpl implements TestOrderService {
         }
         return null;
     }
-
 }
