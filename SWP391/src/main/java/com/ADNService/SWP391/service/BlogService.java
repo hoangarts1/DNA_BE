@@ -12,6 +12,6 @@ public interface BlogService {
     void delete(Long id);
     BlogDTO getById(Long id);
     List<BlogDTO> getAll();
-    void toggleActive(Long id);
-
+    BlogDTO toggleActive(Long id);
+    List<BlogDTO> getBlogsByType(String type);
 }
