@@ -78,12 +78,23 @@ public class BlogServiceImpl implements BlogService {
     public List<BlogDTO> getAll() {
         return blogRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
+
     @Override
-    public void toggleActive(Long id) {
+    public List<BlogDTO> getBlogsByType(String type) {
+        return blogRepository.findByBlogType(type).stream()
+                .filter(Blog::isActive)
+                .map(this::toDTO) // ✅ dùng toDTO() trong chính class này
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public BlogDTO toggleActive(Long id) {
         Blog blog = blogRepository.findById(id).orElseThrow();
         blog.setActive(!blog.isActive()); // Đảo ngược trạng thái
         blog.setUpdatedAt(LocalDateTime.now());
-        blogRepository.save(blog);
+        blog = blogRepository.save(blog); // lưu và gán lại
+        return toDTO(blog); // ✅ TRẢ VỀ BlogDTO mới nhất
     }
+
 
 }
