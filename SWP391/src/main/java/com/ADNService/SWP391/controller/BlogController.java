@@ -17,7 +17,8 @@ import java.util.List;
 @CrossOrigin(origins = "*") // Để React gọi API
 public class BlogController {
 
-    private final BlogService blogService;
+    @Autowired
+    private BlogService blogService;
 
     @PutMapping("/{id}/toggle-active")
     public BlogDTO toggleActive(@PathVariable Long id) {
