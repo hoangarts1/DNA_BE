@@ -15,8 +15,6 @@ import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.Period;
@@ -114,39 +112,47 @@ public class TestResultPDFServiceImpl implements TestResultPDFService {
         String fullName = order.getAccount().getFullName(); // Lấy từ Account
         String address = order.getCustomer().getAddress();  // Lấy từ Customer
 
-        document.add(new Paragraph("Căn cứ vào giấy đề nghị phân tích ADN số: HID" + order.getOrderId()));
-        document.add(new Paragraph("Của Ông/Bà: " + fullName));
-        document.add(new Paragraph("Địa chỉ: " + address));
+        document.add(new Paragraph("Căn cứ vào giấy đề nghị phân tích ADN số: HID" + order.getOrderId()).setBold());
+        document.add(new Paragraph("Của Ông/Bà: " + fullName).setBold());
+        document.add(new Paragraph("Địa chỉ: " + address).setBold());
 
 
         // === THÔNG TIN MẪU ===
-        document.add(new Paragraph("\nCông ty MEDLAB tiến hành phân tích các mẫu ADN sau:"));
+        document.add(new Paragraph("\nCông ty MEDLAB tiến hành phân tích các mẫu ADN sau:").setBold());
 
-        float[] infoWidths = {30F, 150F, 50F, 100F, 80F};
+// Đặt tỷ lệ cột, sau đó căn giữa bảng bằng setWidth + setHorizontalAlignment
+        float[] infoWidths = {1.5F, 5F, 3F, 3F, 1.5F}; // Tỷ lệ tương đối giữa các cột
         Table infoTable = new Table(infoWidths);
-        infoTable.addHeaderCell("TT");
-        infoTable.addHeaderCell("Tên mẫu");
-        infoTable.addHeaderCell("Ngày Sinh");
-        infoTable.addHeaderCell("Quan hệ");
-        infoTable.addHeaderCell("Ký hiệu mẫu");
+        infoTable.setWidth(UnitValue.createPercentValue(100)); // Chiếm 100% chiều ngang
+        infoTable.setTextAlignment(TextAlignment.CENTER);
+        infoTable.setHorizontalAlignment(com.itextpdf.layout.properties.HorizontalAlignment.CENTER);
 
+// Header
+        infoTable.addHeaderCell(new Cell().add(new Paragraph("TT")).setTextAlignment(TextAlignment.CENTER));
+        infoTable.addHeaderCell(new Cell().add(new Paragraph("Tên mẫu")).setTextAlignment(TextAlignment.CENTER));
+        infoTable.addHeaderCell(new Cell().add(new Paragraph("Ngày Sinh")).setTextAlignment(TextAlignment.CENTER));
+        infoTable.addHeaderCell(new Cell().add(new Paragraph("Quan hệ")).setTextAlignment(TextAlignment.CENTER));
+        infoTable.addHeaderCell(new Cell().add(new Paragraph("Ký hiệu mẫu")).setTextAlignment(TextAlignment.CENTER));
+
+// Dữ liệu
         int stt = 1;
         for (TestSampleDTO sample : report.getTestSamples()) {
-            infoTable.addCell(String.valueOf(stt++));
-            infoTable.addCell(sample.getName());
-            infoTable.addCell(sample.getDateOfBirth() != null ?
-                    sample.getDateOfBirth().toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate()
-                            .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                    : ""
-            );
-            infoTable.addCell(sample.getRelationship());
-            infoTable.addCell(String.valueOf(sample.getId()));
+            infoTable.addCell(new Cell().add(new Paragraph(String.valueOf(stt++))).setTextAlignment(TextAlignment.CENTER));
+            infoTable.addCell(new Cell().add(new Paragraph(sample.getName())).setTextAlignment(TextAlignment.CENTER));
+            infoTable.addCell(new Cell().add(new Paragraph(
+                    sample.getDateOfBirth() != null ?
+                            sample.getDateOfBirth().toInstant()
+                                    .atZone(ZoneId.systemDefault())
+                                    .toLocalDate()
+                                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : ""
+            )).setTextAlignment(TextAlignment.CENTER));
+            infoTable.addCell(new Cell().add(new Paragraph(sample.getRelationship())).setTextAlignment(TextAlignment.CENTER));
+            infoTable.addCell(new Cell().add(new Paragraph(String.valueOf(sample.getId()))).setTextAlignment(TextAlignment.CENTER));
         }
+
         document.add(infoTable);
 
-        document.add(new Paragraph("\nSau khi phân tích các mẫu ADN chúng tôi có kết quả sau:"));
+        document.add(new Paragraph("\nSau khi phân tích các mẫu ADN chúng tôi có kết quả sau:").setBold());
 
         // === BẢNG LOCUS ===
         List<Long> sampleIds = report.getTestSamples().stream()
@@ -155,19 +161,44 @@ public class TestResultPDFServiceImpl implements TestResultPDFService {
         Map<Long, String> sampleIdToName = report.getTestSamples().stream()
                 .collect(Collectors.toMap(TestSampleDTO::getId, TestSampleDTO::getName));
 
+// Chiều rộng bảng theo tỷ lệ
         float[] columnWidths = new float[1 + 2 * sampleIds.size()];
-        columnWidths[0] = 100F;
-        for (int i = 1; i < columnWidths.length; i++) columnWidths[i] = 70F;
-
-        Table locusTable = new Table(columnWidths).setFontSize(9);
-        locusTable.addHeaderCell("Locus");
-
-        for (Long id : sampleIds) {
-            String name = sampleIdToName.getOrDefault(id, "Unknown");
-            locusTable.addHeaderCell("Allele 1 (" + name + ")");
-            locusTable.addHeaderCell("Allele 2 (" + name + ")");
+        columnWidths[0] = 2F; // Locus
+        for (int i = 1; i < columnWidths.length; i++) {
+            columnWidths[i] = 1.5F;
         }
 
+        Table locusTable = new Table(columnWidths)
+                .setFontSize(9)
+                .setWidth(UnitValue.createPercentValue(100))
+                .setHorizontalAlignment(com.itextpdf.layout.properties.HorizontalAlignment.CENTER)
+                .setTextAlignment(TextAlignment.CENTER);
+
+// === Header dòng 1 ===
+        locusTable.addHeaderCell(
+                new Cell(2, 1) // rowspan=2, colspan=1
+                        .add(new Paragraph("Locus"))
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE)
+                        .setBold()
+        );
+
+        for (Long id : sampleIds) {
+            locusTable.addHeaderCell(
+                    new Cell(1, 2) // colspan = 2 (cho Allele 1 và 2)
+                            .add(new Paragraph("Mẫu: " + sampleIdToName.get(id)))
+                            .setTextAlignment(TextAlignment.CENTER)
+                            .setBold()
+            );
+        }
+
+// === Header dòng 2 ===
+        for (int i = 0; i < sampleIds.size(); i++) {
+            locusTable.addHeaderCell(new Cell().add(new Paragraph("Allele 1")).setTextAlignment(TextAlignment.CENTER));
+            locusTable.addHeaderCell(new Cell().add(new Paragraph("Allele 2")).setTextAlignment(TextAlignment.CENTER));
+        }
+
+// === Dữ liệu ===
         Map<String, List<TestResultSampleDTO>> grouped = report.getTestResultSamples().stream()
                 .collect(Collectors.groupingBy(TestResultSampleDTO::getLocusName));
 
@@ -175,23 +206,24 @@ public class TestResultPDFServiceImpl implements TestResultPDFService {
             String locus = entry.getKey();
             List<TestResultSampleDTO> results = entry.getValue();
 
-            locusTable.addCell(locus);
-            //----------------------------------
+            locusTable.addCell(new Cell().add(new Paragraph(locus)).setTextAlignment(TextAlignment.CENTER));
+
             Map<Long, TestResultSampleDTO> alleleMap = results.stream()
                     .collect(Collectors.toMap(
                             TestResultSampleDTO::getTestSampleId,
                             r -> r,
-                            (r1, r2) -> r1 // hoặc r2 nếu muốn lấy record mới
-                    ));//-------------------------------
+                            (r1, r2) -> r1
+                    ));
 
             for (Long id : sampleIds) {
                 TestResultSampleDTO r = alleleMap.get(id);
-                locusTable.addCell(r != null ? r.getAllele1() : "");
-                locusTable.addCell(r != null ? r.getAllele2() : "");
+                locusTable.addCell(new Cell().add(new Paragraph(r != null ? r.getAllele1() : "")).setTextAlignment(TextAlignment.CENTER));
+                locusTable.addCell(new Cell().add(new Paragraph(r != null ? r.getAllele2() : "")).setTextAlignment(TextAlignment.CENTER));
             }
         }
 
         document.add(locusTable);
+
 
         // === KẾT LUẬN ===
         document.add(new Paragraph("\nHội đồng khoa học công ty MEDLAB kết luận:").setBold());
