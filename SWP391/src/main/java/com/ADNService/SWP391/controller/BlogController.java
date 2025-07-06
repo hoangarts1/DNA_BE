@@ -3,6 +3,7 @@ package com.ADNService.SWP391.controller;
 import com.ADNService.SWP391.dto.BlogDTO;
 import com.ADNService.SWP391.service.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
@@ -20,13 +21,15 @@ public class BlogController {
 
     @PutMapping("/{id}/toggle-active")
     public BlogDTO toggleActive(@PathVariable Long id) {
-        blogService.toggleActive(id);
-        return blogService.getById(id);
+        return blogService.toggleActive(id); // Sử dụng giá trị trả về trực tiếp
     }
 
     @GetMapping
-    public List<BlogDTO> getAll() {
-        return blogService.getAll();
+    public ResponseEntity<List<BlogDTO>> getBlogs(@RequestParam(required = false) String type) {
+        List<BlogDTO> blogs = (type != null)
+                ? blogService.getBlogsByType(type)
+                : blogService.getAll();
+        return ResponseEntity.ok(blogs);
     }
 
     @GetMapping("/{id}")
