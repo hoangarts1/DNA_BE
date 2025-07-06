@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/account/**").permitAll()
                         .requestMatchers("/api/rating-feedbacks/**").permitAll()
                         .requestMatchers("/api/sample-types/**").permitAll()
+                        .requestMatchers("/api/gemini/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore((request, response, chain) -> {
