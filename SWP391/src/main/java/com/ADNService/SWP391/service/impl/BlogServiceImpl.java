@@ -22,7 +22,8 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class BlogServiceImpl implements BlogService {
 
-    private final BlogRepository blogRepository;
+    @Autowired
+    private BlogRepository blogRepository;
 
     private BlogDTO toDTO(Blog blog) {
         return BlogDTO.builder()
